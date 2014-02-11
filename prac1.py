@@ -74,7 +74,7 @@ def maxDif2(numPoints, toPlot=False):
 
 #CONFIG
 baseLog = 10
-derivFunc = maxDif
+derivFunc = maxDif2
 #ENDCONFIG
 
 
@@ -82,10 +82,11 @@ ax1 = plt.subplot(221)
 ax2 = plt.subplot(223)
 ax3 = plt.subplot(122)
 ax1.set_xlabel("x")
+ax2.set_xlabel("x")
 ax1.set_ylabel("y(numeric)")
 ax2.set_ylabel("y(analitic)")
 ax3.set_xlabel("numPoints(log base %d)" % baseLog)
-ax3.set_xlabel("absMaxErr(log base %d)" % baseLog)
+ax3.set_ylabel("absMaxErr(log base %d)" % baseLog)
 
 ax1.grid(True)
 ax2.grid(True)
