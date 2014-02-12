@@ -73,7 +73,7 @@ def maxDif2(numPoints, toPlot=False):
 		return maxErr
 
 #CONFIG
-baseLog = 2
+baseLog = 10
 derivFunc = maxDif
 #ENDCONFIG
 
@@ -105,10 +105,11 @@ for numPoints in [16,32,64,128,256,512,1028]:
 		#print(res[0])
 		ax1.plot(res[0], res[1],  marker='o', linestyle='-', color="r")
 		ax2.plot(res[0], res[2],  marker='o', linestyle='-', color="r")
-		yerror.append(res[3])
+		yval = res[3]
 	else:
 		res = derivFunc(numPoints)
-		yerror.append(res)
+		yval = res
+	yerror.append(math.log(yval, baseLog))
 print("polyfit coef a(n), a(n-1), ..a(0) in polynom a(n) * x**n + .. a(1)x + a(0)")
 print("degree 1")
 print(np.polyfit(xerror,yerror,1))
