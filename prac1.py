@@ -1,4 +1,4 @@
-import os, math
+import os, math, sys
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.misc 
@@ -106,6 +106,14 @@ def maxDif2(numPoints, toPlot=False):
 #CONFIG
 baseLog = 10
 derivFunc = maxDif
+if(len(sys.argv)>1):
+	if(sys.argv[1] == "2"):
+		derivFunc = maxDif2
+	if(len(sys.argv)>2):
+		try:
+			baseLog = int(sys.argv[2])
+		except ValueError:
+			print "second argument for baseLog is not number: %s using default 10" % sys.argv[2]
 #ENDCONFIG
 
 
@@ -124,6 +132,7 @@ ax3.set_xlabel("numPoints(log base %d)" % baseLog)
 ax3.set_ylabel("absMaxErr(log base %d)" % baseLog)
 ax4.set_xlabel("dx")
 ax4.set_ylabel("absMaxErr")
+ax1.set_title(derivFunc.func_name)
 
 ax1.grid(True)
 ax2.grid(True)

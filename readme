@@ -1,1 +1,12 @@
 practicas simulacion numerica
+program arguments
+by default function used is maxDif
+  python prac1.py 
+if first program argument exists and it's 2 function used is maxDif2, this can be everything else in order to use the default maxDif (when I have to specify it because I want to specify baseLog)
+  python prac1.py 2
+by default baseLog for the third plot is 10
+if second program argument exists and it's a number baseLog will be set to this value
+  python prac1.py 2 2
+
+
+ 
