@@ -113,7 +113,7 @@ if(len(sys.argv)>1):
 		try:
 			baseLog = int(sys.argv[2])
 		except ValueError:
-			print "second argument for baseLog is not number: %s using default 10" % sys.argv[2]
+			print("second argument for baseLog is not number: %s using default 10" % sys.argv[2])
 #ENDCONFIG
 
 
@@ -132,8 +132,15 @@ ax3.set_xlabel("numPoints(log base %d)" % baseLog)
 ax3.set_ylabel("absMaxErr(log base %d)" % baseLog)
 ax4.set_xlabel("dx")
 ax4.set_ylabel("absMaxErr")
-ax1.set_title(derivFunc.func_name)
 
+#http://www.diveinto.org/python3/porting-code-to-python-3-with-2to3.html
+title = None
+if (sys.version_info[0]==2):
+	title = derivFunc.func_name
+else:
+	title = derivFunc.__name__
+
+ax1.set_title(title)
 ax1.grid(True)
 ax2.grid(True)
 ax3.grid(True)
