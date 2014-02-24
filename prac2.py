@@ -277,9 +277,9 @@ def showApproxOrder(event):
 	baseLog = 10
 	xe = []
 	ye = []
-	#for ni in [16, 32, 128,256,512,1024]:
-	#for ni in [128,256,512,1024]:
-	for ni in [256,512,1028,512,1024,2048,4096]:
+	#for ni in [16, 32, 64, 128,256,512,1024]:
+	for ni in [64,128,256,512,1024]:
+	#for ni in [256,512,1024,2048,4096]:
 		print("Calculate approx order for ni=%d" % ni)
 		xe.append(math.log(ni, baseLog))
 		y1 = calcFunc_t(n, ni)
