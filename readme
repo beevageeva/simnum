@@ -1,4 +1,7 @@
 practicas simulacion numerica
+
+EX1:
+prac1.py
 program arguments
 by default function used is maxDif
   python prac1.py 
@@ -7,6 +10,13 @@ if first program argument exists and it's 2 function used is maxDif2, this can b
 by default baseLog for the third plot is 10
 if second program argument exists and it's a number baseLog will be set to this value
   python prac1.py 2 2
+
+prac1slider.py
+ slider for matching error(no log)
+
+EX2: no hay argumentos hay que modificar en los scripts python
+ prac2.py    a constante  methods: backward, forward, centered -- definidas en el script
+ prac2c.py  con a(x) la funcion no constante 
 
 
  
