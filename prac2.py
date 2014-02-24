@@ -5,6 +5,25 @@ import scipy.misc
 from matplotlib.widgets import Slider, Button
 
 
+#nslider = True
+nslider = False
+
+method = "forward"
+#method = "centered"
+#method="backward"  
+
+
+xL=1.2
+#ex 2.a
+a = -1
+#nint = 512
+#ex 2.b
+#a = 1
+nint=64
+#nint=1024    
+#nint=64 and method=centered is not working see Courant-Friedrichs-Lewy (CFL) condition dt <= dx / a 
+#http://www.physics.udel.edu/~jim/PHYS460_660_13S/Advection/advection.htm
+
 class DiscreteSlider(Slider):
     """A matplotlib slider widget with discrete steps."""
 
@@ -27,13 +46,6 @@ class DiscreteSlider(Slider):
             return
         for cid, func in self.observers.items():
             func(discrete_val)
-
-
-
-xL=1.2
-a = -1
-nint = 64
-
 
 def getDx(numInt):
 	return float(2.0 * xL) / numInt
@@ -63,24 +75,116 @@ def getPeriodicX(xval, a):
 		xval-=2*a
 	return xval
 
+def getPeriodicXInt(xval, a, b):
+	p = b - a
+	while (xval < a):
+		xval+=p
+	while (xval > b):
+		xval-=p
+	return xval
 
-
-#t_0=0
-#t = n * dt 
-def calcFunc_t(n, nint):
-	#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
-	x = np.linspace(-xL, xL , nint + 1)
-	if(n==0):
-		return func_t0(x)
-	dx = getDx(nint)
-	dt = getDt(nint)
-	uAnt = calcFunc_t(n-1, nint)
-	res = []
-	for i in range(0, nint):
-		val = uAnt[i] - a * (uAnt[i+1] - uAnt[i] ) * dt / dx
-		res.append(val)
-	res.append(res[0])
+def getPeriodicX2(xval, a):
+	k = int(xval / (2 * a))
+	res =  xval - 2 * a * k
+	if(res>a):
+		res -= 2*a
+	if(res<-a):
+		res += 2*a
 	return res
+
+
+def getPeriodicX2Int(xval, a, b):
+	p = b - a
+	k = int((xval-a)/p)
+	res = xval - k * p
+	if(res < a):
+		res+=p
+	if(res > a):
+		res-=p
+	return res
+
+
+##t_0=0
+##t = n * dt 
+#def calcFunc_tRecursive(n, nint):
+#	#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+#	x = np.linspace(-xL, xL , nint + 1)
+#	if(n==0):
+#		return func_t0(x)
+#	dx = getDx(nint)
+#	dt = getDt(nint)
+#	uAnt = calcFunc_t(n-1, nint)
+#	res = []
+#	for i in range(0, nint):
+#		val = uAnt[i] - a * (uAnt[i+1] - uAnt[i] ) * dt / dx
+#		res.append(val)
+#	res.append(res[0])
+#	return res
+
+
+
+if method == "forward":
+	#t_0=0
+	#t = n * dt 
+	def calcFunc_t(n, nint):
+		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		x = np.linspace(-xL, xL , nint + 1)
+		uAnt = func_t0(x)
+		dx = getDx(nint)
+		dt = getDt(nint)
+		res = uAnt
+		for i in range(0, n):
+			res = []
+			for i in range(0, nint):
+				val = uAnt[i] - a * (uAnt[i+1] - uAnt[i] ) * dt / dx
+				res.append(val)
+			res.append(res[0])
+			uAnt = res
+		return res
+
+elif method == "backward":
+	#t_0=0
+	#t = n * dt 
+	def calcFunc_t(n, nint):
+		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		x = np.linspace(-xL, xL , nint + 1)
+		uAnt = func_t0(x)
+		dx = getDx(nint)
+		dt = getDt(nint)
+		res = uAnt
+		for i in range(0, n):
+			res = []
+			for i in range(1, nint + 1):
+				val = uAnt[i] - a * (uAnt[i] - uAnt[i - 1] ) * dt / dx
+				res.append(val)
+			res.insert(0, res[nint-1])
+			uAnt = res
+		return res
+
+elif method == "centered":
+	#t_0=0
+	#t = n * dt 
+	def calcFunc_t(n, nint):
+		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		x = np.linspace(-xL, xL , nint + 1)
+		uAnt = func_t0(x)
+		dx = getDx(nint)
+		dt = getDt(nint)
+		res = uAnt
+		for i in range(0, n):
+			res = []
+			for i in range(1, nint):
+				val = uAnt[i] - 0.5 * a * (uAnt[i + 1] - uAnt[i - 1] ) * dt / dx
+				res.append(val)
+			res.insert(0, res[nint-2])
+			res.append(res[1])
+			uAnt = res
+		return res
+
+else:
+	print("method unknown: %s" % method)
+
+
 
 def anFunc_t(n, nint):
 	#print("anFunc_t: n= %d, nint=%d" % (n, nint))
@@ -95,7 +199,10 @@ def anFunc_t(n, nint):
 	#ft0xarg = x - a * n * dt
 	ft0xarg = []
 	for xval in  x - a * n * dt:
-		ft0xarg.append(getPeriodicX(xval, xL))
+		#TODO getPeriodicX	
+		#ft0xarg.append(getPeriodicX(xval, xL))
+		ft0xarg.append(getPeriodicX2(xval, xL))
+		
 	ft0xarg = np.array(ft0xarg)
 	res = func_t0(ft0xarg)
 	#print("newxarg")
@@ -119,6 +226,7 @@ ax = plt.subplot(111)
 ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_title("numInt=%d"%nint)
+ax.grid(True)
 
 x = np.linspace(-xL, xL , nint + 1)
 lnf, = ax.plot(x, func_t0(x),  marker='o', linestyle='-', color="r")
@@ -128,24 +236,35 @@ varHash = {'n':0} # I have to keep track of the current slider value in order no
 	#I have to use the hash because m is changed in the listener function and m variable would be local to this function
 	#I don't use a global variable m. In python 3 there is the nonlocal statement which causes the listed identifiers to refer to previously bound variables in the nearest enclosing scope.
 axSlider = plt.axes([0.25, 0.01, 0.65, 0.03], axisbg='white')
-	#mSlider =  Slider(axSlider, 'Degree', 1, 23, valinit=1, valfmt='%d')#max degree 23
-	#the difference in using Slider or DiscreteSlider is only in the visual update of the slider bar
-	#if discrete it will update only with portions corresponding to 1, I still have to keep track of the value
-	#because the actual value of slider.val will always be the float
-mSlider =  DiscreteSlider(axSlider, 'n', 0, 500, valinit=0, valfmt='%d')#max degree 23
+print("dt=%4.10f" % getDt(nint))
 
-def sliderChanged(val):
-		print("SLIDER CHANGED EVENT " + str(val))
-		intVal = int(val)
+def sliderChangedIntVal(intVal):
 		#I don't want an update if values are equal (as integers)
 		if(intVal!=varHash["n"]):
 			print("Integer Value of slider CHANGED set slider to %d" % intVal)
 			varHash["n"] = intVal
-			plotFunc_t(intVal, 64)
+			plotFunc_t(intVal, nint)
 		else:
 			print("BUT integer VALUE did NOT change")
 
-mSlider.on_changed(sliderChanged) 	
+
+def sliderChangedTime(val):
+		print("SLIDER TIME CHANGED EVENT " + str(val))
+		intVal = int(val / getDt(nint))
+		sliderChangedIntVal(intVal)
+
+def sliderChangedN(val):
+		print("SLIDER N CHANGED EVENT " + str(val))
+		intVal = int(val)
+		sliderChangedIntVal(intVal)
+
+
+if(nslider):
+	mSlider =  DiscreteSlider(axSlider, 'N', 0, 100, valinit=0, valfmt='%d')
+	mSlider.on_changed(sliderChangedN) 	
+else:	
+	mSlider =  Slider(axSlider, 'Time', 0, 100, valinit=0, valfmt='%4.3f' )#max degree 23
+	mSlider.on_changed(sliderChangedTime) 	
 
 axObutt = plt.axes([0.93, 0.05, 0.05, 0.05])
 obutt = Button(axObutt, 'AO')
@@ -158,7 +277,10 @@ def showApproxOrder(event):
 	baseLog = 10
 	xe = []
 	ye = []
-	for ni in [16, 32, 128,256,512,1028,512,1024]:
+	#for ni in [16, 32, 128,256,512,1024]:
+	#for ni in [128,256,512,1024]:
+	for ni in [256,512,1028,512,1024,2048,4096]:
+		print("Calculate approx order for ni=%d" % ni)
 		xe.append(math.log(ni, baseLog))
 		y1 = calcFunc_t(n, ni)
 		y2 = anFunc_t(n, ni)
