@@ -1,5 +1,7 @@
 import os, math, sys
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import scipy.misc 
 from matplotlib.widgets import Slider, Button
@@ -315,6 +317,7 @@ def showApproxOrder(event):
 		#end plot function
 	#replot for display nint
 	if plot_ao:
+		n = varHash["n"]
 		x = np.linspace(-xL, xL , nint + 1)
 		lnf.set_xdata(x)
 		laf.set_xdata(x)
