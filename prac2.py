@@ -5,6 +5,9 @@ import scipy.misc
 from matplotlib.widgets import Slider, Button
 
 
+plot_ao = True
+#plot_ao = False
+
 #nslider = True
 nslider = False
 
@@ -19,7 +22,7 @@ a = -1
 #nint = 512
 #ex 2.b
 #a = 1
-nint=64
+nint=256
 #nint=1024    
 #nint=64 and method=centered is not working see Courant-Friedrichs-Lewy (CFL) condition dt <= dx / a 
 #http://www.physics.udel.edu/~jim/PHYS460_660_13S/Advection/advection.htm
@@ -133,7 +136,7 @@ if method == "forward":
 		dx = getDx(nint)
 		dt = getDt(nint)
 		res = uAnt
-		for i in range(0, n):
+		for j in range(0, n):
 			res = []
 			for i in range(0, nint):
 				val = uAnt[i] - a * (uAnt[i+1] - uAnt[i] ) * dt / dx
@@ -152,7 +155,7 @@ elif method == "backward":
 		dx = getDx(nint)
 		dt = getDt(nint)
 		res = uAnt
-		for i in range(0, n):
+		for j in range(0, n):
 			res = []
 			for i in range(1, nint + 1):
 				val = uAnt[i] - a * (uAnt[i] - uAnt[i - 1] ) * dt / dx
@@ -171,7 +174,7 @@ elif method == "centered":
 		dx = getDx(nint)
 		dt = getDt(nint)
 		res = uAnt
-		for i in range(0, n):
+		for j in range(0, n):
 			res = []
 			for i in range(1, nint):
 				val = uAnt[i] - 0.5 * a * (uAnt[i + 1] - uAnt[i - 1] ) * dt / dx
@@ -222,10 +225,11 @@ def plotFunc_t(n, nint):
 	plt.show()	
 
 
+print("display nint = %d" % nint)
 ax = plt.subplot(111)
 ax.set_xlabel("x")
 ax.set_ylabel("y")
-ax.set_title("numInt=%d"%nint)
+ax.set_title("numInt=%d"%nint) 
 ax.grid(True)
 
 x = np.linspace(-xL, xL , nint + 1)
@@ -280,12 +284,47 @@ def showApproxOrder(event):
 	#for ni in [16, 32, 64, 128,256,512,1024]:
 	for ni in [64,128,256,512,1024]:
 	#for ni in [256,512,1024,2048,4096]:
-		print("Calculate approx order for ni=%d" % ni)
+		print("Calculate approx order for n = %d,  ni=%d" % (n, ni))
 		xe.append(math.log(ni, baseLog))
 		y1 = calcFunc_t(n, ni)
 		y2 = anFunc_t(n, ni)
 		err = np.max(np.absolute(np.subtract(y1, y2)))	
 		ye.append(math.log(err, baseLog))
+		#plot function
+		if plot_ao:
+			ax.set_title("numInt=%d"%ni) 
+			x = np.linspace(-xL, xL , ni + 1)
+			lnf.set_xdata(x) 
+			laf.set_xdata(x) 
+			lnf.set_ydata(y1) 
+			laf.set_ydata(y2) 
+			ax.relim() 
+			ax.autoscale_view(True,True,True) 
+			plt.draw()  
+			if (sys.version_info[0]==2):
+				c = raw_input("press n to continue: ")
+			else:
+				c = input("press n to continue: ")
+			while(c!="n"):
+				print("You pressed >%s<" % c)
+				if (sys.version_info[0]==2):
+					c = raw_input("press n to continue: ")
+				else:
+					c = input("press n to continue: ")
+		#end plot function
+	#replot for display nint
+	if plot_ao:
+		x = np.linspace(-xL, xL , nint + 1)
+		lnf.set_xdata(x)
+		laf.set_xdata(x)
+		ax.set_title("numInt=%d"%nint)
+		lnf.set_ydata(calcFunc_t(n, nint))
+		laf.set_ydata(anFunc_t(n, nint))
+		ax.relim()
+		ax.autoscale_view(True,True,True)
+	#end replot for display nint
+
+
 	cpf = np.polyfit(xe,ye,1)
 	print("t = dt * n (n = %d), fitting %4.10fx+%4.10f" % (n, cpf[0], cpf[1]))
 	fig = plt.figure()
@@ -295,7 +334,6 @@ def showApproxOrder(event):
 	ax1.set_title("baseLog=%d" % baseLog)
 	ax1.grid(True)
 	ax1.plot(xe, ye, marker='o', linestyle='-', color="r")
-	#ax1.vlines(t, [0], f(t))
 	plt.draw()
 	plt.show()
 
