@@ -130,7 +130,7 @@ if method == "forward":
 	#t_0=0
 	#t = n * dt 
 	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		print("calc num sol(forward) solution for n = %d, nint = %d" % (n , nint))	
 		x = np.linspace(-xL, xL , nint + 1)
 		uAnt = func_t0(x)
 		dx = getDx(nint)
@@ -149,7 +149,7 @@ elif method == "backward":
 	#t_0=0
 	#t = n * dt 
 	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		print("calc num sol(backward) solution for n = %d, nint = %d" % (n , nint))	
 		x = np.linspace(-xL, xL , nint + 1)
 		uAnt = func_t0(x)
 		dx = getDx(nint)
@@ -168,7 +168,7 @@ elif method == "centered":
 	#t_0=0
 	#t = n * dt 
 	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+		print("calc num sol(centered) solution for n = %d, nint = %d" % (n , nint))	
 		x = np.linspace(-xL, xL , nint + 1)
 		uAnt = func_t0(x)
 		dx = getDx(nint)
@@ -193,7 +193,7 @@ def anFunc_t(n, nint):
 	#print("anFunc_t: n= %d, nint=%d" % (n, nint))
 	#t = n * dt
 	#u(x,t) = u_0(x - a*t)
-	
+	print("calc an solution for n = %d, nint = %d" % (n , nint))	
 	dt = getDt(nint)
 	x = np.linspace(-xL, xL , nint + 1)
 	#periodic boundary condition:
@@ -274,16 +274,17 @@ axObutt = plt.axes([0.93, 0.05, 0.05, 0.05])
 obutt = Button(axObutt, 'AO')
 
 def showApproxOrder(event):
-	n = varHash["n"]
-	if(n==0):
+	if(varHash["n"]==0):
 		print("fot t = 0 functions should be identical")
 		return
 	baseLog = 10
 	xe = []
 	ye = []
 	#for ni in [16, 32, 64, 128,256,512,1024]:
-	for ni in [64,128,256,512,1024]:
 	#for ni in [256,512,1024,2048,4096]:
+	for ni in [64,128,256,512,1024]:
+		#step size is DEPENDENT of nint!!!!
+		n = int(float(varHash["n"] * ni) / nint)
 		print("Calculate approx order for n = %d,  ni=%d" % (n, ni))
 		xe.append(math.log(ni, baseLog))
 		y1 = calcFunc_t(n, ni)
