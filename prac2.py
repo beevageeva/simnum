@@ -207,7 +207,6 @@ def anFunc_t(n, nint):
 		#TODO getPeriodicX	
 		#ft0xarg.append(getPeriodicX(xval, xL))
 		ft0xarg.append(getPeriodicX2(xval, xL))
-		
 	ft0xarg = np.array(ft0xarg)
 	res = func_t0(ft0xarg)
 	#print("newxarg")

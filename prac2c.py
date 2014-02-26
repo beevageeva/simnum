@@ -10,6 +10,8 @@ from matplotlib.widgets import Slider, Button
 NMAX=300
 TIMEMAX=20
 
+plot_ao = True
+
 #nslider = True
 nslider = False
 
@@ -57,6 +59,8 @@ def a(x):
 	a0 = 0.2
 	b0 = 6
 	return a0 * (1 + b0 * np.power(np.cos((4 * math.pi * x)/(9 * xL )),2))
+
+
 
 def getDx(numInt):
 	return float(2.0 * xL) / numInt
@@ -203,6 +207,32 @@ else:
 	print("method unknown: %s" % method)
 
 
+def anFunc_t(n, nint):
+	#print("anFunc_t: n= %d, nint=%d" % (n, nint))
+	#t = n * dt
+	#u(x,t) = u_0(x - a*t)
+	print("calc an solution for n = %d, nint = %d" % (n , nint))	
+	dt = getDt(nint)
+	x = np.linspace(-xL, xL , nint + 1)
+	#periodic boundary condition:
+	#u(xL, t) = u(0, t) for all t EQUIV u(n*xL + x, t) = u(x,t)
+	#we must haxe all x in [-xL , xL] when calculating func
+	#ft0xarg = x - a * n * dt
+	ft0xarg = []
+	#z = x - a * n * dt when a is constant
+	z = 0.6114 * np.arctan(2.64575 * np.tan(0.61566 * (1.62426 * np.arctan(0.377964 * np.tan(1.6355 * x)) - n * dt)))	
+	for xval in  z:
+		#TODO getPeriodicX	
+		#ft0xarg.append(getPeriodicX(xval, xL))
+		ft0xarg.append(getPeriodicX2(xval, xL))
+		
+	ft0xarg = np.array(ft0xarg)
+	res = func_t0(ft0xarg)
+	#print("newxarg")
+	#print(ft0xarg)
+	#print("funct0")
+	#print(res)
+	return res
 	
 
 
@@ -217,6 +247,7 @@ x = np.linspace(-xL, xL , nint + 1)
 
 def main():
 	lnf, = ax.plot(x, func_t0(x),  marker='o', linestyle='-', color="r")
+	laf, = ax.plot(x, func_t0(x),  marker='o', linestyle='--', color="g")
 	varHash = {'n':0} # I have to keep track of the current slider value in order not to update if value is not changing
 		#I want a discrete slider so several values of the slider will be converted to the same integer value
 		#I have to use the hash because m is changed in the listener function and m variable would be local to this function
@@ -226,6 +257,7 @@ def main():
 	
 	def plotFunc_t(n, nint):
 		lnf.set_ydata(calcFunc_t(n, nint))
+		laf.set_ydata(anFunc_t(n, nint))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 		plt.draw()	
@@ -259,11 +291,82 @@ def main():
 		mSlider =  Slider(axSlider, 'Time', 0, TIMEMAX, valinit=0, valfmt='%4.3f' )#max degree 23
 		mSlider.on_changed(sliderChangedTime) 	
 	
+	axObutt = plt.axes([0.93, 0.05, 0.05, 0.05])
+	obutt = Button(axObutt, 'AO')
+	
+	def showApproxOrder(event):
+		if(varHash["n"]==0):
+			print("fot t = 0 functions should be identical")
+			return
+		baseLog = 10
+		xe = []
+		ye = []
+		#for ni in [16, 32, 64, 128,256,512,1024]:
+		#for ni in [256,512,1024,2048,4096]:
+		for ni in [64,128,256,512,1024]:
+			#step size is DEPENDENT of nint!!!!
+			n = int(float(varHash["n"] * ni) / nint)
+			print("Calculate approx order for n = %d,  ni=%d" % (n, ni))
+			xe.append(math.log(ni, baseLog))
+			y1 = calcFunc_t(n, ni)
+			y2 = anFunc_t(n, ni)
+			err = np.max(np.absolute(np.subtract(y1, y2)))	
+			ye.append(math.log(err, baseLog))
+			#plot function
+			if plot_ao:
+				ax.set_title("numInt=%d"%ni) 
+				x = np.linspace(-xL, xL , ni + 1)
+				lnf.set_xdata(x) 
+				laf.set_xdata(x) 
+				lnf.set_ydata(y1) 
+				laf.set_ydata(y2) 
+				ax.relim() 
+				ax.autoscale_view(True,True,True) 
+				plt.draw()  
+				if (sys.version_info[0]==2):
+					c = raw_input("press n to continue: ")
+				else:
+					c = input("press n to continue: ")
+				while(c!="n"):
+					print("You pressed >%s<" % c)
+					if (sys.version_info[0]==2):
+						c = raw_input("press n to continue: ")
+					else:
+						c = input("press n to continue: ")
+			#end plot function
+		#replot for display nint
+		if plot_ao:
+			n = varHash["n"]
+			x = np.linspace(-xL, xL , nint + 1)
+			lnf.set_xdata(x)
+			laf.set_xdata(x)
+			ax.set_title("numInt=%d"%nint)
+			lnf.set_ydata(calcFunc_t(n, nint))
+			laf.set_ydata(anFunc_t(n, nint))
+			ax.relim()
+			ax.autoscale_view(True,True,True)
+		#end replot for display nint
+	
+	
+		cpf = np.polyfit(xe,ye,1)
+		print("t = dt * n (n = %d), fitting %4.10fx+%4.10f" % (n, cpf[0], cpf[1]))
+		fig = plt.figure()
+		ax1 = fig.add_subplot(111)
+		ax1.set_xlabel("log(ni)")
+		ax1.set_ylabel("log(maxerr)")
+		ax1.set_title("baseLog=%d" % baseLog)
+		ax1.grid(True)
+		ax1.plot(xe, ye, marker='o', linestyle='-', color="r")
+		plt.draw()
+		plt.show()
+	
+	
+	obutt.on_clicked(showApproxOrder)
+
 	
 	plt.draw()
 	plt.show()
 
-#plotFunc_t0(128)
 main()
 #plotFunc_a()
 
