@@ -1,5 +1,7 @@
 import os, math, sys
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import scipy.misc 
 from matplotlib.widgets import Slider, Button
@@ -7,10 +9,12 @@ from matplotlib.widgets import Slider, Button
 
 
 #NMAX=100
-NMAX=300
+NMAX=1000
 TIMEMAX=20
 
 plot_ao = True
+plot_int = True
+
 
 #nslider = True
 nslider = False
@@ -23,8 +27,8 @@ method="backward"  #this works
 xL=1.2
 
 #nint=64
-nint=256
-#nint=1024    
+#nint=256
+nint=2048 
 #nint=64 and method=centered is not working see Courant-Friedrichs-Lewy (CFL) condition dt <= dx / a 
 #http://www.physics.udel.edu/~jim/PHYS460_660_13S/Advection/advection.htm
 
@@ -126,116 +130,6 @@ def getPeriodicX2Int(xval, a, b):
 	return res
 
 
-##t_0=0
-##t = n * dt 
-#def calcFunc_tRecursive(n, nint):
-#	#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
-#	x = np.linspace(-xL, xL , nint + 1)
-#	if(n==0):
-#		return func_t0(x)
-#	dx = getDx(nint)
-#	dt = getDt(nint)
-#	uAnt = calcFunc_t(n-1, nint)
-#	res = []
-#	for i in range(0, nint):
-#		val = uAnt[i] - a * (uAnt[i+1] - uAnt[i] ) * dt / dx
-#		res.append(val)
-#	res.append(res[0])
-#	return res
-
-
-
-if method == "forward":
-	#t_0=0
-	#t = n * dt 
-	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
-		x = np.linspace(-xL, xL , nint + 1)
-		uAnt = func_t0(x)
-		dx = getDx(nint)
-		dt = getDt(nint)
-		res = uAnt
-		for j in range(0, n):
-			res = []
-			for i in range(0, nint):
-				val = uAnt[i] - a(x[i]) * (uAnt[i+1] - uAnt[i] ) * dt / dx
-				res.append(val)
-			res.append(res[0])
-			uAnt = res
-		return res
-
-elif method == "backward":
-	#t_0=0
-	#t = n * dt 
-	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
-		x = np.linspace(-xL, xL , nint + 1)
-		uAnt = func_t0(x)
-		dx = getDx(nint)
-		dt = getDt(nint)
-		res = uAnt
-		for j in range(0, n):
-			res = []
-			for i in range(1, nint + 1):
-				val = uAnt[i] - a(x[i]) * (uAnt[i] - uAnt[i - 1] ) * dt / dx
-				res.append(val)
-			res.insert(0, res[nint-1])
-			uAnt = res
-		return res
-
-elif method == "centered":
-	#t_0=0
-	#t = n * dt 
-	def calcFunc_t(n, nint):
-		#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
-		x = np.linspace(-xL, xL , nint + 1)
-		uAnt = func_t0(x)
-		dx = getDx(nint)
-		dt = getDt(nint)
-		res = uAnt
-		for j in range(0, n):
-			res = []
-			for i in range(1, nint):
-				val = uAnt[i] - 0.5 * a(x[i]) * (uAnt[i + 1] - uAnt[i - 1] ) * dt / dx
-				res.append(val)
-			res.insert(0, res[nint-2])
-			res.append(res[1])
-			uAnt = res
-		return res
-
-else:
-	print("method unknown: %s" % method)
-
-
-def anFunc_t(n, nint):
-	#print("anFunc_t: n= %d, nint=%d" % (n, nint))
-	#t = n * dt
-	#u(x,t) = u_0(x - a*t)
-	print("calc an solution for n = %d, nint = %d" % (n , nint))	
-	dt = getDt(nint)
-	x = np.linspace(-xL, xL , nint + 1)
-	#periodic boundary condition:
-	#u(xL, t) = u(0, t) for all t EQUIV u(n*xL + x, t) = u(x,t)
-	#we must haxe all x in [-xL , xL] when calculating func
-	#ft0xarg = x - a * n * dt
-	ft0xarg = []
-	#z = x - a * n * dt when a is constant
-	z = 0.6114 * np.arctan(2.64575 * np.tan(0.61566 * (1.62426 * np.arctan(0.377964 * np.tan(1.6355 * x)) - n * dt)))	
-	for xval in  z:
-		#TODO getPeriodicX	
-		#ft0xarg.append(getPeriodicX(xval, xL))
-		ft0xarg.append(getPeriodicX2(xval, xL))
-		
-	ft0xarg = np.array(ft0xarg)
-	res = func_t0(ft0xarg)
-	#print("newxarg")
-	#print(ft0xarg)
-	#print("funct0")
-	#print(res)
-	return res
-	
-
-
 
 ax = plt.subplot(111)
 ax.set_xlabel("x")
@@ -254,14 +148,143 @@ def main():
 		#I don't use a global variable m. In python 3 there is the nonlocal statement which causes the listed identifiers to refer to previously bound variables in the nearest enclosing scope.
 	axSlider = plt.axes([0.25, 0.01, 0.65, 0.03], axisbg='white')
 	print("dt=%4.10f" % getDt(nint))
+	if method == "forward":
+		#t_0=0
+		#t = n * dt 
+		def calcFunc_t(n, nint, plot_int = False):
+			#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+			x = np.linspace(-xL, xL , nint + 1)
+			uAnt = func_t0(x)
+			dx = getDx(nint)
+			dt = getDt(nint)
+			res = uAnt
+			for j in range(0, n):
+				res = []
+				for i in range(0, nint):
+					val = uAnt[i] - a(x[i]) * (uAnt[i+1] - uAnt[i] ) * dt / dx
+					res.append(val)
+				res.append(res[0])
+				uAnt = res
+				if(plot_int):
+					lnf.set_ydata(res)
+					laf.set_ydata(anFunc_t(j, nint))
+					ax.relim()
+					ax.autoscale_view(True,True,True)
+					plt.draw()	
+			return res
+	
+	elif method == "backward":
+		#t_0=0
+		#t = n * dt 
+		def calcFunc_t(n, nint, plot_int = False):
+			print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+			x = np.linspace(-xL, xL , nint + 1)
+			markPoint = 0
+			uAnt = func_t0(x)
+			dx = getDx(nint)
+			dt = getDt(nint)
+			res = uAnt
+			for j in range(0, n):
+				res = []
+				for i in range(1, nint + 1):
+					val = uAnt[i] - a(x[i]) * (uAnt[i] - uAnt[i - 1] ) * dt / dx
+					res.append(val)
+				res.insert(0, res[nint-1])
+				uAnt = res
+				if(plot_int):
+					print("calcFunc_t INT: step= %d" % (j))
+					lnf.set_ydata(res)
+					laf.set_ydata(anFunc_t(j, nint))
+					#ax.plot(markPoint, res)
+					ax.relim()
+					ax.autoscale_view(True,True,True)
+					plt.draw()	
+					markPoint += a(markPoint) * dt
+			return res
+	
+	elif method == "centered":
+		#t_0=0
+		#t = n * dt 
+		def calcFunc_t(n, nint, plot_int = False):
+			#print("calcFunc_t: n= %d, nint=%d" % (n, nint))
+			x = np.linspace(-xL, xL , nint + 1)
+			uAnt = func_t0(x)
+			dx = getDx(nint)
+			dt = getDt(nint)
+			res = uAnt
+			for j in range(0, n):
+				res = []
+				for i in range(1, nint):
+					val = uAnt[i] - 0.5 * a(x[i]) * (uAnt[i + 1] - uAnt[i - 1] ) * dt / dx
+					res.append(val)
+				res.insert(0, res[nint-2])
+				res.append(res[1])
+				uAnt = res
+				if(plot_int):
+					lnf.set_ydata(res)
+					laf.set_ydata(anFunc_t(j, nint))
+					ax.relim()
+					ax.autoscale_view(True,True,True)
+					plt.draw()	
+		
+			return res
+	
+	else:
+		print("method unknown: %s" % method)
+	
+	
+	
+	
+	def intA(x):
+		a0 = 0.2
+		b0 = 6
+		return (2.25 * xL * np.arctan(np.tan((4 * math.pi * x)/(9 * xL) )/math.sqrt(1 + b0) )) / (a0 * math.sqrt(1+b0) * math.pi)
+	
+	def intAInv(x):
+		a0 = 0.2
+		b0 = 6
+		return (2.25 * xL)/math.pi * np.arctan(math.sqrt(1+b0) * np.tan((a0 * math.sqrt(1+b0) * 4 * math.pi * x)/(9 * xL)))  
+		
+	
+	
+	def anFunc_t(n, nint):
+		#print("anFunc_t: n= %d, nint=%d" % (n, nint))
+		#t = n * dt
+		#u(x,t) = u_0(x - a*t)
+		#print("calc an solution for n = %d, nint = %d" % (n , nint))	
+		dt = getDt(nint)
+		x = np.linspace(-xL, xL , nint + 1)
+		#periodic boundary condition:
+		#u(xL, t) = u(0, t) for all t EQUIV u(n*xL + x, t) = u(x,t)
+		#we must haxe all x in [-xL , xL] when calculating func
+		#ft0xarg = x - a * n * dt
+		ft0xarg = []
+		#z = x - a * n * dt when a is constant
+		#z = 0.6114 * np.arctan(2.64575 * np.tan(0.61566 * (1.62426 * np.arctan(0.377964 * np.tan(1.6355 * x)) - n * dt)))	
+		z = intAInv(intA(x) - n * dt )
+		for xval in  z:
+			#TODO getPeriodicX	
+			#ft0xarg.append(getPeriodicX(xval, xL))
+			ft0xarg.append(getPeriodicX2(xval, xL))
+			
+		ft0xarg = np.array(ft0xarg)
+		res = func_t0(ft0xarg)
+		#print("newxarg")
+		#print(ft0xarg)
+		#print("funct0")
+		#print(res)
+		return res
+	
 	
 	def plotFunc_t(n, nint):
-		lnf.set_ydata(calcFunc_t(n, nint))
-		laf.set_ydata(anFunc_t(n, nint))
-		ax.relim()
-		ax.autoscale_view(True,True,True)
-		plt.draw()	
-		plt.show()	
+		if(plot_int):
+			calcFunc_t(n, nint, True)
+		else:
+			lnf.set_ydata(calcFunc_t(n, nint))
+			laf.set_ydata(anFunc_t(n, nint))
+			ax.relim()
+			ax.autoscale_view(True,True,True)
+			plt.draw()	
 
 	def sliderChangedIntVal(intVal):
 			#I don't want an update if values are equal (as integers)
