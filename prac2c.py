@@ -77,18 +77,6 @@ def getDt(numInt):
 def func_t0(x):
 	return np.power(np.cos(6 * math.pi * x / 5) ,2) / np.cosh(5 * x**2)
 
-def plotFunc_t0(nint):
-#	x = np.linspace(-xL, xL , nint + 1)
-#	y = func_t0(x)
-	ax.plot(x, func_t0(x),  marker='o', linestyle='-', color="r")
-	plt.draw()	
-	plt.show()	
-
-
-def plotFunc_a():
-	ax.plot(x, a(x),  marker='o', linestyle='-', color="r")
-	plt.draw()	
-	plt.show()	
 
 
 #return x in [-a,a] assuming period 2a
@@ -137,9 +125,36 @@ ax.grid(True)
 x = np.linspace(-xL, xL , nint + 1)
 
 
+def curve(x0, nint):
+	npointsTime = 1000
+	xr = [x0]
+	t = [0]
+	dt = getDt(nint)
+	for i in range(0, npointsTime):
+		xr.append(a(xr[i]) * dt + xr[i])
+		t.append(t[i] + dt)
+	return [t,np.array(xr)]		
+
 def main():
+	x = np.linspace(-xL, xL , nint + 1)
 	lnf, = ax.plot(x, func_t0(x),  marker='o', linestyle='-', color="r")
 	laf, = ax.plot(x, func_t0(x),  marker='o', linestyle='--', color="g")
+	ax.plot(x, a(x),  marker='o', linestyle='-', color="b")
+
+
+
+#	fig = plt.figure()
+#	ax2 = fig.add_subplot(111)
+#	ax2.set_xlabel("t")
+#	ax2.set_ylabel("x")
+#	ax2.grid(True)
+#	for xval in [0] :
+#		print("curve xval = %4.3f" % xval)
+#		res2 = curve(xval)
+#		ax2.plot(res2[0], res2[1], marker='o', linestyle='-', color="k")
+
+
+
 	varHash = {'n':0} # I have to keep track of the current slider value in order not to update if value is not changing
 		#I want a discrete slider so several values of the slider will be converted to the same integer value
 		#I have to use the hash because m is changed in the listener function and m variable would be local to this function
@@ -158,6 +173,10 @@ def main():
 			#markPoint = 0.6   #half
 			stepInterval = 10
 			lmark = ax.vlines(markPoint, 0, 1, 'b')
+
+			#res2 = curve(0)
+			#ax.plot(res2[0], res2[1], "ko")
+
 		uAnt = func_t0(x)
 		dx = getDx(nint)
 		dt = getDt(nint)
@@ -275,7 +294,7 @@ def main():
 		mSlider.on_changed(sliderChangedN) 	
 	else:	
 		mSlider =  Slider(axSlider, 'Time', 0, TIMEMAX, valinit=0, valfmt='%4.3f' )#max degree 23
-		mSlider.on_changed(sliderChangedTime) 	
+		mSlider.on_changed(sliderChangedTime) 
 	
 	axObutt = plt.axes([0.93, 0.05, 0.05, 0.05])
 	obutt = Button(axObutt, 'AO')
@@ -355,4 +374,11 @@ def main():
 
 main()
 #plotFunc_a()
+#for xv in np.linspace(-xL, xL, 10):
+#for xv in [0]:
+#	res2 = curve(xv,nint)
+#	plt.plot(res2[0], res2[1], "ko", markersize=1)
+#plt.draw()
+#plt.show()
+
 
