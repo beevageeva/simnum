@@ -220,10 +220,15 @@ def main():
 		#z = x - a * n * dt when a is constant
 		#z = 0.6114 * np.arctan(2.64575 * np.tan(0.61566 * (1.62426 * np.arctan(0.377964 * np.tan(1.6355 * x)) - n * dt)))	
 		z = intAInv(intA(x) - n * dt )
+
+#		z1 = intA(x) - n * dt
+#		z = []
+#		for zval in  z1:
+#			z.append(intAInv(getPeriodicX2(zval, xL) ))
+
 		for xval in  z:
-			#TODO getPeriodicX	
-			ft0xarg.append(getPeriodicX(xval, xL))
-			#ft0xarg.append(getPeriodicX2(xval, xL))
+			#ft0xarg.append(getPeriodicX(xval, xL))
+			ft0xarg.append(getPeriodicX2(xval, xL))
 			
 		ft0xarg = np.array(ft0xarg)
 		res = func_t0(ft0xarg)

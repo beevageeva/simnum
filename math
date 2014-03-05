@@ -1,0 +1,4 @@
+Integrate[1 / (a0*(1 + b0 * (Cos[((4 * pi * x )/ (9 * xL) )])^2)), x]
+Solve[y== (2.25 *	 xL * ArcTan[Tan[(4 * pi * x)/(9 * xL)]/Sqrt[1+b0]])/(pi * a0 * Sqrt[1+b0]), x]
+Solve[u==A * (Tanh[(x - u * t + B)/c] - Tanh[(x - u*t -B)/c]), u]
+Solve[x == t*A*(Tanh[(y + B)/c] - Tanh[(y - B)/c]) + y, y]
