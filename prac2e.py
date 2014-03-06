@@ -58,11 +58,6 @@ class DiscreteSlider(Slider):
         for cid, func in self.observers.items():
             func(discrete_val)
 
-def a(x):
-	a0 = 0.2
-	b0 = 6
-	return a0 * (1 + b0 * np.power(np.cos((4 * math.pi * x)/(9 * xL )),2))
-
 
 
 def getDx(numInt):
@@ -85,18 +80,19 @@ def func_t0(x):
 	#c = 0.01 
 	return a * (np.tanh((x+b)/c) - np.tanh((x-b)/c)) 
 
-def plotFunc_t0(nint):
-#	x = np.linspace(-xL, xL , nint + 1)
-#	y = func_t0(x)
-	ax.plot(x, func_t0(x),  marker='o', linestyle='-', color="r")
-	plt.draw()	
-	plt.show()	
 
+def getTimeDisc(numInt):
+	x = np.linspace(-xL, xL , numInt + 1)
+	dx=	float(2.0 * xL) / numInt
+	t = {}
+	for i in range(0,len(x)-1):
+		xm = 0.5 * (x[i+1] +x[i])	
+		nr = (func_t0(x[i+1]) - func_t0(x[i]))/dx
+		if(nr<0):
+			t[-1.0 / nr] = xm
+	return t
+	
 
-def plotFunc_a():
-	ax.plot(x, a(x),  marker='o', linestyle='-', color="r")
-	plt.draw()	
-	plt.show()	
 
 
 #return x in [-a,a] assuming period 2xL
@@ -154,11 +150,12 @@ def main():
 		#I don't use a global variable m. In python 3 there is the nonlocal statement which causes the listed identifiers to refer to previously bound variables in the nearest enclosing scope.
 	axSlider = plt.axes([0.25, 0.01, 0.65, 0.03], axisbg='white')
 	print("dt=%4.10f" % getDt(nint))
+	timeDisc = getTimeDisc(nint)
 
 	#BACKWARD METHOD
 	#t_0=0
 	#t = n * dt 
-	def calcFunc_t(n, nint, plot_int = False):
+	def calcFunc_t(n, nint, timeDisc,plot_int = False):
 		print("calcFunc_t: n= %d, nint=%d" % (n, nint))
 		x = np.linspace(-xL, xL , nint + 1)
 		if(plot_int):
@@ -171,6 +168,21 @@ def main():
 		res = uAnt
 		for j in range(0, n):
 			res = []
+			kfound = None
+			first = True
+			for k in sorted(timeDisc.iterkeys()):
+				v = timeDisc[k]
+				if(first):
+					first = False
+					if(k<=j*dt):
+						print("DISC : time = %4.3f, x = %4.3f" % (k, getPeriodicX2(v + uAnt[int((v+xL)/dx)] * dt, xL)))
+						kfound = k
+				else:
+					break
+			if(kfound):
+				#print("kFOUND="+str(kfound))
+				del timeDisc[kfound]
+
 			for i in range(1, nint + 1):
 				val = uAnt[i] - uAnt[i] * (uAnt[i] - uAnt[i - 1] ) * dt / dx
 				res.append(val)
@@ -233,9 +245,9 @@ def main():
 	
 	def plotFunc_t(n, nint):
 		if(plot_int):
-			calcFunc_t(n, nint, True)
+			calcFunc_t(n, nint,timeDisc, True)
 		else:
-			lnf.set_ydata(calcFunc_t(n, nint))
+			lnf.set_ydata(calcFunc_t(n, nint, timeDisc))
 			#laf.set_ydata(anFunc_t(n, nint))
 			ax.relim()
 			ax.autoscale_view(True,True,True)
