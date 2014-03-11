@@ -1,0 +1,9 @@
+gamma = 5.0/3
+fcfl = 0.99
+z0 = 3.1
+zf = 7.4
+nint = 64
+timeEnd = 1.0
+problemtype = 'sound_wave'
+verbose = True
+nstepsPlot = 1

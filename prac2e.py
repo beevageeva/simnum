@@ -150,7 +150,7 @@ def main():
 		#I don't use a global variable m. In python 3 there is the nonlocal statement which causes the listed identifiers to refer to previously bound variables in the nearest enclosing scope.
 	axSlider = plt.axes([0.25, 0.01, 0.65, 0.03], axisbg='white')
 	print("dt=%4.10f" % getDt(nint))
-	timeDisc = getTimeDisc(nint)
+	timeDiscOne = getTimeDisc(nint)
 
 	#BACKWARD METHOD
 	#t_0=0
@@ -162,26 +162,26 @@ def main():
 			markPoint = 0    #the maximum
 			stepInterval = 10
 			lmark = ax.vlines(markPoint, 0, 1, 'b')
+			lmark2 = None
 		uAnt = func_t0(x)
 		dx = getDx(nint)
 		dt = getDt(nint)
 		res = uAnt
 		for j in range(0, n):
 			res = []
-			kfound = None
-			first = True
-			for k in sorted(timeDisc.iterkeys()):
+			#recalculate discontinuities:
+			for k in timeDisc.iterkeys():
 				v = timeDisc[k]
-				if(first):
-					first = False
-					if(k<=j*dt):
-						print("DISC : time = %4.3f, x = %4.3f" % (k, getPeriodicX2(v + uAnt[int((v+xL)/dx)] * dt, xL)))
-						kfound = k
-				else:
-					break
-			if(kfound):
-				#print("kFOUND="+str(kfound))
-				del timeDisc[kfound]
+				timeDisc[k] = getPeriodicX2(v + uAnt[int((v+xL)/dx)] * dt, xL)
+			v = None
+			if (sys.version_info[0]==2):
+				k = min(timeDisc.iterkeys())
+			else:
+				k = min(timeDisc.keys())
+			if(k<=j*dt):
+				v = timeDisc[k]
+				print("DISC : time = %4.3f, x = %4.3f" % (k, v))
+				del timeDisc[k]
 
 			for i in range(1, nint + 1):
 				val = uAnt[i] - uAnt[i] * (uAnt[i] - uAnt[i - 1] ) * dt / dx
@@ -192,62 +192,42 @@ def main():
 				markPoint = getPeriodicX2(markPoint + uAnt[int((markPoint+xL)/dx)] * dt, xL)
 				if(j%stepInterval==0):
 					#print("calcFunc_t INT: step= %d" % (j))
+					ax.set_title("Time %4.3f" % ((j+1) * dt))
 					lnf.set_ydata(res)
-					#anres = anFunc_t(j+1, nint)
-					#laf.set_ydata(anres)
 					#redraw mark point vlines
+
 					lmark.remove()
 					del lmark
 					lmark = ax.vlines(markPoint, 0, 1, 'b')
+
+					if lmark2:
+						lmark2.remove()
+						del lmark2
+						lmark2 = None
+					if(v):
+						print("DISC-- : v = %4.3f" % v)
+						lmark2 = ax.vlines(v, 0, 1, 'k', lw=5)
+
+
 					ax.relim()
 					ax.autoscale_view(True,True,True)
 					plt.draw()
 		if(plot_int):
 			lmark.remove()
 			del lmark
+			if lmark2:
+				lmark2.remove()
+				del lmark2
 					
 		return res
 	
 	
 	
-	
-	
-		
-	
-	
-#	def anFunc_t(n, nint):
-#		#print("anFunc_t: n= %d, nint=%d" % (n, nint))
-#		#t = n * dt
-#		#u(x,t) = u_0(x - a*t)
-#		#print("calc an solution for n = %d, nint = %d" % (n , nint))	
-#		dt = getDt(nint)
-#		x = np.linspace(-xL, xL , nint + 1)
-#		#periodic boundary condition:
-#		#u(xL, t) = u(0, t) for all t EQUIV u(n*xL + x, t) = u(x,t)
-#		#we must haxe all x in [-xL , xL] when calculating func
-#		#ft0xarg = x - a * n * dt
-#		ft0xarg = []
-#		#z = x - a * n * dt when a is constant
-#		z = intAInv(intA(x) - n * dt )
-#		for xval in  z:
-#			#TODO getPeriodicX	
-#			ft0xarg.append(getPeriodicX(xval, xL))
-#			#ft0xarg.append(getPeriodicX2(xval, xL))
-#			
-#		ft0xarg = np.array(ft0xarg)
-#		res = func_t0(ft0xarg)
-#		#print("newxarg")
-#		#print(ft0xarg)
-#		#print("funct0")
-#		#print(res)
-#		return res
-	
-	
 	def plotFunc_t(n, nint):
 		if(plot_int):
-			calcFunc_t(n, nint,timeDisc, True)
+			calcFunc_t(n, nint,timeDiscOne.copy(), True)
 		else:
-			lnf.set_ydata(calcFunc_t(n, nint, timeDisc))
+			lnf.set_ydata(calcFunc_t(n, nint, timeDiscOne.copy()))
 			#laf.set_ydata(anFunc_t(n, nint))
 			ax.relim()
 			ax.autoscale_view(True,True,True)
@@ -280,83 +260,10 @@ def main():
 	else:	
 		mSlider =  Slider(axSlider, 'Time', 0, TIMEMAX, valinit=0, valfmt='%4.3f' )#max degree 23
 		mSlider.on_changed(sliderChangedTime) 	
-	
-#	axObutt = plt.axes([0.93, 0.05, 0.05, 0.05])
-#	obutt = Button(axObutt, 'AO')
-#	
-#	def showApproxOrder(event):
-#		if(varHash["n"]==0):
-#			print("fot t = 0 functions should be identical")
-#			return
-#		baseLog = 10
-#		xe = []
-#		ye = []
-#		#for ni in [16, 32, 64, 128,256,512,1024]:
-#		#for ni in [256,512,1024,2048,4096]:
-#		for ni in [64,128,256,512,1024]:
-#			#step size is DEPENDENT of nint!!!!
-#			n = int(float(varHash["n"] * ni) / nint)
-#			print("Calculate approx order for n = %d,  ni=%d" % (n, ni))
-#			xe.append(math.log(ni, baseLog))
-#			y1 = calcFunc_t(n, ni)
-#			y2 = anFunc_t(n, ni)
-#			err = np.max(np.absolute(np.subtract(y1, y2)))	
-#			ye.append(math.log(err, baseLog))
-#			#plot function
-#			if plot_ao:
-#				ax.set_title("numInt=%d"%ni) 
-#				x = np.linspace(-xL, xL , ni + 1)
-#				lnf.set_xdata(x) 
-#				laf.set_xdata(x) 
-#				lnf.set_ydata(y1) 
-#				laf.set_ydata(y2) 
-#				ax.relim() 
-#				ax.autoscale_view(True,True,True) 
-#				plt.draw()  
-#				if (sys.version_info[0]==2):
-#					c = raw_input("press n to continue: ")
-#				else:
-#					c = input("press n to continue: ")
-#				while(c!="n"):
-#					print("You pressed >%s<" % c)
-#					if (sys.version_info[0]==2):
-#						c = raw_input("press n to continue: ")
-#					else:
-#						c = input("press n to continue: ")
-#			#end plot function
-#		#replot for display nint
-#		if plot_ao:
-#			n = varHash["n"]
-#			x = np.linspace(-xL, xL , nint + 1)
-#			lnf.set_xdata(x)
-#			laf.set_xdata(x)
-#			ax.set_title("numInt=%d"%nint)
-#			lnf.set_ydata(calcFunc_t(n, nint))
-#			laf.set_ydata(anFunc_t(n, nint))
-#			ax.relim()
-#			ax.autoscale_view(True,True,True)
-#		#end replot for display nint
-#	
-#	
-#		cpf = np.polyfit(xe,ye,1)
-#		print("t = dt * n (n = %d), fitting %4.10fx+%4.10f" % (n, cpf[0], cpf[1]))
-#		fig = plt.figure()
-#		ax1 = fig.add_subplot(111)
-#		ax1.set_xlabel("log(ni)")
-#		ax1.set_ylabel("log(maxerr)")
-#		ax1.set_title("baseLog=%d" % baseLog)
-#		ax1.grid(True)
-#		ax1.plot(xe, ye, marker='o', linestyle='-', color="r")
-#		plt.draw()
-#		plt.show()
-#	
-#	
-#	obutt.on_clicked(showApproxOrder)
 
 	
 	plt.draw()
 	plt.show()
 
 main()
-#plotFunc_a()
 

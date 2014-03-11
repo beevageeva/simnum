@@ -1,0 +1,11 @@
+32         nint          number of intervals
+-1. +5     z0, zf        extremes of physical domain
+40000L     itmax         maximum number of iterations
+120.       timeend       maximum physical time
+1L  10000l plotinterv, storeinterv - cadence for output
+
+sound wave               inittype   init. cond: type (allow 25 spaces)
+sine                     shape      init. cond: other param (allow 25 spaces)
+8d-4       amp           amplitude parameter 
+
+0.98       fcfl   parameter for the Courant condition
