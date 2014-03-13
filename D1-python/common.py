@@ -24,6 +24,13 @@ def getPeriodicX(xval, a=z0, b=zf):
 		res-=p
 	return res
 
+
+def getPeriodicXArray(xarray, a=z0, b=zf):
+	res = []	
+	for xval in xarray:
+		res.append(getPeriodicX(xval, a, b))
+	return np.array(res)
+
 def getPeriodicX2(xval, a=z0, b=zf):
 	p = b - a
 	while (xval < a):

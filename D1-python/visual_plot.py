@@ -39,6 +39,10 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
+	def afterInit(self):
+		import time
+		time.sleep(3)
+
 	def addAxis(self, ax, title, vals):
 		ax.set_xlabel("z")
 		ax.set_ylabel(title)
@@ -96,8 +100,10 @@ class VisualPlot:
 		for fig in self.figures:
 			fig.canvas.draw()
 		#import time
-		#time.sleep(1)
+		#time.sleep(5)
 
+	def finish(self):
+		pass
 
 
 

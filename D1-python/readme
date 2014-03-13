@@ -1,0 +1,67 @@
+python can be python (python 2) or python3
+Running:
+
+python main.py
+	timeEnd default 1 from constants.py if not specified as program argument as following:
+python main.py --timeEnd=20
+
+---------------------
+Parameters in files:
+
+constants.py
+	gamma 
+	fcfl
+	z0 
+	zf 
+	nint 
+	timeEnd 
+	problemtype = 'sound_wave'
+		This will use the classes defined in sound_wave.py
+	functiontype = 'sine' | 'defined'
+		'sine': this will use SoundWaveSine class with constructor arguments(wl, phi) from sound_wave_sine_params.py
+		'defined': this will use SoundWave class with constructor argument(periodicFunction) from sound_wave_defined_params.py
+	verbose = False | True
+	
+sound_wave_params.py 
+	rho00 
+	p00 
+	csSign #if csSign = -1 the wave will travel left, +1 the wave will travel right: this will determine the initial function for velocity (making amplitude negative is equivalent with adding +/- pi to the phase) amplitude. We can consider without losing generality same initial phase for all 3 magnitudes and 2 cases for the amplitudes of perturbations dp/dRho is always >0 so p and rho must have same aplitude sign, but the relative sign of velocity perturbation amplitude determines if the wave is travelling left(fifferent sign: csSign = -1) or right(same sign: csSign = 1) 
+	v00 
+	A 
+ 
+sound_wave_defined_params.py  
+sound_wave_sine_params.py
+	
+notifier_params.py  -- parameters used for plot/write_to_file backend 
+	notifierType = "visual" | "file"
+		'visual' : use class VisualPlot defined in visual_plot.py 
+		'file' : use class SaveToFile defined in save_to_file.py
+	plotPresCurve , plotRhoCurve, plotVelCurve = True if I want to plot the curves and mark the point, False otherwise
+	
+
+
+Development issues:
+
+notifier can be any class implementing (see VisualPlot class in visual_plot.py and SaveToFile class in save_to_file.py)
+__init__
+addGraph
+updateValues
+markPoint
+afterUpdateValues
+finish
+
+
+
+  If I want for example to plot only numeric solution of velocityy in the main plot I have to modify in model.py in constructor:
+    self.notifier = getNotifier(notifierType, self.z, ["rho", "pres", "vel"], [[self.rho, self.rho], [self.pres, self.pres], [self.vel, self.vel]])
+by
+    self.notifier = getNotifier(notifierType, self.z, ["rho", "pres", "vel"], [[self.rho, self.rho], [self.pres, self.pres], self.vel)
+
+and in updateValues
+    self.notifier.updateValues("vel", [self.vel, getVelAn(self.z, time, velc)])
+by		
+    self.notifier.updateValues("vel", self.vel)
+
+
+
+
