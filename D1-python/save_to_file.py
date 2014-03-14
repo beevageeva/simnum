@@ -23,16 +23,8 @@ class SaveToFile:
 
 
 	def __init__(self, z, titles, iniValues):
-		#try to craete an output directory called out_0, out_1, ... the first that does not exists
-		dirname_base = "out"
-		dirExists = True
-		i = 0
-		dirname = "%s_%i" % (dirname_base, i)
-		while os.path.exists(dirname):
-			i +=1
-			dirname = "%s_%i" % (dirname_base, i)
-		os.mkdir(dirname)
-		self.dirname = dirname
+		from common import createFolder
+		self.dirname = createFolder("outFiles")
 		self.z = z
 		self.files = {}
 		for i in range(0, len(titles)):

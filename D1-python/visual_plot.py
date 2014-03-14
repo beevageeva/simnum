@@ -2,8 +2,10 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import sys, os
 
+
+saveImages = True
 
 def getRandomColor():
 	from random import random
@@ -20,12 +22,16 @@ def testKeyInDict(key, dictionary):
 	else:
 		return key in dictionary	
 
+
 	
 
 
 class VisualPlot:
 
 	def __init__(self, z, titles, iniValues):
+		if saveImages:
+			from common import createFolder	
+			self.dirname = createFolder("outImages")
 		nplots = len(titles)
 		self.z = z
 		fig, ax =  plt.subplots(nplots,1,True)
@@ -41,7 +47,15 @@ class VisualPlot:
 
 	def afterInit(self):
 		import time
-		time.sleep(3)
+		time.sleep(5)
+		#save initial figures to files
+		if saveImages:
+			numFig = 0
+			for fig in self.figures:
+				os.mkdir(os.path.join(self.dirname, "Fig%d" % numFig))
+				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img00000.png"))
+				numFig +=1
+
 
 	def addAxis(self, ax, title, vals):
 		ax.set_xlabel("z")
@@ -97,8 +111,22 @@ class VisualPlot:
 		
 	def afterUpdateValues(self, newTime):
 		self.plotTitle.set_text("Time %4.3f" % newTime)
+		numFig = 0
 		for fig in self.figures:
 			fig.canvas.draw()
+			if saveImages:
+				#make name compatible with ffmpeg
+				#ffmpeg -r 1 -i img%05d.png -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4
+				#the above does not work
+				#ffmpeg -r 1 -pattern_type glob -i '*.png' -c:v libx264 -pix_fmt yuv420p out.mp4
+				#convert HANGS!!
+				#convert -antialias -delay 1x2 *.png mymovie.mp4
+				imgname = "%4.3f" % newTime
+				if(len(imgname) == 5):
+					imgname = "0"+imgname
+				imgname = imgname.replace(".", "")	
+				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img%s.png"%imgname))
+			numFig +=1
 		#import time
 		#time.sleep(5)
 

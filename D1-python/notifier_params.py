@@ -1,6 +1,6 @@
-plotPresCurve = True
-plotRhoCurve = True
-plotVelCurve = True
+plotPresCurve = False
+plotRhoCurve = False
+plotVelCurve = False
 markPoints = True
 notifierType = "visual"
-nstepsPlot = 2
+nstepsPlot = 10

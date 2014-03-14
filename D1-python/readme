@@ -15,9 +15,7 @@ constants.py
 	zf 
 	nint 
 	timeEnd 
-	problemtype = 'sound_wave'
-		This will use the classes defined in sound_wave.py
-	functiontype = 'sine' | 'defined'
+	functiontype = 'sine' | 'defined'   waves classes in sound_wave.py
 		'sine': this will use SoundWaveSine class with constructor arguments(wl, phi) from sound_wave_sine_params.py
 		'defined': this will use SoundWave class with constructor argument(periodicFunction) from sound_wave_defined_params.py
 	verbose = False | True
@@ -25,7 +23,8 @@ constants.py
 sound_wave_params.py 
 	rho00 
 	p00 
-	csSign #if csSign = -1 the wave will travel left, +1 the wave will travel right: this will determine the initial function for velocity (making amplitude negative is equivalent with adding +/- pi to the phase) amplitude. We can consider without losing generality same initial phase for all 3 magnitudes and 2 cases for the amplitudes of perturbations dp/dRho is always >0 so p and rho must have same aplitude sign, but the relative sign of velocity perturbation amplitude determines if the wave is travelling left(fifferent sign: csSign = -1) or right(same sign: csSign = 1) 
+	init_functions_generation: specify the way to create the initial conditions for velocity, pressure and density  perturbations at time t=0 (we cand specify a superposition of waves) We will only consider changing amplitude sign as it is equivalent to changing phase by adding +/- pi
+		if csSign=+1 the wave will travel right (the velocity and pressure(denisty) perturbation at time t = 0 have same amplitude sign) , left if csSign = -1 (velocity and pressure(density) pert at time = 0 have different amplitude Sign)
 	v00 
 	A 
  
@@ -44,6 +43,7 @@ Development issues:
 
 notifier can be any class implementing (see VisualPlot class in visual_plot.py and SaveToFile class in save_to_file.py)
 __init__
+afetInit
 addGraph
 updateValues
 markPoint

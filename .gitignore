@@ -1,5 +1,5 @@
 D1-python/__pycache__
 D1-python/*.pyc
-D1-python/out_*
+D1-python/out*
 *.pyc
 __pycache__

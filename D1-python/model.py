@@ -86,12 +86,22 @@ class Model:
 	def getNewPoint(self, zval, dt):
 		from common import displacedPoint, getZIndex
 		from math import sqrt
-		from sound_wave_params import csSign
 		zIndex = getZIndex(zval)	
 		cs = sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
-		from initcond import getV00
+		from initcond import getV00, getRho00, getP00
+		v00 = getV00()
+		p00 = getP00()
+		rho00 = getRho00()
+		#from sound_wave_params import csSign 
+		#I should not import from here: this should be used for generating initial conditions only
+		# I have to calculate it from actual values
+		#Imagine that it should work for a superposition of wave travelling right and left
+		if (self.rho[zIndex]< rho00 and self.vel[zIndex] > v00 ) or (self.rho[zIndex]> rho00 and self.vel[zIndex] < v00 ):
+			csSign = -1
+		else:
+			csSign = 1	
 		v = getV00() + csSign * cs	
-		newz = displacedPoint(self.maxRhoZ, v, dt)
+		newz = displacedPoint(zval, v, dt)
 		return newz
 
 
