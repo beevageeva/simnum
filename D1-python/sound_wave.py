@@ -20,6 +20,8 @@ class SoundWave:
 		z = getPeriodicXArray(newz)
 		return self.A * self.periodicFunction(z)
 
+	def printString(self):
+		print("A=%E, cs=%E" %(self.A, self.cs) )
 
 
 #monochromatic sound wave with amplitude 1
@@ -50,5 +52,11 @@ class SuperpositionSoundWave(SoundWave):
 				result = np.add(result, wave.getWaveShape(z, t))
 		return result	
 
-	
+	def printString(self):
+		print("SUPERPOSITION")
+		for wave in self.waveArray:
+			wave.printString()
+		print("END")
+
+
 	

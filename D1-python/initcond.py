@@ -33,7 +33,11 @@ else:
 	from sound_wave import SuperpositionSoundWave
 	wavePresRho = SuperpositionSoundWave(waveArrayPresRho)	
 	waveVel = SuperpositionSoundWave(waveArrayVel)	
-	
+
+print("PresRhoWave")
+wavePresRho.printString()		
+print("VelWave")
+waveVel.printString()		
 
 
 def getV00():
