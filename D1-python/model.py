@@ -145,9 +145,10 @@ class Model:
 			time+=dt
 			nstep+=1
 			#recalculate u at next step - time	
-			self.rho = recalculateU(self.rho, self.fm, dt)	
-			self.uc = recalculateU(self.uc, self.fc, dt)	
-			self.ue = recalculateU(self.ue, self.fe, dt)
+			result = recalculateU(self.rho, self.uc, self.ue, self.fm, self.fc, self.fe, dt)
+			self.rho = result["rho"]
+			self.uc = result["uc"]
+			self.ue = result["ue"]
 			#recalculate velocity and pression
 			r = recalculateVelPres(self.rho, self.uc, self.ue)
 			self.vel = r["vel"]	

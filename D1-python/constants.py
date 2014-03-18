@@ -8,3 +8,4 @@ timeEnd = 1.0
 functiontype = 'sine'
 #functiontype = 'defined'
 verbose = False
+schemeType = "lf"  # scheme type may be lf(Lax - Fr) of fg (first generation)
