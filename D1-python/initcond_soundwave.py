@@ -2,6 +2,7 @@ import numpy as np
 import sys,math
 from constants import gamma
 
+from sound_wave_params import p00, rho00, v00, A, init_functions_generation, functiontype
 from sound_wave import SoundWave, SoundWaveSine
 
 def createWave(csSign , A):
@@ -17,8 +18,6 @@ def createWave(csSign , A):
 
 wavePresRho = None
 waveVel = None
-from constants import functiontype
-from sound_wave_params import p00, rho00, v00, A, init_functions_generation
 cs00 = math.sqrt(gamma * p00 / rho00)
 
 if len(init_functions_generation)==1:
@@ -69,11 +68,6 @@ def getInitialFunctionMaxZ(z):
 def getInitialPresRhoVel(z):
 	from sound_wave_params import A, p00, rho00, v00
 	cs00 = math.sqrt(gamma * p00 / rho00)
-	#wPresRho0 = wave.getInitialShape(z)
-	#wVel0 = wave.getInitialShape(z, "vel")
-	#print(wPresRho0)
-	#print(wVel0)
-	#return {'pres': p00 + gamma * p00 * wPresRho0  , 'rho': rho00 + rho00 *  wPresRho0 , 'vel': v00 + cs00 *  wVel0 } 
 	wVel0= waveVel.getWaveShape(z)
 	wPresRho0= wavePresRho.getWaveShape(z)
 	return {'pres': p00 + gamma * p00 * wPresRho0  , 'rho': rho00 + rho00 *  wPresRho0 , 'vel': v00 + cs00 *  wVel0 } 

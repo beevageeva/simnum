@@ -2,6 +2,10 @@ import numpy as np
 import math
 from constants import gamma
 
+
+functiontype = 'sine'
+#functiontype = 'defined'
+
 rho00 = 1.0
 p00 = 1.0
 

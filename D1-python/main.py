@@ -1,10 +1,21 @@
 import getopt,sys
-from model import Model
+from constants import problemType
+if problemType == "soundwave":
+	from initcond_soundwave import getInitialPresRhoVel
+	from model_soundwave import Model
+elif problemType == "riemann":
+	from model_riemann import Model
+	from initcond_riemann import getInitialPresRhoVel
+else:
+	print("problemtype %s not implemented" % problemType)
+	sys.exit(0)
+
 
 def usage():
 	print("Usage: python main.py [--timeEnd=<timeEnd>]")
 
-m = Model()
+
+
 try:
         opts, args = getopt.getopt(sys.argv[1:], "", ["help",  "timeEnd="])
 except getopt.GetoptError as err:
@@ -24,6 +35,7 @@ for o, a in opts:
 		usage()
 if timeEnd is None:
 	from constants import timeEnd
+m = Model()
 m.mainLoop(timeEnd)
 import time
 time.sleep(5)

@@ -5,7 +5,7 @@ import numpy as np
 import sys, os
 
 
-saveImages = True
+saveImages = False
 
 def getRandomColor():
 	from random import random
@@ -72,6 +72,8 @@ class VisualPlot:
 			for i in range(0, shape[0]):
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
 				self.lines[title].append(l)
+			ax.relim()
+			ax.autoscale_view(False,True,True)
 			ax.legend()
 		
 
@@ -85,7 +87,16 @@ class VisualPlot:
 		if hasattr(l, '__len__'):
 			l = l[0]
 		yvals = l.get_ydata()
-		self.markPoints[pointName] = self.axes[axTitle].vlines(value, np.min(yvals), np.max(yvals), 'b')	
+		minValue =  np.min(yvals)
+		maxValue =  np.max(yvals)
+		#I have to make the following test because
+		#sometimes (in the case of riemann problem and initial velocity  0 )
+		#because zC is only marked once at the beginning  when velocity is 0 for all z
+		#TODO I choose 1 but it might be too small
+		if(maxValue == minValue):
+			maxValue = minValue + 1
+		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, 'k')
+			
 		
 
 	def addGraph(self, title, vals):
@@ -107,7 +118,7 @@ class VisualPlot:
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
 		self.axes[title].relim()
-		self.axes[title].autoscale_view(True,True,True)
+		self.axes[title].autoscale_view(False,True,True)
 		
 	def afterUpdateValues(self, newTime):
 		self.plotTitle.set_text("Time %4.3f" % newTime)
@@ -128,7 +139,7 @@ class VisualPlot:
 				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img%s.png"%imgname))
 			numFig +=1
 		#import time
-		#time.sleep(5)
+		#time.sleep(3)
 
 	def finish(self):
 		pass

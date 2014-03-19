@@ -1,4 +1,4 @@
-plotPresCurve = False
+plotPresCurve = True
 plotRhoCurve = False
 plotVelCurve = False
 markPoints = True

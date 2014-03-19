@@ -15,9 +15,6 @@ constants.py
 	zf 
 	nint 
 	timeEnd 
-	functiontype = 'sine' | 'defined'   waves classes in sound_wave.py
-		'sine': this will use SoundWaveSine class with constructor arguments(wl, phi) from sound_wave_sine_params.py
-		'defined': this will use SoundWave class with constructor argument(periodicFunction) from sound_wave_defined_params.py
 	verbose = False | True
 	
 sound_wave_params.py 
@@ -27,6 +24,9 @@ sound_wave_params.py
 		if csSign=+1 the wave will travel right (the velocity and pressure(denisty) perturbation at time t = 0 have same amplitude sign) , left if csSign = -1 (velocity and pressure(density) pert at time = 0 have different amplitude Sign)
 	v00 
 	A 
+	functiontype = 'sine' | 'defined'   waves classes in sound_wave.py
+		'sine': this will use SoundWaveSine class with constructor arguments(wl, phi) from sound_wave_sine_params.py
+		'defined': this will use SoundWave class with constructor argument(periodicFunction) from sound_wave_defined_params.py
  
 sound_wave_defined_params.py  
 sound_wave_sine_params.py
@@ -43,16 +43,26 @@ Development issues:
 
 notifier can be any class implementing (see VisualPlot class in visual_plot.py and SaveToFile class in save_to_file.py)
 __init__
-afetInit
+afterInit
 addGraph
 updateValues
 markPoint
 afterUpdateValues
 finish
 
+model a class subclassing ModelBase implementing
+  def __init__(self):
+  def updateValues(self, dt, time):
+		#make sure you call
+		self.notifier.afterUpdateValues(time)
+		#at the end  of the function
+  def getInitialValues(self):
+  def additionalInit(self):
+see model_soundwave.py and model_riemann.py
 
 
-  If I want for example to plot only numeric solution of velocityy in the main plot I have to modify in model.py in constructor:
+
+(*) If I want for example to plot only numeric solution of velocityy in the main plot I have to modify in model.py in constructor:
     self.notifier = getNotifier(notifierType, self.z, ["rho", "pres", "vel"], [[self.rho, self.rho], [self.pres, self.pres], [self.vel, self.vel]])
 by
     self.notifier = getNotifier(notifierType, self.z, ["rho", "pres", "vel"], [[self.rho, self.rho], [self.pres, self.pres], self.vel)
@@ -62,6 +72,18 @@ and in updateValues
 by		
     self.notifier.updateValues("vel", self.vel)
 
+(*)	If I don't want to save images set saveImages = False  in visual_plot.py
+	From  saved images we can create the movie with:
+	ffmpeg -r 1 -pattern_type glob -i '*.png' -c:v libx264 -pix_fmt yuv420p out.mp4
+
+(*)	If I want a break after each update uncomment in visual_plot.py in afterUpdateValues
+    import time
+    time.sleep(5)
+(*)	The same for the  inital break - this is in afterInit function in visual_plot.py
 
 
+
+
+
+ 
 

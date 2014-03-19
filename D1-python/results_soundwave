@@ -1,4 +1,4 @@
-functiontype is defined in constants.py 
+functiontype is defined in sound_wave_params.py 
 v00 and the way to generate the initial conditions are in sound_wave_params.py
 
 
@@ -7,11 +7,11 @@ v00 and the way to generate the initial conditions are in sound_wave_params.py
 rightsine.mp4   v00=0, travelling right, sine function
 leftsine.mp4   v00=0, travelling left, sine function
 
-#When v00 is not 0(and has opposite sign to cs) dispersion is more evident
+#When v00 is not 0(and has opposite sign to cs) diffusion is more evident
 rightsineV00neg.mp4  v00 = - cs00 /  5.5, travelling right, sine function
 #dispersion not evident as before
 rightsineV00pos.mp4  v00 = 0.5 * cs00, travelling right, sine function    
-#freezing with the following 2 biggest dispersion??
+#freezing with the following 2 biggest diffusion??
 rightsineV00NegCs.mp4  v00 = - cs00, travelling right, sine function   
 leftsineV00PosCs.mp4  v00 = cs00, travelling left, sine function  
  
@@ -22,6 +22,6 @@ definedRight.mp4  v00=0, defined function (in sound_wave_defined_params.py), tra
 definedSuperposition.mp4  v00=0, defined function (in sound_wave_defined_params.py), superposition
 
 sineRightFclf0.49.mp4 sine wave, right travelling, v00=0  
-change fclf to 0.49 does not become instable but more  dispersion 
+change fclf to 0.49 does not become instable but more  diffusion 
 
 
