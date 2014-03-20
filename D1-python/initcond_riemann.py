@@ -1,11 +1,11 @@
 import numpy as np
 import sys,math
 from constants import gamma
+from riemann_params import presLeft,rhoLeft,velLeft,presRight,zC,rhoRight,velRight
 
 
 
 def getInitialPresRhoVel(z):
-	from riemann_params import presLeft,rhoLeft,velLeft,presRight,zC,rhoRight,velRight
 	from common import getDz
 	#smooth functions
 	ww = 10.0 * getDz()
@@ -27,4 +27,10 @@ def getInitialPresRhoVel(z):
 #			vel0[i] = velRight
 	return {'pres': pres0  , 'rho': rho0 , 'vel': vel0 } 
 			
+
+def getCsLeft():
+	return math.sqrt(gamma * presLeft / rhoLeft)
+
+def getCsRight():
+	return math.sqrt(gamma * presRight / rhoRight)
 

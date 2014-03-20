@@ -68,6 +68,16 @@ class BaseModel:
 			print(self.fe)
 			print("END")
 
+	#we det cs locally , csSign is 1 for wave travelling right and -1 for travelling left
+	#v00 is inital fluid velocity which must be added	
+	def getNewPoint(self, zval, dt, v00, csSign):
+		from common import displacedPoint, getZIndex
+		from math import sqrt
+		zIndex = getZIndex(zval)	
+		cs = sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
+		v = v00 + csSign * cs	
+		newz = displacedPoint(zval, v, dt)
+		return newz
 
 
 

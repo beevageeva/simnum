@@ -5,7 +5,7 @@ import numpy as np
 import sys, os
 
 
-saveImages = False
+saveImages = True
 
 def getRandomColor():
 	from random import random

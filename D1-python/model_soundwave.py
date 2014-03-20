@@ -12,15 +12,14 @@ class Model(BaseModel):
 		BaseModel.__init__(self)
 
 
-	def getNewPoint(self, zval, dt):
+	def getNewPointSW(self, zval, dt):
 		from common import displacedPoint, getZIndex
 		from math import sqrt
-		zIndex = getZIndex(zval)	
-		cs = sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
 		from initcond_soundwave import getV00, getRho00, getP00
 		v00 = getV00()
 		p00 = getP00()
 		rho00 = getRho00()
+		zIndex = getZIndex(zval)	
 		#from sound_wave_params import csSign 
 		#I should not import from here: this should be used for generating initial conditions only
 		# I have to calculate it from actual values
@@ -28,10 +27,8 @@ class Model(BaseModel):
 		if (self.rho[zIndex]< rho00 and self.vel[zIndex] > v00 ) or (self.rho[zIndex]> rho00 and self.vel[zIndex] < v00 ):
 			csSign = -1
 		else:
-			csSign = 1	
-		v = getV00() + csSign * cs	
-		newz = displacedPoint(zval, v, dt)
-		return newz
+			csSign = 1
+		return self.getNewPoint(zval, dt, v00, csSign)	
 
 
 	def updateValues(self, dt, time):
@@ -51,11 +48,11 @@ class Model(BaseModel):
 		if(self.plotRhoCurve):
 			self.notifier.updateValues("rhoCurve", [getRhoCurveNumeric(self.rho), rhoc])
 		if(self.markPoints):
-			self.maxRhoZ = self.getNewPoint(self.maxRhoZ,dt)
+			self.maxRhoZ = self.getNewPointSW(self.maxRhoZ,dt)
 			self.notifier.markPoint("rho", "maxRhoZ", self.maxRhoZ)
-			self.maxPresZ = self.getNewPoint(self.maxPresZ,dt)
+			self.maxPresZ = self.getNewPointSW(self.maxPresZ,dt)
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
-			self.maxVelZ = self.getNewPoint(self.maxVelZ,dt)
+			self.maxVelZ = self.getNewPointSW(self.maxVelZ,dt)
 			self.notifier.markPoint("vel", "maxVelZ", self.maxVelZ)
 
 

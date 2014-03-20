@@ -23,9 +23,6 @@ def getTimestep(v, p, rho):
 	from common import getDz
 	dz = getDz()
 	t1 =  np.divide(p, rho)
-	print("LAST 1025, pres, rho")
-	print(p[1025])
-	print(rho[1025])
 	if(np.any(t1<0)):
 		print("!!!!!!!!!!!!!!!!p/rho has elements <0 -- taking 0 -- no imaginary part(to take abs value?)")
 		print(t1)
