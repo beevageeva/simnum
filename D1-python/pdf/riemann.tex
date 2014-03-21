@@ -51,14 +51,14 @@ Obs:
 \item The rarefaction wave is moving  with speed(csRW) velLeft - csLeft and rwPoint is also plotted like this (rwPointAn in the graphic: Point is Rho, Pres and Vel). The point is initialized with the value of rwPoint after the time = timeAfterAnPoints (defined in riemann\_params.py)
 \item When velLeft = velRight = 0(not in the case of complete problem) the shock wave is moving  with speed(csShock) vel2 * rho2 / (rho2 - rhoRight) in the graphic marked as shPointAn
 initialized in the same way as rwPointAn(after timeAfterAnPoints)
-\item dcPoint is moving with speed vel2 and it's initialized at the beginning = zC(it is analytically calculated. here analytically means that it was calculated and not empirically determined by observing the shaoes of the functions )
+\item dcPoint is moving with speed vel2 and it's initialized at the beginning = zC(it is analytically calculated. here analytically means that it was calculated and not empirically determined by observing the shapes of the functions )
 \item the expressions from tasks file are evaluated after timeAfterAnPoints so we should redirect output
 \begin{verbatim}
 python main.py --timeEnd=10 > out
 \end{verbatim}
 The output for the paramers in tasks file is in files out\_*
-\item We can mark point p1, p2, p3, p4, p5, p6 - (set mark6Points to True in model\_riemann.py) to see where actually the values are calculated - they are points right /and left of shPoint, zC, and rwPoint respectivelly
-(we can change them (moving them closer or farther) by changing  delta  in checkExpressions function in model\_riemann.py
+\item We can mark point p1, p2, p3, p4, p5, p6 - (set mark6Points to True in model\_riemann.py) to see where actually the values are calculated - they are points right and left of shPoint, zC, and rwPoint respectivelly
+(we can change them moving them closer or farther - the distance from the points is equal) by changing  delta  in checkExpressions function in model\_riemann.py
 
 \end{enumerate}
 \section*{Shock tube}
@@ -90,12 +90,14 @@ Observations:
 
 Observations:
 \begin{enumerate}
-\item csRW = cs6 - velLeft (this should always be true)
+\item csRW = cs6 - velLeft (this is true in all cases)
 \item I don't know how to determine analytically csShock in this case when velocities are not 0(but I think there is a way), that's why shPointAn is not shown in the graph in this case. I could calculate csShock from empirical determination of shPoint (csShock = (shPoint - shPointPrevious) / dt) , but this not done yet(to compare with cs1 and cs2). Calculating csShock as sqrt(gamma * pres / rho) in shPoint is not practical because of the discontinuity and oscillations
 \item relations fulfilled see out\_complete file
 \item making velRight = -300 (greater than csShock) will make appear oscillations
 \item But this was the case when velRight \textless 0 and velLeft \textgreater 0, when changing signs(fluids not approaching each other) this oscillation does not appear
 \end{enumerate}
+
+
 
 \begin{figure}[!h]
  \centering
@@ -107,7 +109,7 @@ Observations:
 
 \section*{Expansion into vacuum}
 
-Case a
+
 \begin{figure}[!h]
  \centering
  \includegraphics[scale=0.4]{exp_vacuum_a.png}
@@ -116,13 +118,16 @@ Case a
 \end{figure}
 
 
-Case b
+
 
 \begin{figure}[!h]
  \centering
  \includegraphics[scale=0.4]{exp_vacuum_b.png}
 	\caption{\emph{exp vacuum case b}}
 \end{figure}
+
+
+
 
 Observations:
 \begin{enumerate}
