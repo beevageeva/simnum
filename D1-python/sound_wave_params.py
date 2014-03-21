@@ -27,3 +27,27 @@ A = 3.0 * 10.0 ** (-4)
 #init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': A}] #SUPERPOSITION wave travelling left with amp A and right with amp  A
 #init_functions_generation = [{'csSign':-1, 'A': A}] #travelling left
 init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
+
+
+
+#The following are used for the notifier(taken from notifier_params as they were wavesound specific)
+plotPresCurve = True
+plotRhoCurve = False
+plotVelCurve = False
+markPoints = True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

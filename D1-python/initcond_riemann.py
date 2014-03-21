@@ -1,17 +1,30 @@
 import numpy as np
 import sys,math
 from constants import gamma
-from riemann_params import presLeft,rhoLeft,velLeft,presRight,zC,rhoRight,velRight
+import riemann_params
 
 
 
 def getInitialPresRhoVel(z):
+	#check rhoLeft > rhoRight or inverse them
+	if(riemann_params.rhoLeft < riemann_params.rhoRight):
+		print("!!!!!!Rholeft>RhoRight INVERSE")
+		temp = riemann_params.rhoRight
+		riemann_params.rhoRight = riemann_params.rhoLeft
+		riemann_params.rhoLeft = temp
+		temp = riemann_params.presRight
+		riemann_params.presRight = riemann_params.presLeft
+		riemann_params.presLeft = temp
+		temp = riemann_params.velRight
+		riemann_params.velRight = riemann_params.velLeft
+		riemann_params.velLeft = temp
+		
 	from common import getDz
 	#smooth functions
 	ww = 10.0 * getDz()
-	pres0 =np.add(np.multiply((0.5 *  (presLeft - presRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,zC)),ww)))), presRight)
-	rho0 =np.add(np.multiply((0.5 *  (rhoLeft - rhoRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,zC)),ww)))), rhoRight)
-	vel0 =np.add(np.multiply((0.5 *  (velLeft - velRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,zC)),ww)))), velRight)
+	pres0 =np.add(np.multiply((0.5 *  (riemann_params.presLeft - riemann_params.presRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,riemann_params.zC)),ww)))),riemann_params.presRight)
+	rho0 =np.add(np.multiply((0.5 *  (riemann_params.rhoLeft - riemann_params.rhoRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,riemann_params.zC)),ww)))),riemann_params.rhoRight)
+	vel0 =np.add(np.multiply((0.5 *  (riemann_params.velLeft - riemann_params.velRight)),np.subtract(1.0, np.tanh(np.divide((np.subtract(z,riemann_params.zC)),ww)))),riemann_params.velRight)
 #	n = z.shape[0]
 #	pres0 = np.zeros(n)
 #	rho0 = np.zeros(n)
@@ -29,8 +42,8 @@ def getInitialPresRhoVel(z):
 			
 
 def getCsLeft():
-	return math.sqrt(gamma * presLeft / rhoLeft)
+	return math.sqrt(gamma * riemann_params.presLeft / riemann_params.rhoLeft)
 
 def getCsRight():
-	return math.sqrt(gamma * presRight / rhoRight)
+	return math.sqrt(gamma * riemann_params.presRight / riemann_params.rhoRight)
 

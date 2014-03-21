@@ -9,14 +9,18 @@ python main.py --timeEnd=20
 Parameters in files:
 
 constants.py
-	gamma 
-	fcfl
 	z0 
 	zf 
 	nint 
 	timeEnd 
 	verbose = False | True
+	problemType = 'soundwave' | 'riemann'
+	schemeType = 'lf' | 'fg'  #lax-friederich scheme or first generation scheme
+	fcfl   #this depends on the numeric scheme used : 0.97 for first generation and 0.99 for lax-fr
+	gamma #this is everytime 5/3, but for complete riemann problem this changes to 1.4 
 	
+SOUNDWAVE Problem
+
 sound_wave_params.py 
 	rho00 
 	p00 
@@ -27,6 +31,7 @@ sound_wave_params.py
 	functiontype = 'sine' | 'defined'   waves classes in sound_wave.py
 		'sine': this will use SoundWaveSine class with constructor arguments(wl, phi) from sound_wave_sine_params.py
 		'defined': this will use SoundWave class with constructor argument(periodicFunction) from sound_wave_defined_params.py
+	plotPresCurve , plotRhoCurve, plotVelCurve = True if I want to plot the curves and mark the point, False otherwise  #TODO these are used only for soundwaves
  
 sound_wave_defined_params.py  
 sound_wave_sine_params.py
@@ -35,8 +40,19 @@ notifier_params.py  -- parameters used for plot/write_to_file backend
 	notifierType = "visual" | "file"
 		'visual' : use class VisualPlot defined in visual_plot.py 
 		'file' : use class SaveToFile defined in save_to_file.py
-	plotPresCurve , plotRhoCurve, plotVelCurve = True if I want to plot the curves and mark the point, False otherwise
+	fullscreenMainfigure = True  #I might want this set to False if I have multiple figures like in case of the sound waves when I might want to plot also the curves - make the main figure full screen if true
 	
+RIEMANN Problem
+
+rieman_params.py
+	presLeft 
+	presRight 
+	rhoLeft 
+	rhoRight 
+	velLeft 
+	velRight
+	zC
+	timeAfterAnPoints #after this time will try to determine rwPointAn and shPointAn (if it's not complete problem) and check expressions
 
 
 Development issues:
@@ -75,6 +91,8 @@ by
 (*)	If I don't want to save images set saveImages = False  in visual_plot.py
 	From  saved images we can create the movie with:
 	ffmpeg -r 1 -pattern_type glob -i '*.png' -c:v libx264 -pix_fmt yuv420p out.mp4
+	#convert them  before if made withh fullscreen
+	for i in `ls *.png`; do   convert $i -geometry 800x600  $i; done
 
 (*)	If I want a break after each update uncomment in visual_plot.py in afterUpdateValues
     import time

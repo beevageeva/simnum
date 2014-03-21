@@ -24,20 +24,7 @@ def getTimestep(v, p, rho):
 	dz = getDz()
 	t1 =  np.divide(p, rho)
 	if(np.any(t1<0)):
-		print("!!!!!!!!!!!!!!!!p/rho has elements <0 -- taking 0 -- no imaginary part(to take abs value?)")
-		print(t1)
-		indices = np.argwhere(t1<0).flatten()
-		print("indices")
-		print(indices)
-		print("pres indices")
-		print(p[indices])
-		print("rho indices")
-		print(rho[indices])
-		t1[t1<0] = 0
-		print("Modified t1")
-		print(t1)
-		import time
-		time.sleep(5)	
+		return 0	
 	cs = np.sqrt(gamma *  t1)
 	smax = np.max(np.concatenate([np.absolute(v + cs), np.absolute(v - cs)]))
 	dt = float(dz * fcfl ) / smax

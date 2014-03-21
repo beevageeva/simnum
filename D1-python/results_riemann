@@ -1,5 +1,0 @@
-change in constants.py:
-z0, zf 
-problemType = "riemann"
-schemeType = "fg"   #schemeType is independent of problemType this will work with sound waves!
-

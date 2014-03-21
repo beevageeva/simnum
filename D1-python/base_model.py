@@ -68,17 +68,6 @@ class BaseModel:
 			print(self.fe)
 			print("END")
 
-	#we det cs locally , csSign is 1 for wave travelling right and -1 for travelling left
-	#v00 is inital fluid velocity which must be added	
-	def getNewPoint(self, zval, dt, v00, csSign):
-		from common import displacedPoint, getZIndex
-		from math import sqrt
-		zIndex = getZIndex(zval)	
-		cs = sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
-		v = v00 + csSign * cs	
-		newz = displacedPoint(zval, v, dt)
-		return newz
-
 
 
 	def mainLoop(self, timeEnd):
@@ -91,6 +80,12 @@ class BaseModel:
 			self.fc = r['fc']
 			self.fe = r['fe']
 			dt = getTimestep(self.vel, self.pres, self.rho)
+			#check if dt is 0 -> because  pres/rho might have become negative see  getTimestep in alg.py
+			if dt==0:
+				print("STOP")
+				import time
+				time.sleep(5)
+				break
 			time+=dt
 			nstep+=1
 			#recalculate u at next step - time	
@@ -105,9 +100,11 @@ class BaseModel:
 			self.pres = r["pres"]
 			#print("NSTEP %d" % nstep)
 			self.printVars(time)
+			#splitted updateValues in updateValuesModel and updateValuesNotifier because I want to catch stop condition computed in updateValuesModel in each step
+			self.updateValuesModel(dt, time)	
 			from notifier_params import nstepsPlot
 			if(nstep % nstepsPlot == 0):
 				#print("upd")
-				self.updateValues(nstepsPlot *  dt, time)
+				self.updateValuesNotifier(dt, time)
 				self.notifier.afterUpdateValues(time)
 		self.notifier.finish()

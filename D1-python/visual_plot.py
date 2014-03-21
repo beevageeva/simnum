@@ -5,7 +5,7 @@ import numpy as np
 import sys, os
 
 
-saveImages = True
+saveImages = False
 
 def getRandomColor():
 	from random import random
@@ -13,6 +13,11 @@ def getRandomColor():
 	blue = random()
 	green = random()	
 	return "#%02x%02x%02x" % (red*255, green*255, blue*255)
+
+def getColorFromArray(array):
+	return "#%02x%02x%02x" % (array[0][0]*255, array[0][1]*255, array[0][2]*255)
+
+
 
 #because methods are different in python3 and python2
 def testKeyInDict(key, dictionary):
@@ -42,6 +47,11 @@ class VisualPlot:
 			title = titles[i]
 			self.addAxis(ax[i], title, iniValues[i])
 		self.plotTitle = ax[0].set_title("Time 0")
+		from notifier_params import fullscreenMainfigure
+		if fullscreenMainfigure:
+			#I think this only works with TkAgg backend
+			wm = plt.get_current_fig_manager()
+			wm.full_screen_toggle()
 		plt.draw()
 		plt.show(block=False)
 
@@ -53,7 +63,7 @@ class VisualPlot:
 			numFig = 0
 			for fig in self.figures:
 				os.mkdir(os.path.join(self.dirname, "Fig%d" % numFig))
-				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img00000.png"))
+				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img000000.png"))
 				numFig +=1
 
 
@@ -73,7 +83,7 @@ class VisualPlot:
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
 				self.lines[title].append(l)
 			ax.relim()
-			ax.autoscale_view(False,True,True)
+			ax.autoscale_view(True,True,True)
 			ax.legend()
 		
 
@@ -82,7 +92,12 @@ class VisualPlot:
 			self.markPoints = {}
 		if(testKeyInDict(pointName, self.markPoints)):
 			self.markPoints[pointName].remove()
+			#keep color
+			color = getColorFromArray(self.markPoints[pointName].get_color())
 			del  self.markPoints[pointName]
+		else:
+			#generate random color
+			color = getRandomColor()
 		l = self.lines[axTitle]
 		if hasattr(l, '__len__'):
 			l = l[0]
@@ -95,7 +110,8 @@ class VisualPlot:
 		#TODO I choose 1 but it might be too small
 		if(maxValue == minValue):
 			maxValue = minValue + 1
-		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, 'k')
+		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
+		self.axes[axTitle].legend()
 			
 		
 
@@ -118,10 +134,10 @@ class VisualPlot:
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
 		self.axes[title].relim()
-		self.axes[title].autoscale_view(False,True,True)
+		self.axes[title].autoscale_view(True,True,True)
 		
 	def afterUpdateValues(self, newTime):
-		self.plotTitle.set_text("Time %4.3f" % newTime)
+		self.plotTitle.set_text("Time %4.4f" % newTime)
 		numFig = 0
 		for fig in self.figures:
 			fig.canvas.draw()
@@ -132,14 +148,14 @@ class VisualPlot:
 				#ffmpeg -r 1 -pattern_type glob -i '*.png' -c:v libx264 -pix_fmt yuv420p out.mp4
 				#convert HANGS!!
 				#convert -antialias -delay 1x2 *.png mymovie.mp4
-				imgname = "%4.3f" % newTime
-				if(len(imgname) == 5):
+				imgname = "%4.4f" % newTime
+				if(len(imgname) == 6):
 					imgname = "0"+imgname
 				imgname = imgname.replace(".", "")	
 				fig.savefig(os.path.join(self.dirname, "Fig%d" % numFig , "img%s.png"%imgname))
 			numFig +=1
 		#import time
-		#time.sleep(3)
+		#time.sleep(5)
 
 	def finish(self):
 		pass

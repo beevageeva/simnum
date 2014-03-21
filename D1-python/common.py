@@ -42,6 +42,7 @@ def getPeriodicX2(xval, a=z0, b=zf):
 def getZIndex(z):
 	return int( float(nint)*(z - z0)/(zf - z0) )
 
+#assumes periodic function
 def displacedPoint(z, c, t):
 	newz = z + c * t
 	periodicz = getPeriodicX(newz)
@@ -59,4 +60,8 @@ def createFolder(dirname_base="out"):
 		dirname = "%s_%i" % (dirname_base, i)
 	os.mkdir(dirname)
 	return dirname
+
+
+
+
 
