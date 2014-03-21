@@ -1,7 +1,8 @@
 D1-python/__pycache__
 D1-python/outImages*
 D1-python/*.pyc
-D1-python/pdf/*.log
-D1-python/pdf/*.aux
+D1-python/pdf/riemann.log
+D1-python/pdf/riemann.aux
+D1-python/pdf/riemann.out
 *.pyc
 __pycache__
