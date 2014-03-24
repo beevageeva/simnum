@@ -6,6 +6,10 @@ import riemann_params
 
 
 def getInitialPresRhoVel(z):
+	#check (rhoLeft > rhoRight and presLeft > presRight) or (rhoLeft < rhoRight and presLeft < presRight) otherwise initial conditions are invalid
+	if  (riemann_params.rhoLeft > riemann_params.rhoRight and riemann_params.presLeft < riemann_params.presRight) or  (riemann_params.rhoLeft < riemann_params.rhoRight and riemann_params.presLeft > riemann_params.presRight):
+		print("invalid initial conditions : (rhoLeft >= rhoRight and presLeft >= presRight) or (rhoLeft <= rhoRight and presLeft <= presRight)")
+		sys.exit(0)
 	#check rhoLeft > rhoRight or inverse them
 	if(riemann_params.rhoLeft < riemann_params.rhoRight):
 		print("!!!!!!Rholeft>RhoRight INVERSE")

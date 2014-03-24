@@ -1,8 +1,10 @@
-riemann_problemType = "complete"  #this can be shock_tube, complete, exp_vacuum
+#riemann_problemType = "complete"  #this can be shock_tube, complete, exp_vacuum
+riemann_problemType = "conv"  #this can be shock_tube, complete, exp_vacuum
 
+timeAfterAnPoints = 2.0   #default
 if riemann_problemType == "shock_tube":
 	#shock tube
-	timeAfterAnPoints = 1.0   #used for ..see readme
+	timeAfterAnPoints = 1.0   
 
 	#presLeft = 1.0
 	#presRight = 0.1
@@ -65,11 +67,12 @@ elif riemann_problemType == "exp_vacuum":
 	velRight = 0.0
 	zC = 1.5
 
-#converging flow
-#presLeft = 1.0
-#presRight = 1.0
-#rhoLeft = 1.0
-#rhoRight = 1.0
-#velLeft = 10.0
-#velRight = -10.0
-#zC = 2.5
+elif riemann_problemType == "conv":
+	#converging flow
+	presLeft = 1.0
+	presRight = 1.0
+	rhoLeft = 1.0
+	rhoRight = 1.0
+	velLeft = 10.0
+	velRight = -10.0
+	zC = 2.5
