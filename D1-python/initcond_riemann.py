@@ -22,6 +22,16 @@ def getInitialPresRhoVel(z):
 		temp = riemann_params.velRight
 		riemann_params.velRight = riemann_params.velLeft
 		riemann_params.velLeft = temp
+	if riemann_params.riemann_problemType == "complete":
+		csLeft = getCsLeft()
+		csRight = getCsRight()
+		print("----- Propagation (u1<0 , u2>0 )-----") #going away from shock wave
+		#there must be at least one of u11 or u12 for the rarefaction wave to exist
+		#there must be at least one of u21 or u22 for the shock wave to exist
+		print("u11 = velLeft - csLeft = %E" % (riemann_params.velLeft - csLeft))
+		print("u12 = velLeft + csLeft = %E" % (riemann_params.velLeft + csLeft))
+		print("u21 = velRight - csRight = %E" % (riemann_params.velRight - csRight))
+		print("u22 = velRight + csRight = %E" % (riemann_params.velRight + csRight))
 		
 	from common import getDz
 	#smooth functions

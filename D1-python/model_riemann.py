@@ -293,6 +293,9 @@ class Model(BaseModel):
 				return zf
 			return newz
 
+
+
+
 	
 	def getNewRwPoint(self, dt):
 		#do not use displacedPoint from common.py as it make periodic assumption when it goes away from domain, but in this case it should remain at the end

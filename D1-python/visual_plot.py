@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys, os
 
+from notifier_params import fullscreenMainfigure
 
 saveImages = False
 
@@ -47,7 +48,6 @@ class VisualPlot:
 			title = titles[i]
 			self.addAxis(ax[i], title, iniValues[i])
 		self.plotTitle = ax[0].set_title("Time 0")
-		from notifier_params import fullscreenMainfigure
 		if fullscreenMainfigure:
 			#I think this only works with TkAgg backend
 			wm = plt.get_current_fig_manager()
@@ -84,7 +84,10 @@ class VisualPlot:
 				self.lines[title].append(l)
 			ax.relim()
 			ax.autoscale_view(True,True,True)
-			ax.legend()
+			if fullscreenMainfigure:
+				ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+			else:
+				ax.legend()
 		
 
 	def markPoint(self, axTitle, pointName, value):
@@ -111,7 +114,10 @@ class VisualPlot:
 		if(maxValue == minValue):
 			maxValue = minValue + 1
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
-		self.axes[axTitle].legend()
+		if fullscreenMainfigure:
+			self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		else:
+			self.axes[axTitle].legend()
 			
 		
 

@@ -1,4 +1,4 @@
-riemann_problemType = "complete"  #this can be shock_tube, complete, exp_vacuum
+riemann_problemType = "shock_tube"  #this can be shock_tube, complete, exp_vacuum
 
 timeAfterAnPoints = 2.0   #default
 if riemann_problemType == "shock_tube":
@@ -38,18 +38,36 @@ elif riemann_problemType == "complete":
 	presRight = 10**4
 	rhoLeft = 1.0
 	rhoRight = 0.125
+	#u1<0(one), u2>0(one)  #see u1 and u2 def in initcond_riemann.py
 	velLeft = 100.0
 	velRight = -50.0
-	##velRight = -300 #greater than csShock
-	##velRight = 50.0 #same sign
-	##velRight = 1000.0 #same sign greater than csShock
-
-	#reverse signs strange things 
-	#velLeft = -100
-	##velRight = 50
-	#velRight = 10000 #
-
+	#velRight = -300 #greater than csShock ??, but there is one u2>0 (shock wave exists)
 	zC = 0.0
+
+	#u1<0(both), u2>0(one)
+	#velLeft = -1000.0
+	#velRight = -50.0
+	#zC = 2.0
+	
+
+	#u1<0(both), u2>0(both)
+	#velLeft = -1000.0
+	#velRight = 1000.0
+
+	#the following cases are invalid because there is no rarefaction wave or no shock wave
+	#u1<0 (none), u2 > 0(one) no rarefaction wave
+	#velLeft = 1000.0
+	#velRight = -50.0
+	
+	#u1<0 (one), u2 > 0(none) #no shock wave
+	#velLeft = 100.0
+	#velRight = -1000.0
+
+	#u1<0 (none), u2 > 0(none) no shock wave , no rarefaction wave
+	#velLeft = 1000.0
+	#velRight = -1000.0
+
+
 
 
 elif riemann_problemType == "exp_vacuum":
