@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys, os
 
-from notifier_params import fullscreenMainfigure
+
+fullscreenMainfigure = True
 
 saveImages = False
 
@@ -58,8 +59,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		import time
-		time.sleep(5)
+		#import time
+		#time.sleep(5)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
