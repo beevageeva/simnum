@@ -41,6 +41,9 @@ class VisualPlot:
 		nplots = len(titles)
 		self.z = z
 		fig, ax =  plt.subplots(nplots,1,True)
+		#fig.set_size_inches(300,200)
+		#fig.set_figwidth(300)
+		#fig.set_figheight(200)
 		if(nplots == 1):
 			ax = [ax]
 		self.figures = [fig]
@@ -50,10 +53,12 @@ class VisualPlot:
 			title = titles[i]
 			self.addAxis(ax[i], title, iniValues[i])
 		self.plotTitle = ax[0].set_title("Time 0")
+		wm = plt.get_current_fig_manager()
 		if fullscreenMainfigure:
 			#I think this only works with TkAgg backend
-			wm = plt.get_current_fig_manager()
 			wm.full_screen_toggle()
+		else:
+			wm.window.wm_geometry("800x900+50+50")
 		plt.draw()
 		plt.show(block=False)
 
