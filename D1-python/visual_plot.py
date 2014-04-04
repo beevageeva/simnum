@@ -78,11 +78,13 @@ class VisualPlot:
 		#we can plot multiple graphs on the same axis : example numerical and analytical
 		if(len(shape)==1):
 			l, = ax.plot(self.z, vals, lw=2, color='b')
+			#l, = ax.plot(self.z, vals[i], lw=2, color='b', markersize=5, linestyle="-", marker="o")
 			self.lines[title] = l
 		elif(len(shape)==2):
 			self.lines[title] = []
 			for i in range(0, shape[0]):
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
+				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
 			ax.relim()
 			ax.autoscale_view(True,True,True)

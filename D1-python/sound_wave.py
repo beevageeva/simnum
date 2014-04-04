@@ -3,12 +3,12 @@ from math import pi
 
 	#u(x) = periodicFunction (x)
 	#after time t
-	#u(x) = periodicFunction(x -  cs * t)
+	#u(x) = periodicFunction(x -  phaseVel * t)
 
 class SoundWave:
 
-	def __init__(self, A,  cs,  periodicFunction):
-		self.cs = cs
+	def __init__(self, A,  phaseVel,  periodicFunction):
+		self.phaseVel = phaseVel
 		self.A = A
 		self.periodicFunction = periodicFunction	
 	
@@ -16,12 +16,12 @@ class SoundWave:
 	def getWaveShape(self, z, t=0):
 		#TODO  if t = 0 there is no need to getPeriodicX for all the elements, but I have to apply bounday conditions for first and last element which are not in the domain because of the cells, but it's a good practice to assure that all elements of z are in the domain(why shouldn't be ??)
 		from common import getPeriodicXArray
-		newz = z - self.cs * t
+		newz = z - self.phaseVel * t
 		z = getPeriodicXArray(newz)
 		return self.A * self.periodicFunction(z)
 
 	def printString(self):
-		print("A=%E, cs=%E" %(self.A, self.cs) )
+		print("A=%E, phaseVel=%E" %(self.A, self.phaseVel) )
 
 
 #monochromatic sound wave with amplitude 1
@@ -30,11 +30,11 @@ class SoundWaveSine(SoundWave):
 	
 	#u(x) = sin (2*pi*x/wl + phi)
 	#after time t
-	#u(x) =  sin (2 * pi * (x -  cs * t)/ wl  + phi)
-	def __init__(self, A, cs, wl, phi):
+	#u(x) =  sin (2 * pi * (x -  phaseVel * t)/ wl  + phi)
+	def __init__(self, A, phaseVel, wl, phi):
 		def sinFunction(z):
 			return np.sin(np.multiply((2.0 * pi/wl),z) + phi )
-		SoundWave.__init__(self, A,  cs, sinFunction)
+		SoundWave.__init__(self, A,  phaseVel, sinFunction)
 
 class SuperpositionSoundWave(SoundWave):
 
