@@ -21,8 +21,8 @@ timeEnd = 1.0 #if not set as program argument it's taken from here
 
 verbose = False
 
-schemeType = "lf"  # scheme type may be lf(Lax - Fr) or fg (first generation)
-#schemeType = "fg"  
+#schemeType = "lf"  # scheme type may be lf(Lax - Fr) or fg (first generation)
+schemeType = "fg"  
 if schemeType == "lf":
 	fcfl = 0.99 #use this for lax - fr scheme type
 elif schemeType == "fg":

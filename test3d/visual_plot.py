@@ -63,7 +63,7 @@ class VisualPlot:
 
 	def afterInit(self):
 		import time
-		time.sleep(1)
+		time.sleep(10)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0

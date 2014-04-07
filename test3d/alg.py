@@ -35,7 +35,24 @@ def recalculateFluxes(rho, uc, ue, v, p):
 	fc1 = np.multiply(rho, v[:,:,0] ** 2) + p
 	fc2 = np.multiply(rho, np.multiply(v[:,:,0], v[:,:,1])) #Fc_xz = Fc_zx store only ince the value
 	fc3 = np.multiply(rho, v[:,:,1] ** 2) + p
+	print("recalculateFluxes fc3")
+	print(fc3)	
+	print("recalculateFluxes v_z")
+	print(v[:,:,1])	
+	print("recalculateFluxes v_z**2")
+	print(v[:,:,1] ** 2)
+	#!!! dstack won't work as expected for 3 ? it's the same	
 	fc = np.dstack((fc1,fc2,fc3))
+	#fc =  np.zeros(fc1.shape + (3,), dtype='float')
+	#fc[:,:, 0] = fc1
+	#fc[:,:, 1] = fc2
+	#fc[:,:, 2] = fc3
+	print("recalculateFluxes pres")
+	print(p)
+	print("recalculateFluxes fc")
+	print(fc)
+	print("recalculateFluxes fc third column")
+	print(fc[:,:,2])
 	return {'fm': fm, 'fc': fc, 'fe': fe}
 
 def getTimestep(v, p, rho):
@@ -124,11 +141,11 @@ if schemeType == "fg":
 		for i in range(0, nint+2):
 			for j in range(0, nint+2):
 				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = u[i][j] - lambdaParam  * 0.5 * ((intermF[i+1][j][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i][j+1][0]) + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1]))
+					val = u[i][j] - lambdaParam  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1]) + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]))
 					res[i][j]=val
 				else:
-					val = u[i][j][0] - lambdaParam  * 0.5 * ((intermF[i+1][j][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i][j+1][0]) + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1]))
-					val2 = u[i][j][1] - lambdaParam  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1]+intermF[i+1][j+1][1] - intermF[i][j+1][1]) + (intermF[i][j+1][2] - intermF[i][j][2]+ intermF[i+1][j+1][2] - intermF[i+1][j][2]))
+					val = u[i][j][0] - lambdaParam  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1]) + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]))
+					val2 = u[i][j][1] - lambdaParam  * 0.5 * ((intermF[i+1][j][2] - intermF[i][j][2]+intermF[i+1][j+1][2] - intermF[i][j+1][2]) + (intermF[i][j+1][1] - intermF[i][j][1]+ intermF[i+1][j+1][1] - intermF[i+1][j][1]))
 					res[i][j][0] = val
 					res[i][j][1] = val2
 		#no more boundary conditions because intermediate array alreday has nint + 3 points
@@ -152,6 +169,10 @@ if schemeType == "fg":
 elif schemeType == "lf":
 
 	def calcSingleStepU(u,f, dt):
+		print("calcSingleStepU f first comp")
+		print(f[:,:,0])
+		print("calcSingleStepU f second comp")
+		print(f[:,:,1])
 		from common import getDz
 		from constants import nint
 		lambdaParam = dt / getDz()
@@ -159,14 +180,16 @@ elif schemeType == "lf":
 			res = np.zeros((nint, nint))
 		else:
 			res = np.zeros((nint, nint, 2))
+			print("calcSingleStepU f third comp")
+			print(f[:,:,2])
 		for i in range(1, nint+1):
 			for j in range(1, nint+1):
 				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = 0.25 * (u[i-1][j-1] + u[i-1][j+1] + u[i+1][j+1] + u[i+1][j-1]) - 0.25 * lambdaParam  * ((f[i+1][j-1][0] - f[i-1][j-1][0]+ f[i+1][j+1][0] - f[i-1][j+1][0]) + (f[i-1][j+1][1] - f[i-1][j-1][1] + f[i+1][j+1][1] - f[i+1][j-1][1])) 
+					val = 0.25 * (u[i-1][j-1] + u[i-1][j+1] + u[i+1][j+1] + u[i+1][j-1]) - 0.25 * lambdaParam  * ((f[i+1][j-1][1] - f[i-1][j-1][1]+ f[i+1][j+1][1] - f[i-1][j+1][1]) + (f[i-1][j+1][0] - f[i-1][j-1][0] + f[i+1][j+1][0] - f[i+1][j-1][0])) 
 					res[i-1][j-1] = val
 				else:
-					val = 0.25 * (u[i-1][j-1][0] + u[i-1][j+1][0] + u[i+1][j+1][0] + u[i+1][j-1][0]) - 0.25 * lambdaParam  * ((f[i+1][j-1][0] - f[i-1][j-1][0] + f[i+1][j+1][0] - f[i-1][j+1][0]) + (f[i-1][j+1][1] - f[i-1][j-1][1] + f[i+1][j+1][1] - f[i+1][j-1][1])) 
-					val2 = 0.25 * (u[i-1][j-1][1] + u[i-1][j+1][1] + u[i+1][j+1][1] + u[i+1][j-1][1]) - 0.25 * lambdaParam  * ((f[i+1][j-1][1] - f[i-1][j-1][1]+ f[i+1][j+1][1] - f[i-1][j+1][1]) + (f[i+1][j+1][2] - f[i+1][j-1][2]+ f[i-1][j+1][2] - f[i-1][j-1][2])) 
+					val = 0.25 * (u[i-1][j-1][0] + u[i-1][j+1][0] + u[i+1][j+1][0] + u[i+1][j-1][0]) - 0.25 * lambdaParam  * ((f[i+1][j-1][1] - f[i-1][j-1][1] + f[i+1][j+1][1] - f[i-1][j+1][1]) + (f[i-1][j+1][0] - f[i-1][j-1][0] + f[i+1][j+1][0] - f[i+1][j-1][0])) 
+					val2 = 0.25 * (u[i-1][j-1][1] + u[i-1][j+1][1] + u[i+1][j+1][1] + u[i+1][j-1][1]) - 0.25 * lambdaParam  * ((f[i+1][j-1][2] - f[i-1][j-1][2]+ f[i+1][j+1][2] - f[i-1][j+1][2]) + (f[i+1][j+1][1] - f[i+1][j-1][1]+ f[i-1][j+1][1] - f[i-1][j-1][1])) 
 					res[i-1][j-1][0] = val
 					res[i-1][j-1][1] = val2
 		print("res before BC")
@@ -182,6 +205,8 @@ elif schemeType == "lf":
 		print(uc)	
 		print("fc (recalculateU) = ")
 		print(fc)	
+		print("fc third column (recalculateU) = ")
+		print(fc[:,:,2])	
 		finalUc = calcSingleStepU(uc, fc, dt)	
 		print("uc  (after recalculateU) = ")
 		print(finalUc)	
