@@ -91,12 +91,12 @@ class VisualPlot:
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
 				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
-			ax.relim()
-			ax.autoscale_view(True,True,True)
-			if fullscreenMainfigure:
-				ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-			else:
-				ax.legend()
+		ax.relim()
+		ax.autoscale_view(True,True,True)
+		if fullscreenMainfigure:
+			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		else:
+			ax.legend()
 		
 
 	def markPoint(self, axTitle, pointName, value):

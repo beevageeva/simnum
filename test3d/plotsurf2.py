@@ -13,6 +13,22 @@ Y = np.arange(-5, 5, 0.25)
 X, Y = np.meshgrid(X, Y)
 R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
+#axis = 0 -> column
+#axis = 1 -> row
+#todo test which is faster
+#Z2 =  np.zeros(X.shape + (2,), dtype='float')
+#Z2 =  np.array(X.shape + (2,), dtype='float')
+#Z2[..., 0] = Z  
+##or
+##Z2[:,:, 0] = Z
+#Z2[..., 1] = np.zeros(Z.shape)
+#shorter
+Z2 = np.dstack((Z,np.zeros(Z.shape)))
+#access:
+#Z2[:,:,0]  2D first dim
+#Z2[:,:,1]  2D second dim
+
+
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
         linewidth=0, antialiased=False)
 print(surf)
