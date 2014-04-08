@@ -79,6 +79,7 @@ class BaseModel:
 			self.fm = r['fm']
 			self.fc = r['fc']
 			self.fe = r['fe']
+			print("before getTimestep time = %E" % time)
 			dt = getTimestep(self.vel, self.pres, self.rho)
 			#check if dt is 0 -> because  pres/rho might have become negative see  getTimestep in alg.py
 			if dt==0:

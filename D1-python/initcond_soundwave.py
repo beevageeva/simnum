@@ -120,3 +120,8 @@ def getVelCurveNumeric(v):
 	from sound_wave_params import v00
 	cs00 = getCs0() 
 	return np.divide(np.subtract(v, v00),cs00)
+
+def  lrBoundaryConditions(array, skip=0):
+	n = len(array) - 1
+	array.insert(0, array[n - skip])
+	array.append(array[1 + skip])

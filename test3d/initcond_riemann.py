@@ -61,3 +61,10 @@ def getCsLeft():
 def getCsRight():
 	return math.sqrt(gamma * riemann_params.presRight / riemann_params.rhoRight)
 
+def lrBoundaryConditions(array, skip=0):
+	n = array.shape[0] - 1
+	array = np.insert(array, 0, array[0,:], axis = 0)
+	array = np.insert(array, n, array[n,:], axis = 0)
+	array = np.insert(array, 0, array[:,0], axis = 1)
+	array = np.insert(array, n, array[:,n], axis = 1)
+	return array

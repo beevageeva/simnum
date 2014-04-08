@@ -139,17 +139,21 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def updateValues(self, title, newValues):
+		print("updateValues %s" % title)
 		shape = np.shape(newValues)
 		#we can plot multiple graphs on the same axis : example numerical and analytical: see addAxis before!!
 		if(len(shape)==1):
 			self.lines[title].set_ydata(newValues)
+			print(" ".join(map(str, newValues)))
 		elif(len(shape)==2):
+			print(" ".join(map(str, newValues[0])))
 			nlines = shape[0]
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
 		self.axes[title].relim()
 		self.axes[title].autoscale_view(True,True,True)
+		
 		
 	def afterUpdateValues(self, newTime):
 		self.plotTitle.set_text("Time %4.4f" % newTime)

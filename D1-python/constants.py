@@ -12,9 +12,9 @@ elif problemType == "riemann":
 	if riemann_problemType == "complete":
 		gamma = 1.4
 
-#nint = 64
+nint = 64
 #nint =  256
-nint = 1024
+#nint = 1024
 #nint = 32
 
 timeEnd = 1.0 #if not set as program argument it's taken from here

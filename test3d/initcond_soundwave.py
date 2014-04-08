@@ -39,4 +39,16 @@ def getInitialPresRhoVel(z):
 	return {'pres': p00 + gamma * p00 * r  , 'rho': rho00 + rho00 * r , 'vel': vel } 
 
 			
+def lrBoundaryConditions(array, skip=0):
+	n = array.shape[0] - 1
+	print("lrBoundaryCond")
+	print(array.shape)
+	array = np.insert(array, 0,  array[n-skip,:], axis = 0)
+	array = np.insert(array, n+2,  array[1+skip,:], axis = 0)
+	print(array.shape)
+
+	array = np.insert(array, 0, array[:,n-skip], axis = 1)
+	array = np.insert(array, n+2, array[:,1+skip], axis = 1)
+	print(array.shape)
+	return array
 

@@ -61,3 +61,9 @@ def getCsLeft():
 def getCsRight():
 	return math.sqrt(gamma * riemann_params.presRight / riemann_params.rhoRight)
 
+
+def  lrBoundaryConditions(array, skip=0):
+	n = len(array) - 1
+	array.insert(0, array[0]) 
+	array.append(array[n])  
+

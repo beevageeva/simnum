@@ -37,7 +37,7 @@ def getPeriodicX2(xval, a=z0, b=zf):
 	return xval
 
 def getZIndex(z):
-	return int( float(nint)*(z - z0)/(zf - z0) )
+	return int( float(nint)*(float(z) - z0)/(zf - z0) )
 
 #assumes periodic function
 def displacedPoint(z, c, t):
