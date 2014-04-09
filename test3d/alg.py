@@ -2,6 +2,7 @@ from constants import gamma
 import numpy as np
 
 
+
 def power2Vec(vfr):
 	return vfr[:,:,0] ** 2 + vfr[:,:,1] ** 2
 
@@ -65,8 +66,9 @@ def getTimestep(v, p, rho):
 	#print("getTimestep vel_xPX")
 	#print(" ".join(map(str, v[0,:,0])))
 	from constants import fcfl, verbose
-	from common import getDz
-	dz = getDz()
+	from common import getDz0, getDz1
+	dz0 = getDz0()
+	dz1 = getDz1()
 	t1 =  np.divide(p, rho)
 	if(np.any(t1<0)):
 		print("there is p/rho < 0 in getTimestep")
@@ -86,7 +88,8 @@ def getTimestep(v, p, rho):
 	
 	#http://homepage.univie.ac.at/franz.vesely/cp_tut/nol2h/new/c5pd_s1ih.html 
 	smax = np.max(np.concatenate([np.sqrt( (v[:,:,0] + cs) ** 2 + (v[:,:,1] + cs)**2 ), np.sqrt( (v[:,:,0] - cs) ** 2 + (v[:,:,1] - cs)**2 )]))
-	dt = float(dz  * fcfl ) / (smax *  2 ** (0.5))
+	#dt = float( dz  * fcfl ) / (smax *  2 ** (0.5))
+	dt = float( (dz0 ** 2 + dz1 ** 2)**0.5  * fcfl ) / (2 * smax)
 	#print("getTimestep %E" % dt)
 	return dt
 
@@ -120,9 +123,11 @@ if schemeType == "fg":
 	
 	def calcIntermU(u, f, dt):
 		#print("calcIntermU")
-		from common import getDz
+		from common import getDz0, getDz1
 		from constants import nint
-		lambdaParam = dt / getDz()
+		#no more lambda dz1 may be different from dz0
+		dz0 = getDz0()
+		dz1 = getDz1()
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint+1, nint+1))
 			#res = np.array(nint+1, nint+1) #TODO do not initialize how?
@@ -133,11 +138,11 @@ if schemeType == "fg":
 			for j in range(1, nint+2):
 				#points displaced right +1 
 				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = 0.25 * (u[i-1][j-1] + u[i-1][j] + u[i][j-1] + u[i][j]) - 0.25 * lambdaParam  * ((f[i][j][1] - f[i-1][j][1] + f[i][j-1][1] - f[i-1][j-1][1]) + (f[i][j][0] - f[i][j-1][0]+f[i-1][j][0] - f[i-1][j-1][0]))
+					val = 0.25 * (u[i-1][j-1] + u[i-1][j] + u[i][j-1] + u[i][j]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1] + f[i][j-1][1] - f[i-1][j-1][1])/dz1 + (f[i][j][0] - f[i][j-1][0]+f[i-1][j][0] - f[i-1][j-1][0]) / dz0)
 					res[i-1][j-1] = val
 				else:
-					val = 0.25 * (u[i-1][j-1][0] + u[i-1][j][0] + u[i][j-1][0] + u[i][j][0]) - 0.25 * lambdaParam  * ((f[i][j][1] - f[i-1][j][1]+f[i][j-1][1] - f[i-1][j-1][1]) + (f[i][j][0] - f[i][j-1][0] + f[i-1][j][0] - f[i-1][j-1][0]))
-					val2 = 0.25 * (u[i-1][j-1][1] + u[i-1][j][1] + u[i][j-1][1] + u[i][j][1]) - 0.25 * lambdaParam  * ((f[i][j][2] - f[i-1][j][2]+f[i][j-1][2] - f[i-1][j-1][2]) + (f[i][j][1] - f[i][j-1][1] + f[i-1][j][1] - f[i-1][j-1][1]))
+					val = 0.25 * (u[i-1][j-1][0] + u[i-1][j][0] + u[i][j-1][0] + u[i][j][0]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1]+f[i][j-1][1] - f[i-1][j-1][1]) / dz1 + (f[i][j][0] - f[i][j-1][0] + f[i-1][j][0] - f[i-1][j-1][0])/dz0 )
+					val2 = 0.25 * (u[i-1][j-1][1] + u[i-1][j][1] + u[i][j-1][1] + u[i][j][1]) - 0.25 * dt * ((f[i][j][2] - f[i-1][j][2]+f[i][j-1][2] - f[i-1][j-1][2]) / dz1 + (f[i][j][1] - f[i][j-1][1] + f[i-1][j][1] - f[i-1][j-1][1])/dz0)
 					res[i-1][j-1][0] = val
 					res[i-1][j-1][1] = val2
 	
@@ -153,9 +158,10 @@ if schemeType == "fg":
 	
 	def calcFinalU(u, intermF, dt):
 		#print("calcFinalU")
-		from common import getDz
+		from common import getDz0, getDz1
 		from constants import nint
-		lambdaParam = dt / getDz()
+		dz0 = getDz0
+		dz1 = getDz1()
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint+2, nint+2))
 			#res = np.array(nint+1, nint+1) #TODO do not initialize how?
@@ -165,11 +171,11 @@ if schemeType == "fg":
 		for i in range(0, nint+2):
 			for j in range(0, nint+2):
 				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = u[i][j] - lambdaParam  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1]) + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]))
+					val = u[i][j] - dt  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0])/dz0)
 					res[i][j]=val
 				else:
-					val = u[i][j][0] - lambdaParam  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1]) + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]))
-					val2 = u[i][j][1] - lambdaParam  *  ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2]) + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1]))
+					val = u[i][j][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
+					val2 = u[i][j][1] - dt  *  ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
 					res[i][j][0] = val
 					res[i][j][1] = val2
 		#no more boundary conditions because intermediate array alreday has nint + 3 points
@@ -198,9 +204,10 @@ elif schemeType == "lf":
 		#print(f[:,:,0])
 		#print("calcSingleStepU f second comp")
 		#print(f[:,:,1])
-		from common import getDz
+		from common import getDz0, getDz1
 		from constants import nint
-		lambdaParam = dt / getDz()
+		dz0 = getDz0()
+		dz1 = getDz1()
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint, nint))
 		else:
@@ -211,11 +218,11 @@ elif schemeType == "lf":
 			for j in range(1, nint+1):
 				if(u.ndim == 2): #case of um and ue that are not vectors
 					#averaging on the first term makes the scheme stable (see Appendix: The lax-Fr scheme)
-					val = 0.25 * (u[i][j-1] + u[i][j+1] + u[i+1][j] + u[i-1][j]) - 0.5 * lambdaParam  * ((f[i+1][j][1] - f[i-1][j][1]) + (f[i][j+1][0] - f[i][j-1][0] )) 
+					val = 0.25 * (u[i][j-1] + u[i][j+1] + u[i+1][j] + u[i-1][j]) - 0.5 * dt * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
 					res[i-1][j-1] = val
 				else:
-					val = 0.25 * (u[i][j-1][0] + u[i][j+1][0] + u[i+1][j][0] + u[i-1][j][0]) - 0.5 * lambdaParam  * ((f[i+1][j][1] - f[i-1][j][1]) + (f[i][j+1][0] - f[i][j-1][0])) 
-					val2 = 0.25 * (u[i][j-1][1] + u[i][j+1][1] + u[i+1][j][1] + u[i-1][j][1]) - 0.5 * lambdaParam  * ((f[i+1][j][2] - f[i-1][j][2]) + (f[i][j+1][1] - f[i][j-1][1])) 
+					val = 0.25 * (u[i][j-1][0] + u[i][j+1][0] + u[i+1][j][0] + u[i-1][j][0]) - 0.5 * dt  * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
+					val2 = 0.25 * (u[i][j-1][1] + u[i][j+1][1] + u[i+1][j][1] + u[i-1][j][1]) - 0.5 * dt * ((f[i+1][j][2] - f[i-1][j][2])/dz1 + (f[i][j+1][1] - f[i][j-1][1])/dz0) 
 					res[i-1][j-1][0] = val
 					res[i-1][j-1][1] = val2
 		#print("calcSingleStep before BC PX")

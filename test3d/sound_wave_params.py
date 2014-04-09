@@ -22,9 +22,10 @@ A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 #A = 10.0 ** (-2) #this will work fine as well with fg scheme
 
-#periodic = "y" # can be "x", "y"  or "r" (periodic)
-periodic = "r" 
-#periodic = "x" 
+#periodic = "y" # can be "x", "y"  or "r" (periodic), "d"
+#periodic = "r" 
+#periodic = "x"
+periodic = "d" 
 
 
 

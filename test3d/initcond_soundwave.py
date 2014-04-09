@@ -43,6 +43,12 @@ def getInitialPresRhoVel(z):
 	elif periodic == "r":
 		#symmetric
 		arg = np.sqrt(z[0]**2 + z[1]**2)  
+	elif periodic == "d":
+		from sound_wave_diag_init import getPeriodicKx, getPeriodicKy
+		a = getPeriodicKx()
+		b = getPeriodicKy()
+		print("a = %E, b= %E" % (a, b))
+		arg = a * z[0] + b * z[1]  
 
 	if functiontype == "sine":
 		from sound_wave_sine_params import wl, phi
@@ -59,13 +65,16 @@ def getInitialPresRhoVel(z):
 	elif periodic == "r":
 		#symmetric
 		vel = np.dstack((v1 ,v1))   
+	elif periodic == "d":
+		vel = np.dstack((a * v1 ,b * v1))   
+
 
 
 	return {'pres': p00 + gamma * p00 * r  , 'rho': rho00 + rho00 * r , 'vel': vel } 
 
 from sound_wave_params import periodic
 			
-if periodic == "x" or periodic == "y":
+if periodic == "x" or periodic == "y" or periodic == "d":
 
 	def lrBoundaryConditions(array, skip=0):
 		n = array.shape[0] - 1
@@ -90,9 +99,6 @@ elif periodic == "r":
 					res[i] = array[i][n-j] 
 			return res
 				
-			
-
-
 
 	def lrBoundaryConditions(array, skip=0):
 		n = array.shape[0] - 1
@@ -118,5 +124,8 @@ elif periodic == "r":
 		array = np.insert(array, n+2, sdiag, axis = 1)
 		return array
 
+elif periodic == "d":
+	def lrBoundaryConditions(array, skip=0):
+		return array
 
 

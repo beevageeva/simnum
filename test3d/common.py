@@ -1,17 +1,22 @@
-from constants import nint, z0, zf
+from constants import nint, z0_0, z0_1, zf_0, zf_1
 import numpy as np
 
 
-def getDz():
-	return float(zf - z0) / nint
+def getDz0():
+	return float(zf_0 - z0_0) / nint
+
+def getDz1():
+	return float(zf_1 - z0_1) / nint
 
 def getZArray():
-	dz = getDz()
-	a = np.linspace(z0-0.5 *dz, zf+0.5*dz, nint+2)
-	return np.meshgrid(a, a)
+	dz0 = getDz0()
+	dz1 = getDz1()
+	a = np.linspace(z0_0-0.5 *dz0, zf_0+0.5*dz0, nint+2)
+	b = np.linspace(z0_1-0.5 *dz1, zf_1+0.5*dz1, nint+2)
+	return np.meshgrid(a, b)
 	
 
-def getPeriodicX(xval, a=z0, b=zf):
+def getPeriodicX(xval, a, b):
 	p = float(b - a)
 	k = int((xval-a)/p)
 	res = xval - k * p
@@ -22,13 +27,13 @@ def getPeriodicX(xval, a=z0, b=zf):
 	return res
 
 
-def getPeriodicXArray(xarray, a=z0, b=zf):
+def getPeriodicXArray(xarray, a, b):
 	res = []	
 	for xval in xarray:
 		res.append(getPeriodicX(xval, a, b))
 	return np.array(res)
 
-def getPeriodicX2(xval, a=z0, b=zf):
+def getPeriodicX2(xval, a, b):
 	p = b - a
 	while (xval < a):
 		xval+=p
@@ -36,8 +41,11 @@ def getPeriodicX2(xval, a=z0, b=zf):
 		xval-=p
 	return xval
 
-def getZIndex(z):
-	return int( float(nint)*(float(z) - z0)/(zf - z0) )
+def getZIndex0(z):
+	return int( float(nint)*(float(z) - z0_0)/(zf_0 - z0_0) )
+
+def getZIndex1(z):
+	return int( float(nint)*(float(z) - z0_1)/(zf_1 - z0_1) )
 
 #assumes periodic function
 def displacedPoint(z, c, t):

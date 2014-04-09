@@ -8,7 +8,7 @@ import sys, os
 
 from notifier_params import fullscreenMainfigure
 
-saveImages = True
+saveImages = False
 
 
 	
@@ -69,16 +69,16 @@ class VisualPlot:
 		self.figures = [fig]
 		from notifier_params import projections 
 		if projections:
-			from common import getZIndex
+			from common import getZIndex0, getZIndex1
 			if testKeyInDict("dim0", projections):
 				fig = plt.figure(2)
 				fig.suptitle("Dim0")
-				self.dim0ProjIndex = getZIndex(projections["dim0"])
+				self.dim0ProjIndex = getZIndex0(projections["dim0"])
 				self.figures.append(fig)
 			if testKeyInDict("dim1", projections):
 				fig = plt.figure(3)
 				fig.suptitle("Dim1")
-				self.dim1ProjIndex = getZIndex(projections["dim1"])
+				self.dim1ProjIndex = getZIndex1(projections["dim1"])
 				self.figures.append(fig)
 		self.axes = {}
 		n = len(titles)
@@ -119,8 +119,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		#import time
-		#time.sleep(10)
+		import time
+		time.sleep(10)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -138,7 +138,7 @@ class VisualPlot:
 		#ax.plot_surface(self.z[0], self.z[1], vals)
 		ax.plot_wireframe(self.z[0], self.z[1], vals)
 		#ax.view_init(0, 90)
-		ax.view_init(45, 45)
+		ax.view_init(30, 70)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 	#		if fullscreenMainfigure:
