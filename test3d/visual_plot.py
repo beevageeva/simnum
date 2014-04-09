@@ -8,7 +8,7 @@ import sys, os
 
 from notifier_params import fullscreenMainfigure
 
-saveImages = False
+saveImages = True
 
 
 	
@@ -105,7 +105,7 @@ class VisualPlot:
 				self.addProjAxes(self.axes[title][1], title, vals, n, i)
 
 			else:
-				print("Dim invalid %d" % vals.ndim)
+				#print("Dim invalid %d" % vals.ndim)
 				sys.exit(0)
 		self.plotTitle = self.figures[0].suptitle("Time 0")
 		plt.figure(1)
@@ -138,6 +138,7 @@ class VisualPlot:
 		#ax.plot_surface(self.z[0], self.z[1], vals)
 		ax.plot_wireframe(self.z[0], self.z[1], vals)
 		#ax.view_init(0, 90)
+		ax.view_init(45, 45)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 	#		if fullscreenMainfigure:
@@ -169,8 +170,8 @@ class VisualPlot:
 				values = vals[self.dim0ProjIndex, :]
 			else:
 				values = vals[self.dim0ProjIndex, :, 0]	
-			print("dim0")
-			print(" ".join(map(str, values)))
+			#print("dim0")
+			#print(" ".join(map(str, values)))
 			self.updateAxisProj(axesArray[1], values)
 		else:
 			ni = 1
@@ -183,7 +184,7 @@ class VisualPlot:
 
 
 	def updateValues(self, title, vals):
-		print("updateValues %s" % title)
+		#print("updateValues %s" % title)
 		ax = self.axes[title]
 		if(vals.ndim == 2):
 			self.updateAxis(ax[0], vals)

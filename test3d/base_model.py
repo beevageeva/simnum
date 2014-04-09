@@ -7,7 +7,7 @@ if problemType == "soundwave":
 elif problemType == "riemann":
 	import initcond_riemann as initcond
 else:
-	print("problemtype %s not implemented" % problemType)
+	#print("problemtype %s not implemented" % problemType)
 	sys.exit(0)
 
 
@@ -30,12 +30,12 @@ class BaseModel:
 		self.pres = r["pres"]
 		self.rho = r["rho"]
 		self.vel = r["vel"]
-		print("--------initial pres")
-		print(self.pres)
-		print("--------initial rho")
-		print(self.rho)
-		print("--------initial  vel")
-		print(self.vel)
+		#print("--------initial pres")
+		#print(self.pres)
+		#print("--------initial rho")
+		#print(self.rho)
+		#print("--------initial  vel")
+		#print(self.vel)
 	
 		r = getInitialUcUe(self.rho, self.vel, self.pres)
 		self.uc = r['uc']
@@ -50,7 +50,7 @@ class BaseModel:
 		self.notifier.afterInit()
 
 
-	def printVars(self, time):
+	def showVars(self, time):
 		from constants import verbose
 		if verbose:
 			print("Before calculating at time=%4.3f\nz" % time)
@@ -84,18 +84,18 @@ class BaseModel:
 			self.fm = r['fm']
 			self.fc = r['fc']
 			self.fe = r['fe']
-			print("before getTimestep time = %E" % time)
+			#print("before getTimestep time = %E" % time)
 			dt = getTimestep(self.vel, self.pres, self.rho)
 			#check if dt is 0 -> because  pres/rho might have become negative see  getTimestep in alg.py
 			if dt==0:
-				print("STOP")
+				#print("STOP")
 				import time
 				time.sleep(5)
 				break
 			time+=dt
 			nstep+=1
 			#recalculate u at next step - time	
-			#print("Time %4.3f" % time)
+			##print("Time %4.3f" % time)
 			result = recalculateU(self.rho, self.uc, self.ue, self.fm, self.fc, self.fe, dt)
 			self.rho = result["rho"]
 			self.uc = result["uc"]
@@ -104,13 +104,13 @@ class BaseModel:
 			r = recalculateVelPres(self.rho, self.uc, self.ue)
 			self.vel = r["vel"]	
 			self.pres = r["pres"]
-			#print("NSTEP %d" % nstep)
-			self.printVars(time)
+			##print("NSTEP %d" % nstep)
+			self.showVars(time)
 			#splitted updateValues in updateValuesModel and updateValuesNotifier because I want to catch stop condition computed in updateValuesModel in each step
 			self.updateValuesModel(dt, time)	
 			from notifier_params import nstepsPlot
 			if(nstep % nstepsPlot == 0):
-				#print("upd")
+				##print("upd")
 				self.updateValuesNotifier(dt, time)
 				self.notifier.afterUpdateValues(time)
 		self.notifier.finish()
