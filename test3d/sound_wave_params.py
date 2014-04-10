@@ -25,7 +25,7 @@ A = 3.0 * 10.0 ** (-4)
 #periodic = "y" # can be "x", "y"  or "r" (periodic), "d"
 #periodic = "r" 
 #periodic = "x"
-periodic = "d" 
+periodic = "d1" 
 
 
 

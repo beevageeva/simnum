@@ -33,6 +33,18 @@ def getPeriodicXArray(xarray, a, b):
 		res.append(getPeriodicX(xval, a, b))
 	return np.array(res)
 
+#xarray has 2 dim
+def getPeriodicXArray2(xarray, a, b):
+	print("xarray shape")
+	print(xarray.shape)	
+	res = np.zeros(xarray.shape)
+	print("res shape")
+	print(res.shape)	
+	for i in range(0, xarray.shape[0]):
+		for j in range(0, xarray.shape[1]):
+			res[i][j] = getPeriodicX(xarray[i][j], a, b)
+	return res
+
 def getPeriodicX2(xval, a, b):
 	p = b - a
 	while (xval < a):
