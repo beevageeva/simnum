@@ -6,7 +6,7 @@ from matplotlib import cm
 import numpy as np
 import sys, os
 
-from notifier_params import fullscreenMainfigure
+from notifier_params import fullscreenMainfigure, projections
 
 saveImages = False
 
@@ -35,7 +35,10 @@ class VisualPlot:
 			if(vals.ndim == 2):
 				values = vals[self.dim0ProjIndex, :]
 			else:
-				values = vals[self.dim0ProjIndex, :, 0]	
+				values = vals[self.dim0ProjIndex, :, 0]
+			if not testKeyInDict(title, self.markPoints):
+				self.markPoints[title]= {"dim0"}
+
 			self.addAxisProj(ax, title, values)
 			arrayToAppendAxes.append(ax)
 		if hasattr(self, "dim1ProjIndex"):
@@ -73,18 +76,18 @@ class VisualPlot:
 		self.z = z
 		fig = plt.figure(1)
 		self.figures = [fig]
-		from notifier_params import projections 
 		if projections:
+			self.markPoints = {}
 			from common import getZIndex0, getZIndex1
 			if testKeyInDict("dim0", projections):
 				fig = plt.figure(2)
-				self.dim0ProjIndex = getZIndex0(projections["dim0"])
-				fig.suptitle("Dim0 z1=%4.3f" % projections["dim0"])
+				self.dim0ProjIndex = getZIndex0(projections["dim0"][0])
+				fig.suptitle("Dim0 z1=%4.3f" % projections["dim0"][0])
 				self.figures.append(fig)
 			if testKeyInDict("dim1", projections):
 				fig = plt.figure(3)
-				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"])
-				self.dim1ProjIndex = getZIndex1(projections["dim1"])
+				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"][1])
+				self.dim1ProjIndex = getZIndex1(projections["dim1"][1])
 				self.figures.append(fig)
 		self.axes = {}
 		n = len(titles)
