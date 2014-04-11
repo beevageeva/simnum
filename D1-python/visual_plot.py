@@ -58,7 +58,8 @@ class VisualPlot:
 			#I think this only works with TkAgg backend
 			wm.full_screen_toggle()
 		else:
-			wm.window.wm_geometry("800x900+50+50")
+			wm.window.wm_geometry("1000x900+50+50")
+		fig.subplots_adjust(right=0.8)
 		plt.draw()
 		plt.show(block=False)
 
@@ -93,11 +94,11 @@ class VisualPlot:
 				self.lines[title].append(l)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
-		if fullscreenMainfigure:
-			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-		else:
-			ax.legend()
-		
+#		if fullscreenMainfigure:
+#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+#		else:
+#			ax.legend()
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 	def markPoint(self, axTitle, pointName, value):
 		if not hasattr(self, 'markPoints'):
@@ -123,10 +124,11 @@ class VisualPlot:
 		if(maxValue == minValue):
 			maxValue = minValue + 1
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
-		if fullscreenMainfigure:
-			self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
-		else:
-			self.axes[axTitle].legend()
+#		if fullscreenMainfigure:
+#			self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+#		else:
+#			self.axes[axTitle].legend()
+		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 			
 		
 
@@ -135,18 +137,19 @@ class VisualPlot:
 		ax = fig.add_subplot(111)
 		self.addAxis(ax, title, vals)
 		self.figures.append(fig)
+		fig.subplots_adjust(right=0.8)
 		plt.draw()
 		plt.show(block=False)
 
 	def updateValues(self, title, newValues):
-		print("updateValues %s" % title)
+		#print("updateValues %s" % title)
 		shape = np.shape(newValues)
 		#we can plot multiple graphs on the same axis : example numerical and analytical: see addAxis before!!
 		if(len(shape)==1):
 			self.lines[title].set_ydata(newValues)
-			print(" ".join(map(str, newValues)))
+			#print(" ".join(map(str, newValues)))
 		elif(len(shape)==2):
-			print(" ".join(map(str, newValues[0])))
+			#print(" ".join(map(str, newValues[0])))
 			nlines = shape[0]
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):

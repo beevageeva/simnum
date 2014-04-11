@@ -1,13 +1,15 @@
 import numpy as np
 import sys,math
-from constants import gamma
+from constants import gamma,zf, z0
 
 from sound_wave_params import p00, rho00, v00, A, init_functions_generation, functiontype
 from sound_wave import SoundWave, SoundWaveSine
 
 def createWave(csSign , A):
 	if functiontype == "sine":
-		from sound_wave_sine_params import wl, phi
+		from sound_wave_sine_params import phi0
+		wl = zf - z0
+		phi = phi0 - 2.0 * math.pi * z0 / wl
 		return SoundWaveSine(A, cs00 *csSign + v00,  wl, phi)
 	elif functiontype == "defined":
 		from sound_wave_defined_params import w

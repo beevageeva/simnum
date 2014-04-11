@@ -2,6 +2,7 @@ gamma = 5.0/3
 
 #problemType="soundwave" #problemType may be soundwave or riemann
 problemType = "soundwave"
+#problemType = "riemann"
 if problemType == "soundwave":
 	z0 = 3.1
 	zf = 7.4
@@ -12,9 +13,9 @@ elif problemType == "riemann":
 	if riemann_problemType == "complete":
 		gamma = 1.4
 
-nint = 64
+#nint = 64
 #nint =  256
-#nint = 1024
+nint = 1024
 #nint = 32
 
 timeEnd = 1.0 #if not set as program argument it's taken from here

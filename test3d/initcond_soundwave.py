@@ -38,11 +38,19 @@ def getInitialPresRhoVel(z):
 	
 	if(periodic == "x"):
 		arg = z[0] #argument of periodic function only x   
+		if functiontype == "sine":
+			from constants import z0_0 as z0Per
+			from constants import zf_0 as zfPer
+			wl = zfPer - z0Per
 	elif periodic == "y":
 		arg = z[1] #arg y  
-	elif periodic == "r":
-		#symmetric
-		arg = np.sqrt(z[0]**2 + z[1]**2)  
+		if functiontype == "sine":
+			from constants import z0_1 as z0Per
+			from constants import zf_1 as zfPer
+			wl = zfPer - z0Per
+#	elif periodic == "r":
+#		#symmetric
+#		arg = np.sqrt(z[0]**2 + z[1]**2)  
 #	elif periodic == "d":
 #		from sound_wave_diag_init import getPeriodicKx, getPeriodicKy
 #		a = getPeriodicKx()
@@ -50,21 +58,24 @@ def getInitialPresRhoVel(z):
 #		print("a = %E, b= %E" % (a, b))
 #		arg = a * z[0] + b * z[1]  
 	elif periodic == "d1":
-		from constants import zf_0 as zf #square
-		#arg = (z[0] + z[1])*0.7071067811865475 #(0.7071067811865475 = 1/sqrt(2)) 
+		from constants import zf_0 as  zf #square
 		k = 2.0 * math.pi / zf
 		from common import getPeriodicXArray2
-		#arg = getPeriodicXArray2(z[0] * k +  z[1] * k, 0, zf * 2.0 ** 0.5)
 		arg = z[0] * k +  z[1] * k
+		z0Per = 0 #coord had changed
+		wl = zf * math.sqrt(2)
 
 	if functiontype == "sine":
-		from sound_wave_sine_params import wl, phi
+		from sound_wave_sine_params import phi0
+		phi =  phi0 - 2.0 * math.pi * z0Per / wl
 		r =  A * np.sin(np.multiply((2.0 * math.pi/wl),arg) + phi )
+
 	elif functiontype == "defined":
 		from sound_wave_defined_params import w
 		r = w(arg)
-	v1 = v00 + cs00 *  r
 
+	#initial velocity
+	v1 = v00 + cs00 *  r
 	if(periodic == "x"):
 		vel = np.dstack((v1,np.zeros(v1.shape)))  
 	elif periodic == "y":

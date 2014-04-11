@@ -4,10 +4,10 @@ import numpy as np
 def getInitialUcUe(rho, v , p):
 	uc = np.multiply(rho, v)
 	ue = np.add(np.divide(p,(gamma - 1.0)),0.5 * np.multiply(rho, np.power(v, 2.0)))
-	print("getInitialUcUe uc:")
-	print(" ".join(map(str, uc)))
-	print("getInitialUcUe ue:")
-	print(" ".join(map(str, ue)))
+	#print("getInitialUcUe uc:")
+	#print(" ".join(map(str, uc)))
+	#print("getInitialUcUe ue:")
+	#print(" ".join(map(str, ue)))
 	
 	return {'uc': uc, 'ue': ue}
 
@@ -24,12 +24,12 @@ def recalculateFluxes(rho, uc, ue, v, p):
 	return {'fm': fm, 'fc': fc, 'fe': fe}
 
 def getTimestep(v, p, rho):
-	print("getTimestep pres")
-	print(" ".join(map(str, p)))
-	print("getTimestep rho")
-	print(" ".join(map(str, rho)))
-	print("getTimestep vel")
-	print(" ".join(map(str, v)))
+	#print("getTimestep pres")
+	#print(" ".join(map(str, p)))
+	#print("getTimestep rho")
+	#print(" ".join(map(str, rho)))
+	#print("getTimestep vel")
+	#print(" ".join(map(str, v)))
 	from constants import fcfl, verbose
 	from common import getDz
 	dz = getDz()
@@ -37,11 +37,11 @@ def getTimestep(v, p, rho):
 	if(np.any(t1<0)):
 		return 0	
 	cs = np.sqrt(gamma *  t1)
-	print("getTimestep cs")
-	print(" ".join(map(str, cs)))
+	#print("getTimestep cs")
+	#print(" ".join(map(str, cs)))
 	smax = np.max(np.concatenate([np.absolute(v + cs), np.absolute(v - cs)]))
 	dt = float(dz * fcfl ) / smax
-	print("getTimestep %E" % dt)	
+	#print("getTimestep %E" % dt)	
 	return dt
 
 
@@ -52,7 +52,7 @@ def lrBoundaryConditions(array, skip=0):
 	elif problemType == "soundwave":
 		from initcond_soundwave import lrBoundaryConditions as bc
 	else:
-		print("problemtype %s  not implemented " % problemType)
+		#print("problemtype %s  not implemented " % problemType)
 		return
 	bc(array, skip)
 
@@ -68,14 +68,14 @@ if schemeType == "fg":
 		for i in range(1, nint+2):
 			#points displaced right +1 
 			val = 0.5 * (u[i] + u[i-1]) - 0.5 * lambdaParam  * (f[i] - f[i-1])
-			print(val)
+			#print(val)
 			res.append(val)
 		#left and right boundary condition  skip one point !!! both right and left the intermediate array will have nint + 3 points see array limits
-		print("calcIntermStep before bc")
-		print(res)	
+		#print("calcIntermStep before bc")
+		#print(res)	
 		lrBoundaryConditions(res, 1)
-		print("calcIntermStep after bc")
-		print(res)	
+		#print("calcIntermStep after bc")
+		#print(res)	
 		return res
 	
 	
@@ -92,7 +92,7 @@ if schemeType == "fg":
 		
 	
 	def recalculateU(rho, uc, ue, fm, fc ,fe, dt):
-		print("calcIntermRho ")
+		#print("calcIntermRho ")
 		intermRho = calcIntermU(rho, fm , dt)	
 		intermUc = calcIntermU(uc, fc , dt)	
 		intermUe = calcIntermU(ue, fe , dt)
@@ -115,21 +115,21 @@ elif schemeType == "lf":
 		res = []
 		for i in range(1, nint+1):
 			val = 0.5 * (u[i-1] + u[i+1]) - 0.5 * lambdaParam  * (f[i+1] - f[i-1]) 
-			print(val)	
+			#print(val)	
 			res.append(val)
-		print("calcSingleStep before bc")
-		print(res)	
+		#print("calcSingleStep before bc")
+		#print(res)	
 		lrBoundaryConditions(res)
-		print("calcSingleStep after bc")
-		print(res)	
+		#print("calcSingleStep after bc")
+		#print(res)	
 		return res
 	
 	def recalculateU(rho, uc, ue, fm , fc, fe, dt):
-		print("recalculateRho")
+		#print("recalculateRho")
 		finalRho = calcSingleStepU(rho, fm, dt)	
-		print("recalculateUc")
+		#print("recalculateUc")
 		finalUc = calcSingleStepU(uc, fc, dt)	
-		print("recalculateUe")
+		#print("recalculateUe")
 		finalUe = calcSingleStepU(ue, fe, dt)
 		return {"rho": finalRho, "uc": finalUc, "ue": finalUe}
 

@@ -25,8 +25,8 @@ A = 3.0 * 10.0 ** (-4)
 #init_functions_generation = [{'csSign':1, 'A': A}, {'csSign':-1, 'A': 0.5*A}] #SUPERPOSITION wave travelling right with amp A and left with amp 0.5 * A
 #init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': 0.5*A}] #SUPERPOSITION wave travelling left with amp A and right with amp 0.5 * A
 #init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': A}] #SUPERPOSITION wave travelling left with amp A and right with amp  A
-#init_functions_generation = [{'csSign':-1, 'A': A}] #travelling left
-init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
+init_functions_generation = [{'csSign':-1, 'A': A}] #travelling left
+#init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
 
 
 
