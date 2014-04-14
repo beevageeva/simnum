@@ -1,13 +1,11 @@
-./test3d/sound_wave_diag_init.py
 ./test3d/initcond_riemann.py
 ./test3d/initcond_soundwave.py
 ./test3d/riemann_params.py
-./test3d/sound_wave_defined_params.py
 ./test3d/base_model.py
-./test3d/sound_wave_sine_params.py
 ./test3d/visual_plot.py
 ./test3d/common.py
 ./test3d/notifier_params.py
+./test3d/sound_wave_function.py
 ./test3d/main.py
 ./test3d/model_soundwave.py
 ./test3d/analyze_functions.py
