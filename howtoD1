@@ -1,4 +1,4 @@
-for i in `cat listpy-D1`; do
+for i in `cat listpy-D1-python`; do
 	echo "getting $i";
 	wget https://raw.githubusercontent.com/beevageeva/simnum/master/$i
 done
