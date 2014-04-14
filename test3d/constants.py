@@ -11,25 +11,13 @@ if problemType == "soundwave":
 #	zf_0 = 7.4
 #	z0_1 = 3.1
 #	zf_1 = 7.4
-	from sound_wave_params import periodic
-	if(periodic == "r"):	
+	from sound_wave_params import argType
+	if(argType == "r"):	
 		#in case of periodicity "r" change interval in order to have the whole interval for periodicity in the diagonal direction
 		#put domain with center in 0 and make it square (min)
 		lhalf = 0.5 *  min((zf_1 - z0_1),(zf_0 - z0_0) )
 		z0_0 = z0_1 = -lhalf
 		zf_0 = zf_1 = lhalf
-#	elif(periodic == "d1"):	
-#		#put domain starting in 0 in the first quadr and make it a square (min)
-#		l = min((zf_1 - z0_1),(zf_0 - z0_0) )
-#		z0_0 = z0_1 = 0
-#		zf_0 = zf_1 = l
-#		print("NEW z0_0 = %E, zf_0 = %E, z0_1 = %E, zf_1 = %E" % (z0_0, zf_0, z0_1, zf_1))
-	elif(periodic == "d2"):	
-		#put domain starting in 0 in the fourth quadr and make it a square (min)
-		l = min((zf_1 - z0_1),(zf_0 - z0_0) )
-		z0_0 = z0_1 = 0
-		zf_0 = l
-		zf_1 = -l
 	
 elif problemType == "riemann":
 	z0_0 = z0_1 = -5
@@ -45,7 +33,7 @@ nint = 64
 
 timeEnd = 1.0 #if not set as program argument it's taken from here
 
-verbose = False
+verbose = True
 
 schemeType = "lf"  # scheme type may be lf(Lax - Fr) or fg (first generation)
 #schemeType = "fg"  

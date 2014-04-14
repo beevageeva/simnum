@@ -7,7 +7,7 @@ from math import sqrt
 from riemann_params import riemann_problemType
 
 
-mark6Points = True
+mark4Points = False
 
 
 def getCs(p, rho):
@@ -78,30 +78,26 @@ class Model(BaseModel):
 		#calculate delta points before and after the points zC , rwPoint, shPoint
 		n = len(self.pres)
 		delta = int(n / 40)
-		from riemann_params import zC, presLeft, presRight, rhoLeft, rhoRight, velLeft, velRight
+		from riemann_params import  presLeft, presRight, rhoLeft, rhoRight, velLeft, velRight
 		from common import getZIndex
 		zIndexSh = getZIndex(self.shPoint) 		
-		zIndexZc = getZIndex(zC) 		
+		zIndexZc = getZIndex(self.zcPoint) 		
 		zIndexRw = getZIndex(self.rwPoint) 	
 		p1Index = zIndexSh + delta
 		if(p1Index >=n):
 			p1Index = n-1
 		p2Index = zIndexSh - delta
 		p3Index = zIndexZc + delta
-		p4Index = zIndexZc - delta
-		p5Index = zIndexRw + delta
-		p6Index = zIndexRw - delta
-		if(p6Index < 0):
-			p6Index = 0
+		p4Index = zIndexRw - delta
+		if(p4Index < 0):
+			p4Index = 0
 		
 		#keep the points 
-		if(mark6Points):
+		if(mark4Points):
 			self.point1 = self.z[p1Index]		
 			self.point2 = self.z[p2Index]		
 			self.point3 = self.z[p3Index]		
 			self.point4 = self.z[p4Index]		
-			self.point5 = self.z[p5Index]		
-			self.point6 = self.z[p6Index]		
 		
 		print("--------------delta=%d--------------------------" % delta)	
 		print("pres1=%E" % self.pres[p1Index])
@@ -129,22 +125,14 @@ class Model(BaseModel):
 		print("vel4=%E" % self.vel[p4Index])
 		cs4 = getCs(self.pres[p4Index], self.rho[p4Index])
 		print("cs4=%E" % cs4)
-		print("pres5=%E" % self.pres[p5Index])
-		print("rho5=%E" % self.rho[p5Index])
-		print("vel5=%E" % self.vel[p5Index])
-		print("cs5=%E" % getCs(self.pres[p5Index], self.rho[p5Index]))
-		print("pres6=%E" % self.pres[p6Index])
-		print("rho6=%E" % self.rho[p6Index])
-		print("vel6=%E" % self.vel[p6Index])
-		print("cs6=%E" % getCs(self.pres[p6Index], self.rho[p6Index]))
 		print("csRW=%E" % getCsRWave())
 		print("-------check const----")
 		print("presRight=%E, p1=%E, abs(presRight - p1) = %E" % (presRight,self.pres[p1Index], abs(presRight - self.pres[p1Index])))
 		print("rhoRight=%E, p1=%E, abs(rhoRight - p1) = %E" % (rhoRight,self.rho[p1Index], abs(rhoRight - self.rho[p1Index])))
 		print("velRight=%E, p1=%E, abs(velRight - p1) = %E" % (velRight,self.vel[p1Index], abs(velRight - self.vel[p1Index])))
-		print("presLeft=%E, p6=%E, abs(presLeft - p6) = %E" % (presLeft, self.pres[p6Index], abs(presLeft - self.pres[p6Index])))
-		print("rhoLeft=%E, p6=%E, abs(rhoLeft - p6) = %E" % (rhoLeft, self.rho[p6Index], abs(rhoLeft - self.rho[p6Index])))
-		print("velLeft=%E, p6=%E, abs(velLeft - p6) = %E" % (velLeft, self.vel[p6Index], abs(velLeft - self.vel[p6Index])))
+		print("presLeft=%E, p6=%E, abs(presLeft - p6) = %E" % (presLeft, self.pres[p4Index], abs(presLeft - self.pres[p4Index])))
+		print("rhoLeft=%E, p6=%E, abs(rhoLeft - p6) = %E" % (rhoLeft, self.rho[p4Index], abs(rhoLeft - self.rho[p4Index])))
+		print("velLeft=%E, p6=%E, abs(velLeft - p6) = %E" % (velLeft, self.vel[p4Index], abs(velLeft - self.vel[p4Index])))
 		print("p2=%E, p3=%E, abs(p2 - p3) = %E" % (self.pres[p2Index],self.pres[p3Index], abs(self.pres[p2Index] - self.pres[p3Index])))
 		print("v2=%E, v3=%E, abs(v2 - v3) = %E" % (self.vel[p2Index],self.vel[p3Index], abs(self.vel[p2Index] - self.vel[p3Index])))
 		print("----------------------------------------")
@@ -176,6 +164,8 @@ class Model(BaseModel):
 		from initcond_riemann import getCsLeft
 		from riemann_params import timeAfterAnPoints
 		if(time>=timeAfterAnPoints):
+			#ANALYTICAL ZCPoint
+			self.zcPoint = self.getNewZcPoint(dt)
 			#show analytical points
 			if hasattr(self, 'rwPointAn'):
 				self.rwPointAn = self.getNewRwPoint(dt)
@@ -190,13 +180,11 @@ class Model(BaseModel):
 
 
 
-	def mark6PointsOnGraph(self, axtitle):
+	def mark4PointsOnGraph(self, axtitle):
 		self.notifier.markPoint(axtitle, axtitle + "Point1", self.point1)
 		self.notifier.markPoint(axtitle, axtitle + "Point2", self.point2)
 		self.notifier.markPoint(axtitle, axtitle + "Point3", self.point3)
 		self.notifier.markPoint(axtitle, axtitle + "Point4", self.point4)
-		self.notifier.markPoint(axtitle, axtitle + "Point5", self.point5)
-		self.notifier.markPoint(axtitle, axtitle + "Point6", self.point6)
 
 
 
@@ -204,11 +192,10 @@ class Model(BaseModel):
 		self.notifier.updateValues("rho", self.rho)
 		self.notifier.updateValues("pres", self.pres)
 		self.notifier.updateValues("vel", self.vel)
-		#TODO the following is ONLY necessary because of axes.relim(graphic oscillates), but zC is always the same we could have done it only in additionalInit
-		#from riemann_params import zC
-		#self.notifier.markPoint("rho", "zCRho", zC)
-		#self.notifier.markPoint("pres", "zCPres", zC)
-		#self.notifier.markPoint("vel", "zCVel", zC)
+		#zC is also moving
+		self.notifier.markPoint("rho", "zCRho", self.zcPoint)
+		self.notifier.markPoint("pres", "zCPres", self.zcPoint)
+		self.notifier.markPoint("vel", "zCVel", self.zcPoint)
 
 		self.notifier.markPoint("pres", "rwPres", self.rwPoint)
 		self.notifier.markPoint("pres", "shPres", self.shPoint)
@@ -227,10 +214,10 @@ class Model(BaseModel):
 				self.notifier.markPoint("vel", "shVelAn", self.shPointAn)
 				self.notifier.markPoint("pres", "shPresAn", self.shPointAn)
 				self.notifier.markPoint("rho", "shRhoAn", self.shPointAn)
-			if(mark6Points):
-				self.mark6PointsOnGraph("pres")
-				self.mark6PointsOnGraph("rho")
-				self.mark6PointsOnGraph("vel")
+			if(mark4Points):
+				self.mark4PointsOnGraph("pres")
+				self.mark4PointsOnGraph("rho")
+				self.mark4PointsOnGraph("vel")
 
 
 
@@ -250,9 +237,6 @@ class Model(BaseModel):
 		from riemann_params import zC
 		from common import getDz
 		#for the moment the point name is the key in the hash - I should take into account the ax title and be able to repeat the pointNames in multiple axes - I have to have different names for different axes!
-		self.notifier.markPoint("rho", "zCRho", zC)
-		self.notifier.markPoint("pres", "zCPres", zC)
-		self.notifier.markPoint("vel", "zCVel", zC)
 
 		delta = getDz()
 		from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
@@ -261,7 +245,8 @@ class Model(BaseModel):
 		zi = getFirstIndexDifferentRight(self.pres, delta, zC)
 		self.shPoint = self.z[zi]
 		#dcPoint analytical, but I can't determine position at time t empirically : see analyze_functions(#TODO)
-		self.dcPoint = zC 
+		self.dcPoint = zC
+		self.zcPoint = zC 
 
 	
 	def getNewDcPoint(self, dt):
@@ -274,6 +259,17 @@ class Model(BaseModel):
 		newz = displacedPoint(self.dcPoint, self.vel[zIndex], dt)
 		return newz
 
+	def getNewZcPoint(self, dt):
+		from common import displacedPoint, getZIndex
+		from riemann_params import rhoLeft
+		zIndex = getZIndex(self.zcPoint)	
+		#zIndex = getZIndex(self.point3) #point 3 is created after 
+		v = (self.vel[zIndex] - getCs(self.pres[zIndex], self.rho[zIndex]))
+			#do not use displacedPoint from common.py as it make periodic assumption when it goes away from domain, but in this case it should remain at the end
+		newz = self.zcPoint + v * dt
+		return newz
+
+
 	if riemann_problemType in ["shock_tube", "exp_vacuum"]:
 
 		def getCsShock(self):
@@ -281,6 +277,7 @@ class Model(BaseModel):
 			from riemann_params import rhoRight
 			#to be sure I have right point 	
 			zIndex = getZIndex(0.5*(self.shPoint + self.dcPoint))	
+			#zIndex = getZIndex(self.point2)  #point2 is created after
 			v = (self.vel[zIndex] * self.rho[zIndex]) / (self.rho[zIndex] - rhoRight)
 			return v
 

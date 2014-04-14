@@ -1,7 +1,7 @@
 import numpy as np
 import sys,math
 from constants import gamma, z0_0, zf_0, z0_1, zf_1
-from sound_wave_params import functiontype, periodic
+from sound_wave_params import  argType, velDir
 
 
 
@@ -35,105 +35,91 @@ def getInitialPresRhoVel(z):
 	#print("initcond_soundwave z[1]")
 	#print(z[1])
 	
-	if(periodic == "x"):
-		arg = z[0] #argument of periodic function only x   
-		if functiontype == "sine":
-			wl = zf_0 - z0_0
-			z0Per = z0_0
-	elif periodic == "y":
-		arg = z[1] #arg y  
-		if functiontype == "sine":
-			wl = zf_1 - z0_1
-			z0Per = z0_1
-#	elif periodic == "r":
-#		#symmetric
-#		arg = np.sqrt(z[0]**2 + z[1]**2)  
-#	elif periodic == "d":
-#		from sound_wave_diag_init import getPeriodicKx, getPeriodicKy
-#		a = getPeriodicKx()
-#		b = getPeriodicKy()
-#		print("a = %E, b= %E" % (a, b))
-#		arg = a * z[0] + b * z[1]  
-	elif periodic == "d1":
+	if(velDir == "x"):
+		wl = zf_0 - z0_0
+		z0Per = z0_0
+	elif velDir == "y":
+		wl = zf_1 - z0_1
+		z0Per = z0_1
+	elif velDir == "d1":
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
 		k1 = wl/(zf_0 - z0_0)
 		k2 = wl/(zf_1 - z0_1)
-		arg = z[0] * k1 +  z[1] * k2
-		z0Per = z0_0 * k1 + z0_1 * k2 #coord had changed
+		z0Per = z0_0 * k1 + z0_1 * k2 
 		print("z0Per = %E, wl = %E" % (z0Per, wl))
-	if functiontype == "sine":
-		from sound_wave_sine_params import phi0
-		phi =  phi0 - 2.0 * math.pi * z0Per / wl
-		r =  A * np.sin(np.multiply((2.0 * math.pi/wl),arg) + phi )
 
-	elif functiontype == "defined":
-		from sound_wave_defined_params import w
-		r = w(arg)
+	if(argType == "x"):
+		arg = z[0] #argument of periodic function only x   
+	elif argType == "y":
+		arg = z[1] #arg y  
+	elif argType == "d1":
+		arg = z[0] * k1 +  z[1] * k2
+	elif argType == "r":
+		arg = np.sqrt(z[0] **2 +  z[1] **2)
+
+	from sound_wave_function import w
+	r =  A * w(arg, wl, z0Per)
+
 
 	#initial velocity
 	v1 = v00 + cs00 *  r
-	if(periodic == "x"):
+	if(velDir == "x"):
 		vel = np.dstack((v1,np.zeros(v1.shape)))  
-	elif periodic == "y":
+	elif velDir == "y":
 		vel = np.dstack((np.zeros(v1.shape),v1))  
-	elif periodic == "r" or periodic == "d1":
-		#symmetric
-		vel = np.dstack((v1 ,v1))   
-	elif periodic == "d":
-		vel = np.dstack((a * v1 ,b * v1))   
-		
-	elif periodic == "d2":
-		vel = np.dstack((v1 ,-v1))   
+	elif velDir == "d1":
+		vel = np.dstack((k1 * v1 ,k2 * v1))   
 
-
+	#print("******************Vel")
+	#print(vel)	
 
 	return {'pres': p00 + gamma * p00 * r  , 'rho': rho00 + rho00 * r , 'vel': vel } 
 
-from sound_wave_params import periodic
-#TODO why np.diag is not working with 3D array
-#array must be 2d or 3d (I think it would work with 1d Array as numpy.diag is ONLY defined for both 1d and 2d arrays)
-def secondDiag(array):
-	if(array.ndim ==2):
-		return  np.diag(np.fliplr(array))
-	elif (array.ndim ==3):
-		n = array.shape[0] - 1
-		res = np.zeros((n+1, array.shape[2]))
-		#I assume array.shape[0] == array.shape[1] -> square
-		for i in range(0, n+1):
-			for j in range(0, n+1):
-				res[i] = array[i][n-j] 
-		return res
-
-#array must be 2d or 3d
-def firstDiag(array):
-	if(array.ndim ==2):
-		return  np.diag(array)
-	elif (array.ndim ==3):
-		n = array.shape[0]
-		res = np.zeros((n,array.shape[2]))
-		#I assume array.shape[0] == array.shape[1] -> square
-		for i in range(0, n):
-			for j in range(0, n):
-				res[i] = array[i][j] 
-		return res
-
-#array must be 1d or 2d
-def interpMiddle(array):
-	#TODO use numpy.interp 
-	n = array.shape[0] 
-	if(array.ndim ==1):
-		res = np.zeros(2*n-1)  
-	elif (array.ndim ==2):
-		res = np.zeros((2*n-1,array.shape[1]))
-	for i in range(0, n-1):
-		res[2 * i] = array[i]
-		res[2 * i + 1] = 0.5 * (array[i] + array[i+1])
-	res[2 * n - 2] = array[n-1]
-	return res
+##TODO why np.diag is not working with 3D array
+##array must be 2d or 3d (I think it would work with 1d Array as numpy.diag is ONLY defined for both 1d and 2d arrays)
+#def secondDiag(array):
+#	if(array.ndim ==2):
+#		return  np.diag(np.fliplr(array))
+#	elif (array.ndim ==3):
+#		n = array.shape[0] - 1
+#		res = np.zeros((n+1, array.shape[2]))
+#		#I assume array.shape[0] == array.shape[1] -> square
+#		for i in range(0, n+1):
+#			for j in range(0, n+1):
+#				res[i] = array[i][n-j] 
+#		return res
+#
+##array must be 2d or 3d
+#def firstDiag(array):
+#	if(array.ndim ==2):
+#		return  np.diag(array)
+#	elif (array.ndim ==3):
+#		n = array.shape[0]
+#		res = np.zeros((n,array.shape[2]))
+#		#I assume array.shape[0] == array.shape[1] -> square
+#		for i in range(0, n):
+#			for j in range(0, n):
+#				res[i] = array[i][j] 
+#		return res
+#
+##array must be 1d or 2d
+#def interpMiddle(array):
+#	#TODO use numpy.interp 
+#	n = array.shape[0] 
+#	if(array.ndim ==1):
+#		res = np.zeros(2*n-1)  
+#	elif (array.ndim ==2):
+#		res = np.zeros((2*n-1,array.shape[1]))
+#	for i in range(0, n-1):
+#		res[2 * i] = array[i]
+#		res[2 * i + 1] = 0.5 * (array[i] + array[i+1])
+#	res[2 * n - 2] = array[n-1]
+#	return res
 	
 	
+from sound_wave_params import periodicType
 		
-if periodic == "x" or periodic == "y" or periodic == "d1" or periodic == "r":
+if periodicType == "repeat":
 
 	def lrBoundaryConditions(array, skip=0):
 		n = array.shape[0] - 1
@@ -145,15 +131,43 @@ if periodic == "x" or periodic == "y" or periodic == "d1" or periodic == "r":
 		array = np.insert(array, n+2, array[:,1+skip], axis = 1)
 		return array
 
-#elif periodic == "r":
-#	def lrBoundaryConditions(array, skip=0):
-#		n = array.shape[0] - 1
-#		array = np.insert(array, 0, array[0,:], axis = 0)
-#		array = np.insert(array, n, array[n,:], axis = 0)
-#		array = np.insert(array, 0, array[:,0], axis = 1)
-#		array = np.insert(array, n, array[:,n], axis = 1)
-#		return array
+elif periodicType == "diff":
+	
+	#degree + 1 points needed
+	def polyfitArray(arr, degree, dim, direction):
+		res = np.zeros(dim)
+		for i in range(0, dim):
+			xvalues = np.range(1, degree+2)	
+			if(direction == "y"):
+				yvalues = arr[i,0:degree+1]
+			elif direction == "x":
+				yvalues = arr[0:degree+1, i]
+			c = np.polyfit(xvalues, yvalues, degree)
+			p = np.poly1d(c)
+			res.append(p(0))
+		return res
+		
 
+	def lrBoundaryConditions(array, skip=0):
+		n = array.shape[0] - 1
+		fr = polyfitArray(array[0:1+skip,:], skip, n, "x")
+		array = np.insert(array, 0, fr, axis = 0)
+		lr = polyfitArray(array[-1-skip:,:], skip, n, "x")
+		array = np.insert(array, n, lr, axis = 0)
+		fc = polyfitArray(array[:,0:1+skip], skip, n+1, "y")
+		array = np.insert(array, 0, fc, axis = 1)
+		lc = polyfitArray(array[:,-1-skip:], skip, n+1, "y")
+		array = np.insert(array, n, lc, axis = 1)
+		return array
+
+elif periodicType == "same":	
+	def lrBoundaryConditions(array, skip=0):
+		n = array.shape[0] - 1
+		array = np.insert(array, 0, array[0,:], axis = 0)
+		array = np.insert(array, n, array[n,:], axis = 0)
+		array = np.insert(array, 0, array[:,0], axis = 1)
+		array = np.insert(array, n, array[:,n], axis = 1)
+		return array
 #elif periodic == "r":
 #
 #	def lrBoundaryConditions(array, skip=0):

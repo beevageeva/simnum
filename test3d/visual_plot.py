@@ -23,7 +23,15 @@ def testKeyInDict(key, dictionary):
 
 class VisualPlot:
 
-
+	#TODO this does not use self
+	def addAxisColor(self, ax, title, vals):
+		ax.set_xlabel("x")
+		ax.set_ylabel("y")
+		ax.set_title(title)
+		ax.grid(True)
+		ax.imshow(vals)
+		ax.relim()
+		ax.autoscale_view(True,True,True)
 
 	def addProjAxes(self, arrayToAppendAxes, title, vals, n , i, subplotNumber, colspan=False):
 		if hasattr(self, "dim0ProjIndex"):
@@ -35,7 +43,7 @@ class VisualPlot:
 			if(vals.ndim == 2):
 				values = vals[self.dim0ProjIndex, :]
 			else:
-				values = vals[self.dim0ProjIndex, :, 0]
+				values = vals[self.dim0ProjIndex, :, subplotNumber]
 			if not testKeyInDict(title, self.markPoints):
 				self.markPoints[title]= {"dim0"}
 
@@ -45,13 +53,25 @@ class VisualPlot:
 			if(vals.ndim == 2):
 				values = vals[:,self.dim1ProjIndex]
 			else:
-				values = vals[:,self.dim1ProjIndex, 1]
+				values = vals[:,self.dim1ProjIndex, subplotNumber]
 			plt.figure(3)
 			if(colspan):
 				ax = plt.subplot2grid((n,2), (i,subplotNumber), colspan=2)
 			else:
 				ax = plt.subplot2grid((n,2), (i,subplotNumber))
 			self.addAxisProj(ax, title, values)
+			arrayToAppendAxes.append(ax)
+		if testKeyInDict("color", projections):
+			plt.figure(4)
+			if(vals.ndim == 2):
+				values = vals
+			else:
+				values = vals[..., subplotNumber]
+			if(colspan):
+				ax = plt.subplot2grid((n,2), (i,subplotNumber), colspan=2)
+			else:
+				ax = plt.subplot2grid((n,2), (i,subplotNumber))
+			self.addAxisColor(ax, title, values)
 			arrayToAppendAxes.append(ax)
 
 	
@@ -89,6 +109,10 @@ class VisualPlot:
 				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"][1])
 				self.dim1ProjIndex = getZIndex1(projections["dim1"][1])
 				self.figures.append(fig)
+			if testKeyInDict("color", projections):
+				fig = plt.figure(4)
+				fig.suptitle("color")
+				self.figures.append(fig)
 		self.axes = {}
 		n = len(titles)
 		for i in range(0, len(titles)):
@@ -106,13 +130,11 @@ class VisualPlot:
 				self.addAxis(ax, ("%s dim 0" % title), vals[:,:,0])
 				self.axes[title] = [[ax]]
 				self.addProjAxes(self.axes[title][0], title, vals, n, i, 0)
-
 				plt.figure(1)
 				ax2 = plt.subplot2grid((n,2), (i,1), projection='3d')
 				self.addAxis(ax2, ("%s dim 1" % title), vals[:,:,1])
 				self.axes[title].append([ax2])
 				self.addProjAxes(self.axes[title][1], title, vals, n, i, 1)
-
 			else:
 				#print("Dim invalid %d" % vals.ndim)
 				sys.exit(0)
@@ -129,7 +151,7 @@ class VisualPlot:
 
 	def afterInit(self):
 		import time
-		time.sleep(5)
+		time.sleep(10)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -178,13 +200,22 @@ class VisualPlot:
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 
-	def updateProjAxis(self, axesArray, title, vals):
+
+	def updateAxisColor(self, ax, title, vals):	
+		ax.cla()
+		ax.set_xlabel("x")
+		ax.set_ylabel("y")
+		ax.set_title(title)
+		ax.imshow(vals)
+
+
+	def updateProjAxis(self, axesArray, title, vals, index=None):
 		if hasattr(self, "dim0ProjIndex"):
 			ni = 2
 			if(vals.ndim == 2):
 				values = vals[self.dim0ProjIndex, :]
 			else:
-				values = vals[self.dim0ProjIndex, :, 0]	
+				values = vals[self.dim0ProjIndex, :, index]	
 			#print("dim0")
 			#print(" ".join(map(str, values)))
 			self.updateAxisProj(axesArray[1], title, values)
@@ -194,8 +225,15 @@ class VisualPlot:
 			if(vals.ndim == 2):
 				values = vals[:,self.dim1ProjIndex]
 			else:
-				values = vals[:,self.dim1ProjIndex, 1]
+				values = vals[:,self.dim1ProjIndex, index]
 			self.updateAxisProj(axesArray[ni], title, values)
+			ni+=1
+		if testKeyInDict("color", projections):
+			if(vals.ndim == 2):
+				values = vals
+			else:
+				values = vals[:,:, index]
+			self.updateAxisColor(axesArray[ni], title, values)
 
 
 	def updateValues(self, title, vals):
@@ -206,9 +244,9 @@ class VisualPlot:
 			self.updateProjAxis(ax, title, vals)
 		else:
 			self.updateAxis(ax[0][0], ("%s dim0" % title), vals[:,:,0])
-			self.updateProjAxis(ax[0], ("%s dim0" %title), vals)
+			self.updateProjAxis(ax[0], ("%s dim0" %title), vals, 0)
 			self.updateAxis(ax[1][0], ("%s dim1" %title), vals[:,:,1])
-			self.updateProjAxis(ax[1], ("%s dim1" %title), vals)
+			self.updateProjAxis(ax[1], ("%s dim1" %title), vals, 1)
 
 			
 		
