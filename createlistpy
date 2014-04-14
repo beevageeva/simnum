@@ -1,1 +1,6 @@
-find . -iname '*.py' > listpy
+#find . -iname '*.py' > listpy
+for dirname in "test3d" "D1-python"; do
+	echo $dirname	
+	grep "$dirname" listpy > listpy-$dirname
+	sed  -i 's/\.\///' listpy-$dirname
+done

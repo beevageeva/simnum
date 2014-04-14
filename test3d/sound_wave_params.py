@@ -23,11 +23,11 @@ A = 3.0 * 10.0 ** (-4)
 
 
 #these sholuld be defined only in case of r argType: see below
-velDir = "x"
+#velDir = "x"
 #velDir = "y"
 #velDir = "d1"
-argType = "x"
-#argType = "y"
+#argType = "x"
+argType = "y"
 #argType = "r"
 #argType = "d1" 
 periodicType = "repeat" # repeat| diff
