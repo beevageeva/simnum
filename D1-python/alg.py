@@ -30,7 +30,7 @@ def getTimestep(v, p, rho):
 	#print(" ".join(map(str, rho)))
 	#print("getTimestep vel")
 	#print(" ".join(map(str, v)))
-	from constants import fcfl, verbose
+	from constants import fcfl
 	from common import getDz
 	dz = getDz()
 	t1 =  np.divide(p, rho)

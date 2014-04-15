@@ -65,7 +65,7 @@ def getTimestep(v, p, rho):
 	#print(" ".join(map(str, rho[0,:])))
 	#print("getTimestep vel_xPX")
 	#print(" ".join(map(str, v[0,:,0])))
-	from constants import fcfl, verbose
+	from constants import fcfl
 	from common import getDz0, getDz1
 	dz0 = getDz0()
 	dz1 = getDz1()
@@ -160,7 +160,7 @@ if schemeType == "fg":
 		#print("calcFinalU")
 		from common import getDz0, getDz1
 		from constants import nint
-		dz0 = getDz0
+		dz0 = getDz0()
 		dz1 = getDz1()
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint+2, nint+2))
@@ -175,7 +175,7 @@ if schemeType == "fg":
 					res[i][j]=val
 				else:
 					val = u[i][j][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
-					val2 = u[i][j][1] - dt  *  ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
+					val2 = u[i][j][1] - dt  * 0.5* ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
 					res[i][j][0] = val
 					res[i][j][1] = val2
 		#no more boundary conditions because intermediate array alreday has nint + 3 points

@@ -45,7 +45,7 @@ def getInitialPresRhoVel(z):
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
 		k1 = wl/(zf_0 - z0_0)
 		k2 = wl/(zf_1 - z0_1)
-		z0Per = z0_0 * k1 + z0_1 * k2 
+		z0Per = 0
 		print("z0Per = %E, wl = %E" % (z0Per, wl))
 
 	if(argType == "x"):

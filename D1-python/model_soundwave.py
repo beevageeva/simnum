@@ -45,7 +45,8 @@ class Model(BaseModel):
 		rhoc = getRhoCurve(self.z, time)
 		presc = getPresCurve(self.z, time)
 		velc = getVelCurve(self.z, time)
-		self.notifier.updateValues("rho", [self.rho, getRhoAn(self.z, time, rhoc)])
+		#self.notifier.updateValues("rho", [self.rho, getRhoAn(self.z, time, rhoc)])
+		self.notifier.updateValues("rho", self.rho)
 		self.notifier.updateValues("pres", [self.pres, getPresAn(self.z, time, presc)])
 		self.notifier.updateValues("vel", [self.vel, getVelAn(self.z, time, velc)])
 		#If I don't want analitical solution plotted for velocity:
@@ -62,9 +63,10 @@ class Model(BaseModel):
 			self.notifier.markPoint("vel", "maxVelZ", self.maxVelZ)
 
 	def getInitialValues(self):
-		return [[self.pres, self.pres], [self.rho, self.rho], [self.vel, self.vel]]
+		#return [[self.pres, self.pres], [self.rho, self.rho], [self.vel, self.vel]]
 		#If I don't want analitical solution plotted for velocity:
-		#return  [[self.rho, self.rho], [self.pres, self.pres], self.vel]
+		#return  [[self.pres, self.pres], [self.rho, self.rho], self.vel]
+		return  [[self.pres, self.pres], self.rho, [self.vel, self.vel]]
 
 	def additionalInit(self):
 		#plot Curves of pression , vel, density

@@ -44,10 +44,12 @@ class VisualPlot:
 				values = vals[self.dim0ProjIndex, :]
 			else:
 				values = vals[self.dim0ProjIndex, :, subplotNumber]
-			if not testKeyInDict(title, self.markPoints):
-				self.markPoints[title]= {"dim0"}
-
-			self.addAxisProj(ax, title, values)
+			markMaxValue = None
+			if(projections["dim0"][1]):
+				markMaxIndex = np.argmax(values)
+				markMaxValue = self.z[0][0][markMaxIndex]
+				self.maxPoints["dim0"]["%s%d" % (title, subplotNumber)] = markMaxValue
+			self.addAxisProj(ax, title, values, markMaxValue)
 			arrayToAppendAxes.append(ax)
 		if hasattr(self, "dim1ProjIndex"):
 			if(vals.ndim == 2):
@@ -59,7 +61,12 @@ class VisualPlot:
 				ax = plt.subplot2grid((n,2), (i,subplotNumber), colspan=2)
 			else:
 				ax = plt.subplot2grid((n,2), (i,subplotNumber))
-			self.addAxisProj(ax, title, values)
+			markMaxValue = None
+			if(projections["dim1"][1]):
+				markMaxIndex = np.argmax(values)
+				markMaxValue = self.z[0][0][markMaxIndex]
+				self.maxPoints["dim1"]["%s%d" % (title, subplotNumber)] = markMaxValue
+			self.addAxisProj(ax, title, values, markMaxValue)
 			arrayToAppendAxes.append(ax)
 		if testKeyInDict("color", projections):
 			plt.figure(4)
@@ -75,17 +82,16 @@ class VisualPlot:
 			arrayToAppendAxes.append(ax)
 
 	
-	def addAxisProj(self, ax, title, vals):
+	def addAxisProj(self, ax, title, vals, markMaxValue = None):
 		ax.set_xlabel("z")
 		ax.set_ylabel(title)
 		ax.grid(True)
 		ax.plot(self.z[0][0], vals)
+		if(markMaxValue):
+			ax.vlines(markMaxValue, 0, markMaxValue, color='b', label="max")
+			#ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
-	#		if fullscreenMainfigure:
-	#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-	#		else:
-	#			ax.legend()
 
 
 	def __init__(self, z, titles, iniValues):
@@ -96,18 +102,26 @@ class VisualPlot:
 		self.z = z
 		fig = plt.figure(1)
 		self.figures = [fig]
+		self.maxPoints = {}
 		if projections:
-			self.markPoints = {}
 			from common import getZIndex0, getZIndex1
 			if testKeyInDict("dim0", projections):
+				if projections["dim0"][1]:
+					self.maxPoints["dim0"] = {}
 				fig = plt.figure(2)
 				self.dim0ProjIndex = getZIndex0(projections["dim0"][0])
 				fig.suptitle("Dim0 z1=%4.3f" % projections["dim0"][0])
+				plt.get_current_fig_manager().window.wm_geometry("1000x900+50+50")
+				fig.subplots_adjust(right=0.8)
 				self.figures.append(fig)
 			if testKeyInDict("dim1", projections):
+				if projections["dim1"][1]:
+					self.maxPoints["dim1"] = {}
 				fig = plt.figure(3)
-				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"][1])
-				self.dim1ProjIndex = getZIndex1(projections["dim1"][1])
+				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"][0])
+				self.dim1ProjIndex = getZIndex1(projections["dim1"][0])
+				plt.get_current_fig_manager().window.wm_geometry("1000x900+50+50")
+				fig.subplots_adjust(right=0.8)
 				self.figures.append(fig)
 			if testKeyInDict("color", projections):
 				fig = plt.figure(4)
@@ -191,11 +205,14 @@ class VisualPlot:
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 
-	def updateAxisProj(self, ax, title, vals):	
+	def updateAxisProj(self, ax, title, vals, markMaxValue = None, maxLegend = None):	
 		ax.cla()
 		ax.set_xlabel("z")
 		ax.set_ylabel(title)
 		ax.plot(self.z[0][0],  vals)
+		if(markMaxValue):
+			ax.vlines(markMaxValue, 0, markMaxValue, color='b', label=maxLegend)
+			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.grid(True)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
@@ -208,17 +225,24 @@ class VisualPlot:
 		ax.set_title(title)
 		ax.imshow(vals)
 
-
-	def updateProjAxis(self, axesArray, title, vals, index=None):
+	#TODO make a function for every projection
+	def updateProjAxis(self, axesArray, title, vals, index, dt):
+		from common import getSpeedPeriodic0, getSpeedPeriodic1
 		if hasattr(self, "dim0ProjIndex"):
 			ni = 2
 			if(vals.ndim == 2):
 				values = vals[self.dim0ProjIndex, :]
 			else:
 				values = vals[self.dim0ProjIndex, :, index]	
-			#print("dim0")
-			#print(" ".join(map(str, values)))
-			self.updateAxisProj(axesArray[1], title, values)
+			markMaxValue = None
+			markMaxTitle = None
+			if(projections["dim0"][1]):
+				markMaxIndex = np.argmax(values)
+				markMaxValue = self.z[0][0][markMaxIndex]
+				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
+				markMaxTitle = "ms= %4.3f" % maxSpeed
+				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
+			self.updateAxisProj(axesArray[1], "%s%d"% (title,index), values, markMaxValue, markMaxTitle)
 		else:
 			ni = 1
 		if hasattr(self, "dim1ProjIndex"):
@@ -226,7 +250,15 @@ class VisualPlot:
 				values = vals[:,self.dim1ProjIndex]
 			else:
 				values = vals[:,self.dim1ProjIndex, index]
-			self.updateAxisProj(axesArray[ni], title, values)
+			markMaxValue = None
+			markMaxTitle = None
+			if(projections["dim1"][1]):
+				markMaxIndex = np.argmax(values)
+				markMaxValue = self.z[0][0][markMaxIndex]
+				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
+				markMaxTitle = "ms= %4.3f" % maxSpeed
+				self.maxPoints["dim1"]["%s%d" % (title, index)] = markMaxValue
+			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
 			ni+=1
 		if testKeyInDict("color", projections):
 			if(vals.ndim == 2):
@@ -236,17 +268,19 @@ class VisualPlot:
 			self.updateAxisColor(axesArray[ni], title, values)
 
 
-	def updateValues(self, title, vals):
-		#print("updateValues %s" % title)
+	def updateValues(self, title, vals,dt):
+		print("updateValues %s MAX POINTS:" % title)
+		print(self.maxPoints)
+		print("MAX POINTS END")
 		ax = self.axes[title]
 		if(vals.ndim == 2):
 			self.updateAxis(ax[0], title, vals)
-			self.updateProjAxis(ax, title, vals)
+			self.updateProjAxis(ax, title, vals,0,dt)
 		else:
-			self.updateAxis(ax[0][0], ("%s dim0" % title), vals[:,:,0])
-			self.updateProjAxis(ax[0], ("%s dim0" %title), vals, 0)
-			self.updateAxis(ax[1][0], ("%s dim1" %title), vals[:,:,1])
-			self.updateProjAxis(ax[1], ("%s dim1" %title), vals, 1)
+			self.updateAxis(ax[0][0],  title, vals[:,:,0])
+			self.updateProjAxis(ax[0], title, vals, 0, dt)
+			self.updateAxis(ax[1][0], title, vals[:,:,1])
+			self.updateProjAxis(ax[1], title, vals, 1, dt)
 
 			
 		

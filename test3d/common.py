@@ -66,6 +66,18 @@ def displacedPoint(z, c, t):
 	return periodicz
 
 
+def getSpeedPeriodic(newVal, oldVal, z0, zf, dt):
+	if newVal < oldVal:
+		newVal +=  zf - z0	
+	return (newVal - oldVal) / dt
+
+def getSpeedPeriodic0(newVal, oldVal, dt):
+	return getSpeedPeriodic(newVal, oldVal, z0_0, zf_0, dt)
+	
+def getSpeedPeriodic1(newVal, oldVal, dt):
+	return getSpeedPeriodic(newVal, oldVal, z0_1, zf_1, dt)
+
+
 #creates an output directory called out_0, out_1, ... the first that does not exists
 def createFolder(dirname_base="out"):
 	import os

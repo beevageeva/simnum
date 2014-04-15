@@ -18,9 +18,9 @@ class Model(BaseModel):
 
 
 	def updateValuesNotifier(self, dt, time):
-		self.notifier.updateValues("rho", self.rho)
-		self.notifier.updateValues("pres", self.pres)
-		self.notifier.updateValues("vel", self.vel)
+		self.notifier.updateValues("rho", self.rho,dt)
+		self.notifier.updateValues("pres", self.pres,dt)
+		self.notifier.updateValues("vel", self.vel,dt)
 
 
 	def additionalInit(self):

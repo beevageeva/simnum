@@ -2,8 +2,9 @@
 
 
 def getFirstIndexDifferentLeft(y, delta, default):
-	if not hasattr(y, '__len__') or len(y) == 0:
-		return None
+	#I know they have it
+	#if not hasattr(y, '__len__') or len(y) == 0:
+	#	return None
 	leftVal = y[0]
 	for i in range(1, len(y)):
 		#because of the smooth functions(for initial conditions: see initcond_riemann.py) I can't test for leftVal == y[i]
@@ -13,10 +14,22 @@ def getFirstIndexDifferentLeft(y, delta, default):
 
 
 def getFirstIndexDifferentRight(y, delta, default):
-	if not hasattr(y, '__len__') or len(y) == 0:
-		return None
+	#I know they have it
+	#if not hasattr(y, '__len__') or len(y) == 0:
+	#	return None
 	rightVal = y[len(y) - 1]
 	for i in range(len(y) - 1, -1, -1):
 		if abs(rightVal - y[i])>delta * rightVal:
 			return i
 	return default
+
+def getFirstIndexConstant(y, startIndex, delta):
+	for i in range(startIndex, len(y)-1):
+		#always decreasing???? TODO
+		if(y[i-1] - y[i]< delta * 0.05 * y[startIndex]):
+			print("startIndex = %d, returning %d" % (startIndex, i+1))
+			return i+1
+			
+
+
+

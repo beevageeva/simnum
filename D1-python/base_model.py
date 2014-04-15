@@ -39,34 +39,29 @@ class BaseModel:
 		self.fe = None
 		from notifier_params import notifierType
 		self.notifier = getNotifier(notifierType, self.z, ["pres", "rho", "vel"], self.getInitialValues())
-		#If I don't want analitical solution plotted for velocity:
-		#self.notifier = getNotifier(notifierType, self.z, ["rho", "pres", "vel"], [[self.rho, self.rho], [self.pres, self.pres], self.vel)
 		self.additionalInit()		
 		self.notifier.afterInit()
 
 
-	def printVars(self, time):
-		from constants import verbose
-		if verbose:
-			print("Before calculating at time=%4.3f\nz" % time)
-			print(self.z)
-			print("rho")
-			print(self.rho)
-			print("pres")
-			print(self.pres)
-			print("vel")
-			print(self.vel)
-			print("uc")
-			print(self.uc)
-			print("ue")
-			print(self.ue)
-			print("fm")
-			print(self.fm)
-			print("fc")
-			print(self.fc)
-			print("fe")
-			print(self.fe)
-			print("END")
+	def printVars(self):
+		print(self.z)
+		print("rho")
+		print(self.rho)
+		print("pres")
+		print(self.pres)
+		print("vel")
+		print(self.vel)
+		print("uc")
+		print(self.uc)
+		print("ue")
+		print(self.ue)
+		print("fm")
+		print(self.fm)
+		print("fc")
+		print(self.fc)
+		print("fe")
+		print(self.fe)
+		print("END")
 
 
 
@@ -100,7 +95,8 @@ class BaseModel:
 			self.vel = r["vel"]	
 			self.pres = r["pres"]
 			#print("NSTEP %d" % nstep)
-			self.printVars(time)
+			#print("Before showing on plot at time=%4.3f\nz" % time)
+			#self.printVars()
 			#splitted updateValues in updateValuesModel and updateValuesNotifier because I want to catch stop condition computed in updateValuesModel in each step
 			self.updateValuesModel(dt, time)	
 			from notifier_params import nstepsPlot

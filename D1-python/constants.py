@@ -14,13 +14,12 @@ elif problemType == "riemann":
 		gamma = 1.4
 
 #nint = 64
+#nint=128
 #nint =  256
 nint = 1024
 #nint = 32
 
 timeEnd = 1.0 #if not set as program argument it's taken from here
-
-verbose = False
 
 #schemeType = "lf"  # scheme type may be lf(Lax - Fr) or fg (first generation)
 schemeType = "fg"  

@@ -7,7 +7,7 @@ from math import sqrt
 from riemann_params import riemann_problemType
 
 
-mark4Points = False
+mark4Points = True
 
 
 def getCs(p, rho):
@@ -151,11 +151,11 @@ class Model(BaseModel):
 		from common import getDz
 		from riemann_params import zC
 		delta = getDz()
-		from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
-		zi = getFirstIndexDifferentLeft(self.pres, delta, zC)
+		from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getFirstIndexConstant
+		zi = getFirstIndexDifferentLeft(self.pres, delta, self.zcPoint)
 		self.rwPoint = self.z[zi]
-		zi = getFirstIndexDifferentRight(self.pres, delta, zC)
-		self.shPoint = self.z[zi] 
+		zi2 = getFirstIndexDifferentRight(self.pres, delta, self.zcPoint)
+		self.shPoint = self.z[zi2] 
 		#ANALYTICAL DCPoint
 		self.dcPoint = self.getNewDcPoint(dt)
 		#ANALYTICAL RWPoint
@@ -164,8 +164,8 @@ class Model(BaseModel):
 		from initcond_riemann import getCsLeft
 		from riemann_params import timeAfterAnPoints
 		if(time>=timeAfterAnPoints):
-			#ANALYTICAL ZCPoint
-			self.zcPoint = self.getNewZcPoint(dt)
+			#calculate zc after the time
+			self.zcPoint = self.z[getFirstIndexConstant(self.pres, zi,delta)]
 			#show analytical points
 			if hasattr(self, 'rwPointAn'):
 				self.rwPointAn = self.getNewRwPoint(dt)
@@ -259,15 +259,6 @@ class Model(BaseModel):
 		newz = displacedPoint(self.dcPoint, self.vel[zIndex], dt)
 		return newz
 
-	def getNewZcPoint(self, dt):
-		from common import displacedPoint, getZIndex
-		from riemann_params import rhoLeft
-		zIndex = getZIndex(self.zcPoint)	
-		#zIndex = getZIndex(self.point3) #point 3 is created after 
-		v = (self.vel[zIndex] - getCs(self.pres[zIndex], self.rho[zIndex]))
-			#do not use displacedPoint from common.py as it make periodic assumption when it goes away from domain, but in this case it should remain at the end
-		newz = self.zcPoint + v * dt
-		return newz
 
 
 	if riemann_problemType in ["shock_tube", "exp_vacuum"]:

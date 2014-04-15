@@ -1,4 +1,5 @@
-riemann_problemType = "shock_tube"  #this can be shock_tube, complete, exp_vacuum
+#riemann_problemType = "shock_tube"  #this can be shock_tube, complete, exp_vacuum
+riemann_problemType = "complete"  #this can be shock_tube, complete, exp_vacuum
 
 timeAfterAnPoints = 2.0   #default
 if riemann_problemType == "shock_tube":

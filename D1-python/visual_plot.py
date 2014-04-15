@@ -92,13 +92,14 @@ class VisualPlot:
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
 				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
+			#legend only when I have analytical and numerical solution 
+	#		if fullscreenMainfigure:
+	#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+	#		else:
+	#			ax.legend()
+			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
-#		if fullscreenMainfigure:
-#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-#		else:
-#			ax.legend()
-		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 	def markPoint(self, axTitle, pointName, value):
 		if not hasattr(self, 'markPoints'):
@@ -180,7 +181,9 @@ class VisualPlot:
 		#time.sleep(5)
 
 	def finish(self):
-		pass
+		import time
+		time.sleep(10)
+		#pass
 
 
 

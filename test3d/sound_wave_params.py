@@ -9,7 +9,9 @@ p00 = 1.0
 
 v00 = 0.0
 
-#cs00 = math.sqrt(gamma * p00 / rho00)
+cs00 = math.sqrt(gamma * p00 / rho00)
+print("cs00 = %4.3f" % cs00)
+
 #v00 = - cs00 /  5.5
 #v00 =  0.5 * cs00
 #v00 = - cs00
@@ -23,11 +25,11 @@ A = 3.0 * 10.0 ** (-4)
 
 
 #these sholuld be defined only in case of r argType: see below
-#velDir = "x"
+velDir = "x"
 #velDir = "y"
 #velDir = "d1"
-#argType = "x"
-argType = "y"
+argType = "x"
+#argType = "y"
 #argType = "r"
 #argType = "d1" 
 periodicType = "repeat" # repeat| diff
