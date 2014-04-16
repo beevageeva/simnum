@@ -64,8 +64,8 @@ def getZIndex0(z):
 def getZIndex1(z):
 	return int( float(nint)*(float(z) - z0_1)/(zf_1 - z0_1) )
 
-def getZIndex1(z):
-	return int( float(nint)*(float(z) - z0_1)/(zf_1 - z0_1) )
+def getZIndex2(z):
+	return int( float(nint)*(float(z) - z0_1)/(zf_2 - z0_2) )
 
 #assumes periodic function
 def displacedPoint(z, c, t, a, b):

@@ -14,7 +14,10 @@ def getInitialUcUe(rho, v , p):
 	#print(" ".join(map(str, uc[0,:,0])))
 	#print("getInitialUcUe uePX:")
 	#print(" ".join(map(str, ue[0,:])))
-
+	print("getInitialUcUe uc.shape")
+	print(uc.shape)	
+	print("getInitialUcUe ue.shape")
+	print(ue.shape)	
 	return {'uc': uc, 'ue': ue}
 
 def recalculateVelPres(rho, uc, ue):
@@ -126,7 +129,7 @@ if schemeType == "fg":
 	
 	def calcIntermU(u, f, dt):
 		#print("calcIntermU")
-		from common import getDz0, getDz1
+		from common import getDz0, getDz1,getDz2
 		from constants import nint
 		#no more lambda dz1 may be different from dz0
 		dz0 = getDz0()

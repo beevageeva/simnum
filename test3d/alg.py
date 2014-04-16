@@ -1,6 +1,7 @@
 from constants import gamma
 import numpy as np
-
+from initcond_soundwave import lrBoundaryConditionsPresRho, lrBoundaryConditionsVel
+lrBoundaryConditions = None
 
 
 def power2Vec(vfr):
@@ -94,34 +95,12 @@ def getTimestep(v, p, rho):
 	return dt
 
 
-def lrBoundaryConditions(array, skip=0):
-	#print("ilrBoundaryConditions SKIP: %d" % skip)
-	from constants import problemType
-	if problemType == "riemann":
-		from initcond_riemann import lrBoundaryConditions as bc
-	elif problemType == "soundwave":
-		from initcond_soundwave import lrBoundaryConditions as bc
-	else:
-		#print("problemtype %s  not implemented " % problemType)
-		return array
-	a =  bc(array, skip)
-	#n = a.shape[0] -1
-	#print("lrBoundaryConditions first row")	
-	#print(a[0,:])
-	#print("lrBoundaryConditions last row")	
-	#print(a[n,:])
-	#print("lrBoundaryConditions first col")	
-	#print(a[:,0])
-	#print("lrBoundaryConditions last col")	
-	#print(a[:,n])
-	return a
-
 
 from constants import schemeType
 
 if schemeType == "fg":
 	
-	def calcIntermU(u, f, dt):
+	def calcIntermUArray(u, f, dt):
 		#print("calcIntermU")
 		from common import getDz0, getDz1
 		from constants import nint
@@ -146,54 +125,80 @@ if schemeType == "fg":
 					res[i-1][j-1][0] = val
 					res[i-1][j-1][1] = val2
 	
-		#left and right boundary condition  skip one point !!! both right and left the intermediate array will have nint + 3 points see array limits
-		
-		#print("calcIntermStep before bc PX")
-		#print(res[0,...])	
-		res = lrBoundaryConditions(res, 1)
-		#print("calcIntermStep after bc PX")
-		#print(res[0,...])	
 		return res
+
 	
-	
-	def calcFinalU(u, intermF, dt):
+	def calcFinalUArray(u, intermF, dt, skip=0):
 		#print("calcFinalU")
 		from common import getDz0, getDz1
 		from constants import nint
 		dz0 = getDz0()
 		dz1 = getDz1()
+		n = intermF.shape[0] - 1
 		if(u.ndim == 2): #case of um and ue that are not vectors
-			res = np.zeros((nint+2, nint+2))
+			res = np.zeros((n, n))
 			#res = np.array(nint+1, nint+1) #TODO do not initialize how?
 		else:
-			res = np.zeros((nint+2, nint+2, 2))
+			res = np.zeros((n, n, 2))
 			#res = np.array(nint+1, nint+1, 2)
-		for i in range(0, nint+2):
-			for j in range(0, nint+2):
+		for i in range(0, n):
+			for j in range(0, n):
 				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = u[i][j] - dt  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0])/dz0)
+					val = u[i+skip][j+skip] - dt  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0])/dz0)
 					res[i][j]=val
 				else:
-					val = u[i][j][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
-					val2 = u[i][j][1] - dt  * 0.5* ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
+					val = u[i+skip][j+skip][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
+					val2 = u[i+skip][j+skip][1] - dt  * 0.5* ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
 					res[i][j][0] = val
 					res[i][j][1] = val2
 		#no more boundary conditions because intermediate array alreday has nint + 3 points
 		return np.array(res)
 		
+	from constants import bcStep
+	if(bcStep == "interm"):
+		def calcIntermU(u, f, dt):
+			res = calcIntermUArray(u, f, dt)
+			#left and right boundary condition  skip one point !!! both right and left the intermediate array will have nint + 3 points see array limits
+			#print("calcIntermStep before bc")
+			#print(res)	
+			res = lrBoundaryConditions(res, 1)
+			#print("calcIntermStep after bc")
+			#print(res)	
+			return res
+	
+		#no more boundary conditions because intermediate array alreday has nint + 3 points
+		calcFinalU = calcFinalUArray	
+		
+	elif(bcStep == "final"):
+		#boundary conditions in final step
+			#left and right boundary condition  skip one point !!! both right and left the intermediate array will have nint + 1 points see array limits
+		calcIntermU = calcIntermUArray
+		def calcFinalU(u, f, dt):
+			res = calcFinalUArray(u, f, dt,1)
+			#print("final bc array before bc")
+			#print(res)
+			res = lrBoundaryConditions(res)
+			#print("final bc array after bc")
+			#print(res)
+			return res
 	
 	def recalculateU(rho, uc, ue, fm, fc ,fe, dt):
-		#print("calcIntermRho ")
+		global lrBoundaryConditions
+		lrBoundaryConditions = lrBoundaryConditionsPresRho
+		#print("recalculateU ")
 		intermRho = calcIntermU(rho, fm , dt)	
-		intermUc = calcIntermU(uc, fc , dt)	
 		intermUe = calcIntermU(ue, fe , dt)
+		lrBoundaryConditions = lrBoundaryConditionsVel
+		intermUc = calcIntermU(uc, fc , dt)	
 		intermVelPres = recalculateVelPres(intermRho, intermUc, intermUe)
 		intermVel = intermVelPres["vel"]
 		intermPres = intermVelPres["pres"]
 		intermFluxes = recalculateFluxes(intermRho, intermUc, intermUe, intermVel, intermPres)
+		lrBoundaryConditions = lrBoundaryConditionsPresRho
 		finalRho = calcFinalU(rho, intermFluxes["fm"], dt)	
-		finalUc = calcFinalU(uc, intermFluxes["fc"], dt)	
 		finalUe = calcFinalU(ue, intermFluxes["fe"], dt)
+		lrBoundaryConditions = lrBoundaryConditionsVel
+		finalUc = calcFinalU(uc, intermFluxes["fc"], dt)	
 		return {"rho": finalRho, "uc": finalUc, "ue": finalUe}
 	
 
@@ -235,8 +240,13 @@ elif schemeType == "lf":
 		return res
 	
 	def recalculateU(rho, uc, ue, fm , fc, fe, dt):
+		global lrBoundaryConditions
+		lrBoundaryConditions = lrBoundaryConditionsPresRho
 		#print("recalculateRho")
 		finalRho = calcSingleStepU(rho, fm, dt)
+		#print("recalculateUe")
+		finalUe = calcSingleStepU(ue, fe, dt)
+		lrBoundaryConditions = lrBoundaryConditionsVel
 		#print("uc  (before recalculateU) = ")
 		#print(uc)	
 		#print("fc (recalculateU) = ")
@@ -247,8 +257,6 @@ elif schemeType == "lf":
 		finalUc = calcSingleStepU(uc, fc, dt)	
 		#print("uc  (after recalculateU) = ")
 		#print(finalUc)	
-		#print("recalculateUe")
-		finalUe = calcSingleStepU(ue, fe, dt)
 		return {"rho": finalRho, "uc": finalUc, "ue": finalUe}
 
 else:

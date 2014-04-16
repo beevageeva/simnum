@@ -14,6 +14,10 @@ def getZArray():
 	a = np.linspace(z0_0-0.5 *dz0, zf_0+0.5*dz0, nint+2)
 	b = np.linspace(z0_1-0.5 *dz1, zf_1+0.5*dz1, nint+2)
 	return np.meshgrid(a, b)
+
+
+def getArrayZShape(x0,y0,n):
+	return np.array([[[x0,]*n,]*n,[[y0,]*n,]*n] )
 	
 
 def getPeriodicX(xval, a, b):

@@ -9,5 +9,5 @@ fullscreenMainfigure = False
 from constants import z0_0, zf_0, z0_1, zf_1, z0_2, zf_2
 
 #second element in array is whether to calculate maxpoint velocity: I don't know what happens when multiple points for the max
-projections = {"dim0": 0.5 * (zf_0 - z0_0), "dim1": 0.5 * (zf_1 - z0_1), "dim2": 0.5 * (zf_2 - z0_2)}
+projections = {"dim0": 0.5 * (zf_0 + z0_0), "dim1": 0.5 * (zf_1 + z0_1), "dim2": 0.5 * (zf_2 + z0_2)}
 

@@ -1,13 +1,5 @@
 import getopt,sys
-from constants import problemType
-if problemType == "soundwave":
-	from model_soundwave import Model
-elif problemType == "riemann":
-	from model_riemann import Model
-else:
-	print("problemtype %s not implemented" % problemType)
-	sys.exit(0)
-
+from model_soundwave import Model
 
 def usage():
 	print("Usage: python main.py [--timeEnd=<timeEnd>]")

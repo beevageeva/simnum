@@ -3,10 +3,17 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys, os
+from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 from notifier_params import fullscreenMainfigure
 
+
 saveImages = False
+#saveImages = True
+
+#hlines = True
+hlines = False
+
 
 def getRandomColor():
 	from random import random
@@ -81,6 +88,7 @@ class VisualPlot:
 		ax.grid(True)
 		self.axes[title] = ax
 		shape = np.shape(vals)
+		plotLegend = False
 		#we can plot multiple graphs on the same axis : example numerical and analytical
 		if(len(shape)==1):
 			l, = ax.plot(self.z, vals, lw=2, color='b')
@@ -90,9 +98,20 @@ class VisualPlot:
 			self.lines[title] = []
 			for i in range(0, shape[0]):
 				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
+				plotLegend = True
 				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
-			#legend only when I have analytical and numerical solution 
+		if hlines:
+			plotLegend = True
+			if(len(shape)==1):
+				ymin = np.min(vals)
+				ymax = np.max(vals)
+			elif(len(shape)==2):
+				ymin = np.min(vals[0])
+				ymax = np.max(vals[0])
+	 		ax.hlines(ymin, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymin)
+ 			ax.hlines(ymax, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymax)
+		if(plotLegend):
 	#		if fullscreenMainfigure:
 	#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 	#		else:
@@ -131,7 +150,32 @@ class VisualPlot:
 #			self.axes[axTitle].legend()
 		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 			
+	def fftplot(self, ax, vals):
+		numPoints = len(self.z)
+		ax.grid(True)
+		Y=fft(vals)/(numPoints)
+		F=fftfreq(numPoints, self.z[0] - self.z[1])
+		#ax.set_xlim(-80,80)
+		ax.set_xlim(0,80)
+		ax.set_xticks(np.arange(0, 81, 5))
+		#ax.vlines(F,0,abs(Y))
+		ax.plot(F,abs(Y), markersize=3, linestyle="-", marker="o")
+
+
+	def addFFTAxis(self, title, vals):
+		fig = plt.figure()
+		ax = fig.add_subplot(111)
+		self.axes[title] = ax
+		self.fftplot(ax,vals)
+		self.figures.append(fig)
+		fig.subplots_adjust(right=0.8)
+		plt.draw()
+		plt.show(block=False)
 		
+	def updateFFTAxis(self, title, vals):
+		ax = self.axes[title]
+		ax.cla()
+		self.fftplot(ax,vals)
 
 	def addGraph(self, title, vals):
 		fig = plt.figure()
@@ -155,8 +199,9 @@ class VisualPlot:
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
-		self.axes[title].relim()
-		self.axes[title].autoscale_view(True,True,True)
+		if(not hlines):
+			self.axes[title].relim()
+			self.axes[title].autoscale_view(True,True,True)
 		
 		
 	def afterUpdateValues(self, newTime):

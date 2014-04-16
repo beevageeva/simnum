@@ -269,9 +269,9 @@ class VisualPlot:
 
 
 	def updateValues(self, title, vals,dt):
-		print("updateValues %s MAX POINTS:" % title)
-		print(self.maxPoints)
-		print("MAX POINTS END")
+		#print("updateValues %s MAX POINTS:" % title)
+		#print(self.maxPoints)
+		#print("MAX POINTS END")
 		ax = self.axes[title]
 		if(vals.ndim == 2):
 			self.updateAxis(ax[0], title, vals)

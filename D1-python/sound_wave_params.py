@@ -5,6 +5,8 @@ from constants import gamma
 
 #functiontype = 'sine'
 functiontype = 'defined'
+#periodicType = "repeat" 
+periodicType = "diff" 
 
 rho00 = 1.0
 p00 = 1.0
@@ -34,7 +36,22 @@ init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
 plotPresCurve = False
 plotRhoCurve = False
 plotVelCurve = False
-markPoints = True
+plotPresAn = False
+plotRhoAn = False
+plotVelAn = False
+markPoints = False
+plotVelFFT = True
+
+if periodicType == "diff":
+	#analytical function does not make sense
+	plotPresAn = False
+	plotRhoAn = False
+	plotVelAn = False
+	markPoints = False
+
+
+
+
 
 
 

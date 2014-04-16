@@ -90,7 +90,7 @@ class VisualPlot:
 		self.figures = [fig]
 		if projections:
 			self.markPoints = {}
-			from common import getZIndex0, getZIndex1
+			from common import getZIndex0, getZIndex1, getZIndex2
 			if testKeyInDict("dim0", projections):
 				fig = plt.figure(2)
 				self.dim0ProjIndex = getZIndex0(projections["dim0"])
@@ -104,7 +104,7 @@ class VisualPlot:
 			if testKeyInDict("dim2", projections):
 				fig = plt.figure(4)
 				fig.suptitle("Dim2 z0=%4.3f" % projections["dim2"])
-				self.dim1ProjIndex = getZIndex1(projections["dim2"])
+				self.dim2ProjIndex = getZIndex2(projections["dim2"])
 				self.figures.append(fig)
 		self.axes = {}
 		n = len(titles)
@@ -167,6 +167,7 @@ class VisualPlot:
 		ax.grid(True)
 		#ax.plot_surface(vals, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 		ax.plot_surface(vals[0], vals[1], vals[2])
+		#ax.plot_surface(vals[0][0][:,0], vals[1][:,0][:,0], vals[2][:,0][0])
 		#ax.view_init(0, 90)
 		#ax.view_init(45, 45)
 		ax.relim()

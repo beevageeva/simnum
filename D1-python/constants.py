@@ -1,8 +1,8 @@
 gamma = 5.0/3
 
 #problemType="soundwave" #problemType may be soundwave or riemann
-#problemType = "soundwave"
-problemType = "riemann"
+problemType = "soundwave"
+#problemType = "riemann"
 if problemType == "soundwave":
 	z0 = 3.1
 	zf = 7.4
@@ -27,3 +27,7 @@ if schemeType == "lf":
 	fcfl = 0.99 #use this for lax - fr scheme type
 elif schemeType == "fg":
 	fcfl = 0.97#use this for first generation scheme
+	bcStep = "interm" 
+	#bcStep = "final" 
+
+
