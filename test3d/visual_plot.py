@@ -8,7 +8,7 @@ import sys, os
 
 from notifier_params import fullscreenMainfigure, projections
 
-saveImages = False
+saveImages = True
 
 
 	

@@ -81,7 +81,10 @@ class Model(BaseModel):
 		if(plotRhoCurve):
 			self.notifier.updateValues("rhoCurve", rhoCurveNewVals)
 		if(plotVelFFT):
-			self.notifier.updateFFTAxis("velFFT", self.vel)
+			#TODO it is calculated every time 
+			from initcond_soundwave import getVelFFTAn
+			getVelFFTAn = None
+			self.notifier.updateFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			self.notifier.markPoint("rho", "maxRhoZ", self.maxRhoZ)
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
@@ -118,7 +121,9 @@ class Model(BaseModel):
 		if(plotRhoCurve):
 			self.notifier.addGraph("rhoCurve", [getRhoCurveNumeric(self.rho),getRhoCurveNumeric(self.rho)])
 		if(plotVelFFT):
-			self.notifier.addFFTAxis("velFFT", self.vel)
+			from initcond_soundwave import getVelFFTAn
+			getVelFFTAn = None
+			self.notifier.addFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			from initcond_soundwave import  getInitialFunctionMaxZ
 			r = getInitialFunctionMaxZ(self.z)

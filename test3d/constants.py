@@ -6,9 +6,9 @@ z0_1 = 3.1
 zf_1 = 7.4
 	
 
-#nint = 64
+nint = 64
 #nint=128
-nint =  256
+#nint =  256
 #nint = 1024
 #nint = 32
 

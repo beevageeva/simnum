@@ -189,3 +189,16 @@ elif periodicType == "diff":
 			array.insert(0, -array[2])
 			array[-1] = 0
 			array.append(-array[-2]) 
+
+
+
+
+def getVelFFTAn(k):
+	if functiontype == "defined":
+		from sound_wave_params import A, p00, rho00
+		cs00 = math.sqrt(gamma * p00 / rho00)
+		from sound_wave_defined_params import wFFTAn
+		return A * cs00 * wFFTAn(k)
+	return None
+		
+

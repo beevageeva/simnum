@@ -56,7 +56,7 @@ if periodicType == "repeat":
 
 	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 
-elif periodicType == "diff":
+elif periodicType == "refl":
 	
 #	#degree + 1 points needed
 #	def polyfitArray(arr, degree, direction, resIndex):
@@ -93,7 +93,7 @@ elif periodicType == "diff":
 		return array
 
 #		#array may be 2d or 3d (in case of uc)
-#		#print("diff lrBoundaryCondPresRho")
+#		#print("refl lrBoundaryCondPresRho")
 #		#print("array shape1")
 #		#print(array.shape)
 #		#I already know
@@ -138,7 +138,7 @@ elif periodicType == "diff":
 #		return array
 
 	def lrBoundaryConditionsVel(array, skip=0):
-		#print("diff lrBoundaryCondVel")
+		#print("refl lrBoundaryCondVel")
 		#print("array shape1")
 		#print(array.shape)
 		n = array.shape[0] - 1

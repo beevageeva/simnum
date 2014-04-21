@@ -21,22 +21,22 @@ print("cs00 = %4.3f" % cs00)
 A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
-#periodicType = "repeat" # repeat| diff
-periodicType = "diff" 
+#periodicType = "repeat" # repeat| refl
+periodicType = "refl" 
 
 timesZArgW = 2 #1(sine, gauss) or 2(wave packet)
 
 if(timesZArgW == 1):
-	#functionType = "sine" 
-	functionType = "gauss" 
+	functionType = "sine" 
+	#functionType = "gauss" 
 	#these sholuld be defined only in case of r argType: see below
 	#velDir = "x"
 	#velDir = "y"
-	#velDir = "d1"
-	argType = "x"
+	velDir = "d1"
+	#argType = "x"
 	#argType = "y"
 	#argType = "r"
-	#argType = "d1" 
+	argType = "d1" 
 	
 	#be sure 
 	if(argType == "d1"):
@@ -58,19 +58,16 @@ if(timesZArgW == 1):
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
 		k1 = wl/(zf_0 - z0_0)
 		k2 = wl/(zf_1 - z0_1)
+		print("k1=%d, k2=%d" % (k1,k2))
 		velFunc = lambda x: (k1 * x ,k2 * x)
 	if(argType == "x"):
 		func = lambda z: z[0] 
-		#arg = z[0] #argument of periodic function only x   
 	elif argType == "y":
 		func = lambda z: z[1] 
-		#arg = z[1] #arg y  
 	elif argType == "d1":
 		func = lambda z: z[0] * k1 + z[1] * k2 
-		#arg = z[0] * k1 +  z[1] * k2
 	elif argType == "r":
 		func = lambda z: np.sqrt(z[0] **2 +  z[1] **2)
-		#arg = np.sqrt(z[0] **2 +  z[1] **2)
 
 	
 	if functionType == "sine":

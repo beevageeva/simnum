@@ -150,7 +150,7 @@ class VisualPlot:
 #			self.axes[axTitle].legend()
 		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 			
-	def fftplot(self, ax, vals):
+	def fftplot(self, ax, vals, aFunc=None):
 		numPoints = len(self.z)
 		ax.grid(True)
 		Y=fft(vals)/(numPoints)
@@ -160,22 +160,30 @@ class VisualPlot:
 		ax.set_xticks(np.arange(0, 81, 5))
 		#ax.vlines(F,0,abs(Y))
 		ax.plot(F,abs(Y), markersize=3, linestyle="-", marker="o")
+		if not aFunc is None:
+			for i in range(len(F)):
+				print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
+			c = np.polyfit(aFunc(F), abs(Y) , 1)
+			print("coef polyfit aFunc(F), Y degree 1")
+			print(c)
+			ax.plot(F,aFunc(F), markersize=3, linestyle="-", marker="o", color="r")
+			
 
 
-	def addFFTAxis(self, title, vals):
+	def addFFTAxis(self, title, vals, aFunc=None):
 		fig = plt.figure()
 		ax = fig.add_subplot(111)
 		self.axes[title] = ax
-		self.fftplot(ax,vals)
+		self.fftplot(ax, vals, aFunc)
 		self.figures.append(fig)
 		fig.subplots_adjust(right=0.8)
 		plt.draw()
 		plt.show(block=False)
 		
-	def updateFFTAxis(self, title, vals):
+	def updateFFTAxis(self, title, vals, aFunc=None):
 		ax = self.axes[title]
 		ax.cla()
-		self.fftplot(ax,vals)
+		self.fftplot(ax,vals, aFunc)
 
 	def addGraph(self, title, vals):
 		fig = plt.figure()

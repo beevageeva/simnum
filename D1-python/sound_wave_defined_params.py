@@ -25,3 +25,10 @@ def w(z, nwav=k0):
   t2 = np.subtract(z,zc) ** 2 
   return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0)))
 
+def wFFTAn(k):
+	t2 = np.subtract(k,zc) ** 2
+	print("ft an ")
+	print(t2)	 
+	return np.exp(-np.divide(t2, W**2)) 
+
+
