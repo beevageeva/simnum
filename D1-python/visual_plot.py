@@ -155,9 +155,9 @@ class VisualPlot:
 		ax.grid(True)
 		Y=fft(vals)/(numPoints)
 		F=fftfreq(numPoints, self.z[0] - self.z[1])
-		#ax.set_xlim(-80,80)
-		ax.set_xlim(0,80)
-		ax.set_xticks(np.arange(0, 81, 5))
+		ax.set_xlim(-80,80)
+		#ax.set_xlim(0,80)
+		ax.set_xticks(np.arange(-80, 81, 10))
 		#ax.vlines(F,0,abs(Y))
 		ax.plot(F,abs(Y), markersize=3, linestyle="-", marker="o")
 		if not aFunc is None:
