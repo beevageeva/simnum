@@ -6,7 +6,7 @@ from matplotlib import cm
 import numpy as np
 import sys, os
 
-from notifier_params import fullscreenMainfigure, projections
+from notifier_params import fullscreenMainfigure, projections, plotAnalitical
 
 saveImages = True
 
@@ -24,14 +24,23 @@ def testKeyInDict(key, dictionary):
 class VisualPlot:
 
 	#TODO this does not use self
-	def addAxisColor(self, ax, title, vals):
+	def addAxisColor(self, arrayToAppendAxes, title, vals, n , i, subplotNumber, colspan):
+		if(vals.ndim == 2):
+			values = vals
+		else:
+			values = vals[..., subplotNumber]
+		if(colspan):
+			ax = plt.subplot2grid((n,2), (i,subplotNumber), colspan=2)
+		else:
+			ax = plt.subplot2grid((n,2), (i,subplotNumber))
 		ax.set_xlabel("x")
 		ax.set_ylabel("y")
 		ax.set_title(title)
 		ax.grid(True)
-		ax.imshow(vals)
+		ax.imshow(values)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
+		arrayToAppendAxes.append(ax)
 
 	def addProjAxes(self, arrayToAppendAxes, title, vals, n , i, subplotNumber, colspan=False):
 		if hasattr(self, "dim0ProjIndex"):
@@ -70,16 +79,11 @@ class VisualPlot:
 			arrayToAppendAxes.append(ax)
 		if testKeyInDict("color", projections):
 			plt.figure(4)
-			if(vals.ndim == 2):
-				values = vals
-			else:
-				values = vals[..., subplotNumber]
-			if(colspan):
-				ax = plt.subplot2grid((n,2), (i,subplotNumber), colspan=2)
-			else:
-				ax = plt.subplot2grid((n,2), (i,subplotNumber))
-			self.addAxisColor(ax, title, values)
-			arrayToAppendAxes.append(ax)
+			self.addAxisColor(arrayToAppendAxes, title, vals, n , i, subplotNumber,colspan)
+			if plotAnalitical:
+				plt.figure(5)
+				self.addAxisColor(arrayToAppendAxes, ("%s-an" % title), vals, n , i, subplotNumber,colspan)
+
 
 	
 	def addAxisProj(self, ax, title, vals, markMaxValue = None):
@@ -94,6 +98,7 @@ class VisualPlot:
 		ax.autoscale_view(True,True,True)
 
 
+	#titles will be an array of  of 2 elem array : the first the title and the second if we will plot 
 	def __init__(self, z, titles, iniValues):
 		if saveImages:
 			from common import createFolder	
@@ -127,6 +132,11 @@ class VisualPlot:
 				fig = plt.figure(4)
 				fig.suptitle("color")
 				self.figures.append(fig)
+				if(plotAnalitical):
+					fig = plt.figure(5)
+					fig.suptitle("color an")
+					self.figures.append(fig)
+					
 		self.axes = {}
 		n = len(titles)
 		for i in range(0, len(titles)):
@@ -137,7 +147,7 @@ class VisualPlot:
 				ax = plt.subplot2grid((n,2), (i,0), colspan=2, projection='3d')
 				self.addAxis(ax, title, vals)
 				self.axes[title] = [ax]
-				self.addProjAxes(self.axes[title], title, vals, n, i, 0, True)
+				self.addProjAxes(self.axes[title], title, vals, n, i, 0,  True)
 
 			elif(vals.ndim == 3):	
 				ax = plt.subplot2grid((n,2), (i,0), projection='3d')
@@ -164,8 +174,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		import time
-		time.sleep(10)
+		#import time
+		#time.sleep(10)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -198,6 +208,9 @@ class VisualPlot:
 		ax.set_xlabel("z0")
 		ax.set_ylabel("z1")
 		ax.set_zlabel(title)
+		#no plot on 3d axis for analitical 
+		if(plotAnalitical):
+			vals = vals[0]
 		#ax.plot_surface(self.z[0], self.z[1], vals, rstride=1, cstride=1, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 		#ax.plot_surface(self.z[0], self.z[1], vals)
 		ax.plot_wireframe(self.z[0], self.z[1], vals)
@@ -209,10 +222,14 @@ class VisualPlot:
 		ax.cla()
 		ax.set_xlabel("z")
 		ax.set_ylabel(title)
-		ax.plot(self.z[0][0],  vals)
+		if(plotAnalitical):
+			ax.plot(self.z[0][0],  vals[0], label="num")
+			ax.plot(self.z[0][0],  vals[1], color="r", label="an")
+		else:
+			ax.plot(self.z[0][0],  vals)
 		if(markMaxValue):
 			ax.vlines(markMaxValue, 0, markMaxValue, color='b', label=maxLegend)
-			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.grid(True)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
@@ -228,12 +245,13 @@ class VisualPlot:
 	#TODO make a function for every projection
 	def updateProjAxis(self, axesArray, title, vals, index, dt):
 		from common import getSpeedPeriodic0, getSpeedPeriodic1
+		dim = 3 if plotAnalitical else 2 
 		if hasattr(self, "dim0ProjIndex"):
 			ni = 2
-			if(vals.ndim == 2):
-				values = vals[self.dim0ProjIndex, :]
+			if(vals.ndim == dim):
+				values = vals[:,self.dim0ProjIndex, :] if plotAnalitical else vals[self.dim0ProjIndex, :]
 			else:
-				values = vals[self.dim0ProjIndex, :, index]	
+				values = vals[:, self.dim0ProjIndex, :, index]	if plotAnalitical else vals[self.dim0ProjIndex, :, index]	
 			markMaxValue = None
 			markMaxTitle = None
 			if(projections["dim0"][1]):
@@ -246,10 +264,10 @@ class VisualPlot:
 		else:
 			ni = 1
 		if hasattr(self, "dim1ProjIndex"):
-			if(vals.ndim == 2):
-				values = vals[:,self.dim1ProjIndex]
+			if(vals.ndim == dim):
+				values =  vals[:,:,self.dim1ProjIndex] if plotAnalitical else vals[:,self.dim1ProjIndex]
 			else:
-				values = vals[:,self.dim1ProjIndex, index]
+				values = vals[:,:,self.dim1ProjIndex, index] if plotAnalitical else vals[:,self.dim1ProjIndex, index]
 			markMaxValue = None
 			markMaxTitle = None
 			if(projections["dim1"][1]):
@@ -261,25 +279,33 @@ class VisualPlot:
 			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
 			ni+=1
 		if testKeyInDict("color", projections):
-			if(vals.ndim == 2):
+			if(vals.ndim == dim):
 				values = vals
 			else:
 				values = vals[:,:, index]
-			self.updateAxisColor(axesArray[ni], title, values)
+			if(plotAnalitical):
+				self.updateAxisColor(axesArray[ni], title, values[0])
+				self.updateAxisColor(axesArray[ni+1], "%s-an" % title, values[1])
+			else:
+				self.updateAxisColor(axesArray[ni], title, values)
 
 
 	def updateValues(self, title, vals,dt):
 		#print("updateValues %s MAX POINTS:" % title)
 		#print(self.maxPoints)
 		#print("MAX POINTS END")
+		#print("updateValues %s vals.ndim = %d, vals.shape" % (title, vals.ndim))
+		#print(vals.shape)
+		
 		ax = self.axes[title]
-		if(vals.ndim == 2):
+		dim = 3 if plotAnalitical else 2 
+		if(vals.ndim == dim):
 			self.updateAxis(ax[0], title, vals)
 			self.updateProjAxis(ax, title, vals,0,dt)
 		else:
-			self.updateAxis(ax[0][0],  title, vals[:,:,0])
+			self.updateAxis(ax[0][0],  title, vals[...,0])
 			self.updateProjAxis(ax[0], title, vals, 0, dt)
-			self.updateAxis(ax[1][0], title, vals[:,:,1])
+			self.updateAxis(ax[1][0], title, vals[...,1])
 			self.updateProjAxis(ax[1], title, vals, 1, dt)
 
 			

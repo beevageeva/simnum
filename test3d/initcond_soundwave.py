@@ -28,13 +28,29 @@ def getInitialPresRhoVel(z):
 	r =  A * w(z)
 	#initial velocity
 	v1 = v00 + cs00 *  r
-	vel = np.dstack(velFunc(v1))
+	vel = np.dstack(velFunc(v1, z))
 	#print("getInitialPresRhoVel vel shape")
 	#print(vel.shape)
 	#print("getInitialPresRhoVel vel shape end")
 	return {'pres': p00 + gamma * p00 * r  , 'rho': rho00 + rho00 * r , 'vel': vel } 
 
+
+
+def getAnRhoPresVel(z, t):
+	from sound_wave_params import A, p00, rho00, v00, wAnMonochromatic,velFunc
+	cs00 = math.sqrt(gamma * p00 / rho00)
+	#c is phaseVelocity
+	def wAnMonochromatic(z, t, c):
+		return np.cos(-k * c * t) * w(z)
+	r =  A * wAnMonochromatic(z, t, cs00)
+	v1 = v00 + cs00 *  r
+	vel = np.dstack(velFunc(v1, z))
+	return {'pres': p00 + gamma * p00 * r  , 'rho': rho00 + rho00 * r , 'vel': vel } 
 	
+
+
+
+#boundary conditions:	
 from sound_wave_params import periodicType
 		
 if periodicType == "repeat":
@@ -56,7 +72,7 @@ if periodicType == "repeat":
 
 	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 
-elif periodicType == "refl":
+elif periodicType == "refl" or periodicType == "diff":
 	
 #	#degree + 1 points needed
 #	def polyfitArray(arr, degree, direction, resIndex):
@@ -137,6 +153,7 @@ elif periodicType == "refl":
 #		#print("end")
 #		return array
 
+if periodicType == "refl":
 	def lrBoundaryConditionsVel(array, skip=0):
 		#print("refl lrBoundaryCondVel")
 		#print("array shape1")
@@ -160,4 +177,8 @@ elif periodicType == "refl":
 		#print(array.shape)
 		#print("end")
 		return array
+
+elif periodicType == "diff":
+	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
+
 

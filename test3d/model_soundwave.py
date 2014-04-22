@@ -5,6 +5,7 @@ from constants import gamma
 import initcond_soundwave as initcond
 
 
+
 def getNotifier(notifierType, z, titles, iniValues):
 	if(notifierType=="visual"):
 		#this can be any other class implementing corresponding methods
@@ -17,6 +18,7 @@ def getNotifier(notifierType, z, titles, iniValues):
 class Model:
 	
 	def __init__(self):
+		print("model init")
 		from common import getZArray
 		from alg import getInitialUcUe
 		self.z = getZArray()
@@ -148,14 +150,21 @@ class Model:
 			##print("NSTEP %d" % nstep)
 			#print("VARS after recalculate at time %4.3f" % time)
 			#self.showVars()
-			#splitted updateValues in updateValuesModel and updateValuesNotifier because I want to catch stop condition computed in updateValuesModel in each step
-			from notifier_params import nstepsPlot
+			from notifier_params import nstepsPlot, plotAnalitical
 			if(nstep % nstepsPlot == 0):
 				##print("upd")
+				if(plotAnalitical):
+					anRes = initcond.getAnRhoPresVel(self.z, time)
 				#ndt correct value I calculate max velocity only when plotted
-				self.notifier.updateValues("rho", self.rho,ndt)
-				self.notifier.updateValues("pres", self.pres,ndt)
-				self.notifier.updateValues("vel", self.vel,ndt)
+				self.notifier.updateValues("rho", np.array([self.rho, anRes["rho"]]) if plotAnalitical else self.rho,ndt)
+				self.notifier.updateValues("pres", np.array([self.pres, anRes["pres"]]) if plotAnalitical else self.pres,ndt)
+				print("self.vel.shape")
+				print(self.vel.shape)
+				if(plotAnalitical):
+					print("anvel shape")	
+					print(anRes["vel"].shape)
+
+				self.notifier.updateValues("vel", np.array([self.vel, anRes["vel"]]) if plotAnalitical else self.vel,ndt)
 				ndt = 0
 				self.notifier.afterUpdateValues(time)
 		self.notifier.finish()
