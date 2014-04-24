@@ -9,8 +9,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 from notifier_params import projections, plotAnalitical
 
-saveImages = True
-#saveImages = False
+#saveImages = True
+saveImages = False
 
 
 	
@@ -37,7 +37,7 @@ class VisualPlot:
 			ax = plt.subplot2grid((n,2), (i,subplotNumber))
 		ax.set_xlabel("x")
 		ax.set_ylabel("y")
-		ax.set_title(title)
+		ax.set_title("%s%d"% (title, subplotNumber))
 		ax.grid(True)
 		ax.imshow(values)
 		ax.relim()
@@ -85,6 +85,7 @@ class VisualPlot:
 			if plotAnalitical:
 				plt.figure(5)
 				self.addAxisColor(arrayToAppendAxes, ("%s-an" % title), vals, n , i, subplotNumber,colspan)
+
 
 
 	
@@ -172,8 +173,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		import time
-		time.sleep(20)
+		#import time
+		#time.sleep(20)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -249,8 +250,11 @@ class VisualPlot:
 			markMaxValue = None
 			markMaxTitle = None
 			if(projections["dim0"][1]):
-				markMaxIndex = np.argmax(values[0]) if plotAnalitical else np.argmax(values)
+				markMaxIndex = np.argmax(values[0] if plotAnalitical else values)
+				print("values")
+				print(values[0] if plotAnalitical else values)
 				markMaxValue = self.z[0][0][markMaxIndex]
+				print("dim0 %s%d maxInd = %d" % (title, index, markMaxIndex))
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
 				markMaxTitle = "ms= %4.3f" % maxSpeed
 				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
@@ -269,6 +273,7 @@ class VisualPlot:
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
 				markMaxTitle = "ms= %4.3f" % maxSpeed
+				print("dim1 %s%d" % (title, index))
 				self.maxPoints["dim1"]["%s%d" % (title, index)] = markMaxValue
 			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
 			ni+=1
@@ -280,7 +285,7 @@ class VisualPlot:
 			self.updateAxisColor(axesArray[ni], title, values)
 			if(plotAnalitical):
 				values = vals[1] if vdim == 2 else vals[1][:,:,index]
-				self.updateAxisColor(axesArray[ni+1], "%s-an" % title, values)
+				self.updateAxisColor(axesArray[ni+1], "%s%d-an" % (title, index), values)
 
 
 	def updateValues(self, title, vals,dt):

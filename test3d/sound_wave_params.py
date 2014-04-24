@@ -36,11 +36,11 @@ v00 = 0.0
 A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
-#periodicType = "repeat" #used for moving plane
+periodicType = "repeat" #used for moving plane
 #periodicType = "refl" #use it with wave packet
-periodicType = "diff" #tried to use it with hankel 
-#wType = "all"
-wType = "pot"
+#periodicType = "diff" #tried to use it with hankel 
+wType = "all"
+#wType = "pot"
 
 if(wType=="pot" and mediumType == "inhomog"):
 	print("INVALID config: wType=pot and inhomog medium")
@@ -51,12 +51,12 @@ timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packe
 #timesZArgW = 2 
 
 if(timesZArgW == 1):
-	#functionType = "sine" 
+	functionType = "sine" 
 	#functionType = "gauss" 
-	functionType = "hankel" 
-	#argType = "x"
+	#functionType = "hankel" 
+	argType = "x"
 	#argType = "y"
-	argType = "r"
+	#argType = "r"
 	#argType = "d1" 
 	
 
@@ -115,7 +115,7 @@ if(timesZArgW == 1):
 
 		def smoothInterp(z, res):
 			from scipy.interpolate import CloughTocher2DInterpolator
-			RI = 5
+			RI = 5 #mask a circle around 0,0 -> assumes a centered domain with radius RI and sets  the values here by intterpolation
 			n = len(z[0]) - 1
 			y,x=np.ogrid[-n / 2: n/2 + 1, -n / 2: n/2 + 1]
 			mask = x**2+y**2 < RI**2
@@ -141,8 +141,8 @@ if(timesZArgW == 1):
 			#multiply by a window function
 			windowFunction1D = np.blackman(n+1)
 			windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
-			#return res * windowFunction2D
-			return res
+			return res * windowFunction2D
+			#return res
 
 			
 

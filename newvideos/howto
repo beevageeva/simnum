@@ -98,8 +98,10 @@ plotAnalitical=True
 set in constants.py:
 domainType="centered"
 
-files hankel_*.mp4
+files hankel_*.mp4 (with interpolation for a circle around 0,0(smooth) or not (nomod) and multiplied with a window function(win) or not(nowin))
 
+see definition of hankel function(in sound_wave_params.py) in order to multiply it with a window function or make it smooth in 0,0 using
+CloughTocher2DInterpolator
 
 
 

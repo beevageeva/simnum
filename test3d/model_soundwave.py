@@ -19,7 +19,6 @@ def getNotifier(notifierType, z, titles, iniValues):
 class Model:
 	
 	def __init__(self):
-		print("model init")
 		from common import getZArray
 		from alg import getInitialUcUe
 		self.z = getZArray()

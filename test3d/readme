@@ -7,6 +7,7 @@ notifier_params.py
 *	projections = {"dim0": [0.5 * (zf_0 + z0_0), False], "dim1": [0.5 * (zf_1 + z0_1), False], "color": True}
 plot projections on dim 0 at point z0 = 0.5 * (zf_0 + z0_0)  , does not calculate maximum velocity on this projetcion
 plot projections on dim 0 at point z1 = 0.5 * (zf_1 + z0_1) ,  calculates maximum velocity on this projetcion and put it on legend
+TODO: maximum speed plotted on the graph does not show expected speed value: it moves each 2 steps!! so ms in 2 consecutive steps(even,odd) is 0
 plot colormap
 *	plotAnalitical = True | False  - set it to True in order to plot analytical solution: take care this is only defined in few cases: see initcond_soundwave
 
@@ -47,6 +48,7 @@ FOR timesZArgW == 1:
 	*	functionType = "sine" | "gauss" | "hankell"
 	* argType = "x" | "y" | "r" | "d1"
 
+	
 
 
 

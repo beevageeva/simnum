@@ -61,8 +61,10 @@ def getZIndex1(z):
 
 
 def getSpeedPeriodic(newVal, oldVal, z0, zf, dt):
+	print("newval=%E,oldVal=%E" % (newVal, oldVal))
 	if newVal < oldVal:
 		newVal +=  zf - z0	
+		print("newval MODIFIED=%E,oldVal=%E" % (newVal, oldVal))
 	return (newVal - oldVal) / dt
 
 def getSpeedPeriodic0(newVal, oldVal, dt):
