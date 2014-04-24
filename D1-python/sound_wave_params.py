@@ -6,7 +6,7 @@ from constants import gamma
 #functiontype = 'sine'
 functiontype = 'defined'
 #periodicType = "repeat" 
-periodicType = "diff" 
+periodicType = "refl" 
 
 rho00 = 1.0
 p00 = 1.0
@@ -42,7 +42,7 @@ plotVelAn = False
 markPoints = False
 plotVelFFT = True
 
-if periodicType == "diff":
+if periodicType == "refl":
 	#analytical function does not make sense
 	plotPresAn = False
 	plotRhoAn = False

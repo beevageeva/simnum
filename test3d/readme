@@ -1,0 +1,53 @@
+Parameters:
+
+notifier_params.py
+*	notifierType = "visual" | "file"
+*	nstepsPlot = 1 
+
+*	projections = {"dim0": [0.5 * (zf_0 + z0_0), False], "dim1": [0.5 * (zf_1 + z0_1), False], "color": True}
+plot projections on dim 0 at point z0 = 0.5 * (zf_0 + z0_0)  , does not calculate maximum velocity on this projetcion
+plot projections on dim 0 at point z1 = 0.5 * (zf_1 + z0_1) ,  calculates maximum velocity on this projetcion and put it on legend
+plot colormap
+*	plotAnalitical = True | False  - set it to True in order to plot analytical solution: take care this is only defined in few cases: see initcond_soundwave
+
+
+
+constants.py
+For first generation scheme set bcStep = "interm" | "final" to specify in which step to apply the boundary conditions
+
+
+sound_wave_params.py
+
+*	rho00 
+
+*	mediumType = "homog"
+	mediumType = "inhomog"  #variable density rho00 to test with wave packet
+		rho01 = 0.01
+		ze = 
+		we 
+		densFunc 
+
+*	p00 
+*	v00 
+*	A 
+
+*	periodicType = "repeat" #used for moving plane
+	periodicType = "refl" #use it with wave packet - reflection constant deriv for pres and rho, vel = 0
+	periodicType = "diff" #tried to use it with hankel - constant deriv for vel , pres and rho
+Boundary conditions to apply see initcond_soundwave
+*	wType = "all"
+	wType = "pot"
+if w defined here is a function such that rho0, pres0 and vel0 = constant * w(z) set it to "all"
+if w defined here is the velocity potential set it to "pot"
+
+*	timesZArgW = 1 #1(sine, gauss) or 2(wave packet)
+(how many times z is argument in w)
+
+FOR timesZArgW == 1:
+	*	functionType = "sine" | "gauss" | "hankell"
+	* argType = "x" | "y" | "r" | "d1"
+
+
+
+
+

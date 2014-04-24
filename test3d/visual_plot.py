@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 import sys, os
+from scipy.fftpack import fft,fftfreq#forFourierTransform
 
-from notifier_params import fullscreenMainfigure, projections, plotAnalitical
+from notifier_params import projections, plotAnalitical
 
 saveImages = True
+#saveImages = False
 
 
 	
@@ -92,7 +94,7 @@ class VisualPlot:
 		ax.grid(True)
 		ax.plot(self.z[0][0], vals)
 		if(markMaxValue):
-			ax.vlines(markMaxValue, 0, markMaxValue, color='b', label="max")
+			ax.vlines(markMaxValue, np.min(vals[0]) if plotAnalitical else np.min(vals), np.max(vals[0]) if plotAnalitical else np.max(vals), color='b', label="max")
 			#ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
@@ -106,6 +108,7 @@ class VisualPlot:
 		#if for example velocity has 2 components I have to have 2 subplots
 		self.z = z
 		fig = plt.figure(1)
+		fig.suptitle("3D plot")
 		self.figures = [fig]
 		self.maxPoints = {}
 		if projections:
@@ -162,20 +165,15 @@ class VisualPlot:
 			else:
 				#print("Dim invalid %d" % vals.ndim)
 				sys.exit(0)
-		self.plotTitle = self.figures[0].suptitle("Time 0")
 		plt.figure(1)
 		wm = plt.get_current_fig_manager()
-		if fullscreenMainfigure:
-			#I think this only works with TkAgg backend
-			wm.full_screen_toggle()
-		else:
-			wm.window.wm_geometry("800x900+50+50")
+		wm.window.wm_geometry("800x900+50+50")
 		plt.draw()
 		plt.show(block=False)
 
 	def afterInit(self):
-		#import time
-		#time.sleep(10)
+		import time
+		time.sleep(20)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -197,10 +195,6 @@ class VisualPlot:
 		#ax.view_init(45, 45)
 		ax.relim()
 		ax.autoscale_view(True,True,True)
-	#		if fullscreenMainfigure:
-	#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-	#		else:
-	#			ax.legend()
 	
 
 	def updateAxis(self, ax, title, vals):	
@@ -228,7 +222,7 @@ class VisualPlot:
 		else:
 			ax.plot(self.z[0][0],  vals)
 		if(markMaxValue):
-			ax.vlines(markMaxValue, 0, markMaxValue, color='b', label=maxLegend)
+			ax.vlines(markMaxValue, np.min(vals[0]) if plotAnalitical else np.min(vals), np.max(vals[0]) if plotAnalitical else np.max(vals), color='b', label=maxLegend)
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.grid(True)
 		ax.relim()
@@ -245,17 +239,17 @@ class VisualPlot:
 	#TODO make a function for every projection
 	def updateProjAxis(self, axesArray, title, vals, index, dt):
 		from common import getSpeedPeriodic0, getSpeedPeriodic1
-		dim = 3 if plotAnalitical else 2 
+		vdim = vals[0].ndim if plotAnalitical else vals.ndim
 		if hasattr(self, "dim0ProjIndex"):
 			ni = 2
-			if(vals.ndim == dim):
-				values = vals[:,self.dim0ProjIndex, :] if plotAnalitical else vals[self.dim0ProjIndex, :]
+			if(vdim == 2):
+				values = [vals[0][self.dim0ProjIndex, :] , vals[1][self.dim0ProjIndex, :]] if plotAnalitical else vals[self.dim0ProjIndex, :]
 			else:
-				values = vals[:, self.dim0ProjIndex, :, index]	if plotAnalitical else vals[self.dim0ProjIndex, :, index]	
+				values = [vals[0][self.dim0ProjIndex, :, index],vals[1][self.dim0ProjIndex, :, index] ]	if plotAnalitical else vals[self.dim0ProjIndex, :, index]	
 			markMaxValue = None
 			markMaxTitle = None
 			if(projections["dim0"][1]):
-				markMaxIndex = np.argmax(values)
+				markMaxIndex = np.argmax(values[0]) if plotAnalitical else np.argmax(values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
 				markMaxTitle = "ms= %4.3f" % maxSpeed
@@ -264,14 +258,14 @@ class VisualPlot:
 		else:
 			ni = 1
 		if hasattr(self, "dim1ProjIndex"):
-			if(vals.ndim == dim):
-				values =  vals[:,:,self.dim1ProjIndex] if plotAnalitical else vals[:,self.dim1ProjIndex]
+			if(vdim == 2):
+				values =  [vals[0][:,self.dim1ProjIndex], vals[1][:,self.dim1ProjIndex]] if plotAnalitical else vals[:,self.dim1ProjIndex]
 			else:
-				values = vals[:,:,self.dim1ProjIndex, index] if plotAnalitical else vals[:,self.dim1ProjIndex, index]
+				values = [vals[0][:,self.dim1ProjIndex, index], vals[1][:,self.dim1ProjIndex, index]]  if plotAnalitical else vals[:,self.dim1ProjIndex, index]
 			markMaxValue = None
 			markMaxTitle = None
 			if(projections["dim1"][1]):
-				markMaxIndex = np.argmax(values)
+				markMaxIndex = np.argmax(values[0]) if plotAnalitical else np.argmax(values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
 				markMaxTitle = "ms= %4.3f" % maxSpeed
@@ -279,18 +273,20 @@ class VisualPlot:
 			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
 			ni+=1
 		if testKeyInDict("color", projections):
-			if(vals.ndim == dim):
-				values = vals
+			if(vdim == 2):
+				values = vals[0] if plotAnalitical else vals
 			else:
-				values = vals[:,:, index]
+				values = vals[0][:,:,index] if plotAnalitical else vals[:,:, index]
+			self.updateAxisColor(axesArray[ni], title, values)
 			if(plotAnalitical):
-				self.updateAxisColor(axesArray[ni], title, values[0])
-				self.updateAxisColor(axesArray[ni+1], "%s-an" % title, values[1])
-			else:
-				self.updateAxisColor(axesArray[ni], title, values)
+				values = vals[1] if vdim == 2 else vals[1][:,:,index]
+				self.updateAxisColor(axesArray[ni+1], "%s-an" % title, values)
 
 
 	def updateValues(self, title, vals,dt):
+		#print("vals.shape")
+		#print(vals.shape)
+
 		#print("updateValues %s MAX POINTS:" % title)
 		#print(self.maxPoints)
 		#print("MAX POINTS END")
@@ -298,23 +294,28 @@ class VisualPlot:
 		#print(vals.shape)
 		
 		ax = self.axes[title]
-		dim = 3 if plotAnalitical else 2 
-		if(vals.ndim == dim):
-			self.updateAxis(ax[0], title, vals)
+		
+		vdim = vals[0].ndim if plotAnalitical else vals.ndim
+		if(vdim == 2):
+			self.updateAxis(ax[0], title, [vals[0], vals[1]] if plotAnalitical else vals)
 			self.updateProjAxis(ax, title, vals,0,dt)
 		else:
-			self.updateAxis(ax[0][0],  title, vals[...,0])
+			self.updateAxis(ax[0][0],  title, [vals[0][...,0], vals[1][...,0]] if plotAnalitical else vals[...,0])
 			self.updateProjAxis(ax[0], title, vals, 0, dt)
-			self.updateAxis(ax[1][0], title, vals[...,1])
+			self.updateAxis(ax[1][0], title, [vals[0][...,1], vals[1][...,1]] if plotAnalitical else  vals[...,1])
 			self.updateProjAxis(ax[1], title, vals, 1, dt)
 
 			
 		
 	def afterUpdateValues(self, newTime):
-		self.plotTitle.set_text("Time %4.4f" % newTime)
+		timeTitle = "Time %4.4f" % newTime
 		numFig = 0
 		for fig in self.figures:
 			fig.canvas.draw()
+			if(hasattr(fig, "timeText")):
+				fig.timeText.set_text(timeTitle)
+			else:
+				fig.timeText = fig.text(.1,.03,timeTitle)
 			if saveImages:
 				#make name compatible with ffmpeg
 				#ffmpeg -r 1 -i img%05d.png -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4
@@ -336,6 +337,40 @@ class VisualPlot:
 
 
 
+	def fftplot(self, ax, vals):
+		from common import getDz1, getDz0, nint
+		
+		numPoints = nint+2
+		Y=fft(vals)/(numPoints)
+		plotVals = np.absolute(Y)
+		
+		F0=fftfreq(numPoints, getDz0())
+		F1=fftfreq(numPoints, getDz1())
+		plotX , plotY = np.meshgrid(F0, F1)
+		ax.grid(True)
+		ax.plot_wireframe(plotX, plotY , plotVals)
+#		print("plotVals")
+#		np.set_printoptions(threshold='nan')
+#		print(plotVals)
+#		ax.imshow(plotVals)			
+
+
+	def addFFTAxis(self, title, vals):
+		fig = plt.figure()
+		ax = fig.add_subplot(111, projection="3d")
+		ax.set_title(title)
+		self.axes[title] = ax
+		self.fftplot(ax, vals)
+		self.figures.append(fig)
+		fig.subplots_adjust(right=0.8)
+		plt.draw()
+		plt.show(block=False)
+		
+	def updateFFTAxis(self, title, vals):
+		ax = self.axes[title]
+		ax.cla()
+		ax.set_title(title)
+		self.fftplot(ax,vals)
 
 
 

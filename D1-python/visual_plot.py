@@ -5,11 +5,10 @@ import numpy as np
 import sys, os
 from scipy.fftpack import fft,fftfreq#forFourierTransform
 
-from notifier_params import fullscreenMainfigure
 
 
-saveImages = False
-#saveImages = True
+#saveImages = False
+saveImages = True
 
 #hlines = True
 hlines = False
@@ -61,11 +60,7 @@ class VisualPlot:
 			self.addAxis(ax[i], title, iniValues[i])
 		self.plotTitle = ax[0].set_title("Time 0")
 		wm = plt.get_current_fig_manager()
-		if fullscreenMainfigure:
-			#I think this only works with TkAgg backend
-			wm.full_screen_toggle()
-		else:
-			wm.window.wm_geometry("1000x900+50+50")
+		wm.window.wm_geometry("1000x900+50+50")
 		fig.subplots_adjust(right=0.8)
 		plt.draw()
 		plt.show(block=False)
@@ -112,10 +107,6 @@ class VisualPlot:
 	 		ax.hlines(ymin, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymin)
  			ax.hlines(ymax, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymax)
 		if(plotLegend):
-	#		if fullscreenMainfigure:
-	#			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-	#		else:
-	#			ax.legend()
 			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
@@ -144,10 +135,6 @@ class VisualPlot:
 		if(maxValue == minValue):
 			maxValue = minValue + 1
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
-#		if fullscreenMainfigure:
-#			self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
-#		else:
-#			self.axes[axTitle].legend()
 		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
 			
 	def fftplot(self, ax, vals, aFunc=None):

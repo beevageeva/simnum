@@ -39,11 +39,7 @@ def getPeriodicXArray(xarray, a, b):
 
 #xarray has 2 dim
 def getPeriodicXArray2(xarray, a, b):
-	print("xarray shape")
-	print(xarray.shape)	
 	res = np.zeros(xarray.shape)
-	print("res shape")
-	print(res.shape)	
 	for i in range(0, xarray.shape[0]):
 		for j in range(0, xarray.shape[1]):
 			res[i][j] = getPeriodicX(xarray[i][j], a, b)
@@ -58,16 +54,10 @@ def getPeriodicX2(xval, a, b):
 	return xval
 
 def getZIndex0(z):
-	return int( float(nint)*(float(z) - z0_0)/(zf_0 - z0_0) )
+	return int( float(nint+1)*(float(z) - z0_0)/(zf_0 - z0_0) )
 
 def getZIndex1(z):
-	return int( float(nint)*(float(z) - z0_1)/(zf_1 - z0_1) )
-
-#assumes periodic function
-def displacedPoint(z, c, t):
-	newz = z + c * t
-	periodicz = getPeriodicX(newz)
-	return periodicz
+	return int( float(nint+1)*(float(z) - z0_1)/(zf_1 - z0_1) )
 
 
 def getSpeedPeriodic(newVal, oldVal, z0, zf, dt):
@@ -94,7 +84,30 @@ def createFolder(dirname_base="out"):
 	os.mkdir(dirname)
 	return dirname
 
+#centered
+def derivZ0(f):
+	dx = getDz0()
+	n = len(f)
+	res = np.zeros((n, n), dtype=complex )
+	for i in range(0,n):	
+		for j in range(1,n-1):	
+			#centered
+			res[i][j] = complex(f[i][j+1] - f[i][j-1])/complex(2 * dx)
+		res[i][0] = res[i][1]
+		res[i][n-1] = res[i][n-2]
+	return res	
 
+def derivZ1(f):
+	dx = getDz1()
+	n = len(f)
+	res = np.zeros((n, n), dtype=complex )
+	for j in range(0,n):	
+		for i in range(1,n-1):	
+			#centered
+			res[i][j] = complex(f[i+1][j] - f[i-1][j])/complex(2 * dx)
+		res[0][j] = res[1][j]
+		res[n-1][j] = res[n-2][j]
+	return res	
 
 
 

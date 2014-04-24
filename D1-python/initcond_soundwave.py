@@ -134,48 +134,13 @@ if periodicType == "repeat":
 
 	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 
-elif periodicType == "diff":
+elif periodicType == "refl":
 
 		
 
 	def lrBoundaryConditionsPresRho(array, skip=0):
 		array.insert(0, 2 * array[0] - array[1])
 		array.append(2 * array[-1] - array[-2])
-#		#I already know
-#		#if(len(array)<2):
-#		#	return
-#		if(skip == 0):
-#			array.insert(0, 2 * array[0] - array[1])
-#			array.append(2 * array[-1] - array[-2])
-#			return 
-#		#TODO no more polyfit from np
-#		#print("array 1")
-#		#print(array)
-#		degree = 1+skip
-#		xvalues = range(1,degree+2)
-#		#print("xvalues = ")
-#		#print(xvalues)
-#		#print("degree = %d" % degree)
-#		yvalues = array[0:degree+1]
-#		#print("yvalues1 = ")
-#		#print(yvalues)
-#		c = np.polyfit(xvalues,yvalues, degree)
-#		#print("coef1 = ")
-#		#print(c)
-#		p = np.poly1d(c)
-#		#print("first val = %4.3f" % p(0))
-#		array.insert(0, p(0))	
-#		yvalues = array[-degree-1:]
-#		#print("yvalues2 = ")
-#		#print(yvalues)
-#		c = np.polyfit(xvalues,yvalues, degree)
-#		#print("coef2 = ")
-#		#print(c)
-#		p = np.poly1d(c)
-#		#print("last val = %4.3f" % p(degree+2))
-#		array.append(p(degree+2))	
-#		#print("array 2")
-#		#print(array)
 
 	def lrBoundaryConditionsVel(array, skip=0):
 		#I already know

@@ -1,10 +1,10 @@
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
-from constants import zf_0, z0_0, zf_1, z0_1
+from constants import zf_0, z0_0, zf_1, z0_1, nint
 
 import numpy as np
-from common import getZArray, getDz0, getDz1
+from common import getZArray, getDz0, getDz1, getZIndex0, getZIndex1
 from math import pi
 import math
 
@@ -15,58 +15,59 @@ from scipy.special import hankel1
 func = lambda z: np.sqrt(z[0] **2 +  z[1] **2)
 
 wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
-k = 2 * math.pi / wl
+k = 3*  2 * math.pi / wl
 
-def w(z):
-	print("z=")
-	print(z)	
-	return hankel1(0,k*func(z))
+print("k=%E" % k)
 
+np.set_printoptions(threshold='nan')
+
+	
 
 def derivW(z):
-	return -hankel1(1,k*func(z)) * k
+	return -hankel1(1,k*func(z))  * k
 
 
-def derivZ0(f):
-	dx = getDz0()
-	n = len(f)
-	print("n=%d"%n)
-	res = np.zeros((n, n))
-	for i in range(0,n):	
-		for j in range(1,n-1):	
-			#centered
-			res[i][j] = (f[i][j+1] - f[i][j-1])/2 * dx
-		res[i][0] = res[i][1]
-		res[i][n-1] = res[i][n-2]
-	return res	
+def gradNum(f):
+	from common import getDz0, getDz1
+	dz0 = getDz0()
+	dz1 = getDz1()
+	return np.gradient(f,dz0, dz1 )
 
-def derivZ1(f):
-	dx = getDz1()
-	n = len(f)
-	res = np.zeros((n, n))
-	for j in range(0,n):	
-		for i in range(1,n-1):	
-			#centered
-			res[i][j] = (f[i+1][j] - f[i-1][j])/2 * dx
-		res[0][j] = res[1][j]
-		res[n-1][j] = res[n-2][j]
-	return res	
 
-bw = np.blackman(10)
-print("blackman")
-print(bw)
+
+#bw = np.blackman(10)
+#print("blackman")
+#print(bw)
 
 
 z = getZArray()
+
+#print("z=")
+#print(z)	
 
 #vals = w(z)
 
 #num deriv
 r = func(z)
-f = w(z)
-vals = z[0] / r * derivZ0(f) + z[1] / r * derivZ1(f)
+#f = w(z,k)
+
+#print("f=")
+#print(f)
+#vals = w1(z,k)
+#vals = f
+#vals = k * z[0] / r * derivZ0(f) + k * z[1] / r * derivZ1(f)
+#vals =  z[0] / r * derivZ0(f) + z[1] / r * derivZ1(f)
 
 #vals = derivW(z)
+
+#vals = np.outer(np.blackman(nint+2), np.blackman(nint+2))
+
+from sound_wave_params import w, symDerivW
+
+f = w(z)
+#vals = w(z)
+#vals = symDerivW(z)[0]
+vals = gradNum(f)[0]
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')

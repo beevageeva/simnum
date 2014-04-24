@@ -27,7 +27,7 @@ if schemeType == "lf":
 	fcfl = 0.99 #use this for lax - fr scheme type
 elif schemeType == "fg":
 	fcfl = 0.97#use this for first generation scheme
-	bcStep = "interm" 
-	#bcStep = "final" 
+	#bcStep = "interm" 
+	bcStep = "final" 
 
 
