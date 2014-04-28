@@ -4,5 +4,6 @@ D1-python/*.pyc
 D1-python/pdf/riemann.log
 D1-python/pdf/riemann.aux
 D1-python/pdf/riemann.out
+3D/
 *.pyc
 __pycache__

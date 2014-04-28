@@ -2,13 +2,27 @@ import numpy as np
 import math
 from constants import gamma
 
+rho00 = 1.0
+#rho00 = 0.3  #second exp of inhom
+
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
+if(mediumType=="inhomog"):
+	from constants import z0, zf
+	rho01 = 0.01
+	#rho01 = 1.2#second exp of inhom
+	ze = 0.5*(z0 + zf)
+	#ze = z0 + 0.7*(zf - z0) #second exp of inhom
+	we = 0.4
+	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
+
+
 
 #functiontype = 'sine'
 functiontype = 'defined'
 #periodicType = "repeat" 
 periodicType = "refl" 
 
-rho00 = 1.0
 p00 = 1.0
 
 
@@ -42,7 +56,13 @@ plotVelAn = False
 markPoints = False
 plotVelFFT = True
 
-if periodicType == "refl":
+if(mediumType == "inhomog"):
+	plotPresCurve = False
+	plotRhoCurve = False
+	plotVelCurve = False
+
+
+if periodicType == "refl" or mediumType == "inhomog":
 	#analytical function does not make sense
 	plotPresAn = False
 	plotRhoAn = False

@@ -251,10 +251,7 @@ class VisualPlot:
 			markMaxTitle = None
 			if(projections["dim0"][1]):
 				markMaxIndex = np.argmax(values[0] if plotAnalitical else values)
-				print("values")
-				print(values[0] if plotAnalitical else values)
 				markMaxValue = self.z[0][0][markMaxIndex]
-				print("dim0 %s%d maxInd = %d" % (title, index, markMaxIndex))
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
 				markMaxTitle = "ms= %4.3f" % maxSpeed
 				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
@@ -273,7 +270,6 @@ class VisualPlot:
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
 				markMaxTitle = "ms= %4.3f" % maxSpeed
-				print("dim1 %s%d" % (title, index))
 				self.maxPoints["dim1"]["%s%d" % (title, index)] = markMaxValue
 			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
 			ni+=1

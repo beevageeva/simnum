@@ -42,8 +42,15 @@ class Model(BaseModel):
 			self.maxVelZ = self.getNewPoint(self.maxVelZ,dt)
 
 	def updateValuesNotifier(self, dt, time):
-		from initcond_soundwave import getRhoCurve, getPresCurve, getVelCurve, getRhoCurveNumeric, getPresCurveNumeric, getVelCurveNumeric, getRhoAn, getPresAn, getVelAn
+		#TODO simpl
+		if(plotPresCurve):
+			from initcond_soundwave import getPresCurveNumeric
+		if(plotVelCurve):
+			from initcond_soundwave import getVelCurveNumeric
+		if(plotRhoCurve):
+			from initcond_soundwave import getRhoCurveNumeric
 		if(plotPresAn):
+			from initcond_soundwave import getPresCurve,getPresAn
 			presc = getPresCurve(self.z, time)
 			presNewVals = [self.pres, getPresAn(self.z, time, presc)]
 			if(plotPresCurve):
@@ -53,6 +60,7 @@ class Model(BaseModel):
 			if(plotPresCurve):
 				presCurveNewVals = getPresCurveNumeric(self.pres)
 		if(plotRhoAn):
+			from initcond_soundwave import getRhoCurve,getRhoAn
 			rhoc = getRhoCurve(self.z, time)
 			rhoNewVals = [self.rho, getRhoAn(self.z, time, rhoc)]
 			if(plotRhoCurve):
@@ -62,6 +70,7 @@ class Model(BaseModel):
 			if(plotRhoCurve):
 				rhoCurveNewVals = getRhoCurveNumeric(self.rho)
 		if(plotVelAn):
+			from initcond_soundwave import getVelCurve,getVelAn
 			velc = getVelCurve(self.z, time)
 			velNewVals = [self.vel, getPresAn(self.z, time, velc)]
 			if(plotVelCurve):
@@ -113,12 +122,14 @@ class Model(BaseModel):
 
 	def additionalInit(self):
 		#plot Curves of pression , vel, density
-		from initcond_soundwave import getRhoCurveNumeric, getPresCurveNumeric, getVelCurveNumeric
 		if(plotPresCurve):
+			from initcond_soundwave import getPresCurveNumeric
 			self.notifier.addGraph("presCurve", [getPresCurveNumeric(self.pres), getPresCurveNumeric(self.pres)])
 		if(plotVelCurve):
+			from initcond_soundwave import getVelCurveNumeric
 			self.notifier.addGraph("velCurve", [getVelCurveNumeric(self.vel), getVelCurveNumeric(self.vel)])
 		if(plotRhoCurve):
+			from initcond_soundwave import getRhoCurveNumeric
 			self.notifier.addGraph("rhoCurve", [getRhoCurveNumeric(self.rho),getRhoCurveNumeric(self.rho)])
 		if(plotVelFFT):
 			from initcond_soundwave import getVelFFTAn

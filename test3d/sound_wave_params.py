@@ -25,8 +25,8 @@ p00 = 1.0
 
 v00 = 0.0
 
-#cs00 = math.sqrt(gamma * p00 / rho00)
-#print("cs00 = %4.3f" % cs00)
+cs00 = math.sqrt(gamma * p00 / rho00)
+print("cs00 = %4.3f" % cs00)
 
 #v00 = - cs00 /  5.5
 #v00 =  0.5 * cs00
