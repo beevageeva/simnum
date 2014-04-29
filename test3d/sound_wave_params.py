@@ -39,8 +39,8 @@ A = 3.0 * 10.0 ** (-4)
 periodicType = "repeat" #used for moving plane
 #periodicType = "refl" #use it with wave packet
 #periodicType = "diff" #tried to use it with hankel 
-#wType = "all"
-wType = "pot"
+wType = "all"
+#wType = "pot"
 
 if(wType=="pot" and mediumType == "inhomog"):
 	print("INVALID config: wType=pot and inhomog medium")
@@ -51,29 +51,38 @@ timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packe
 #timesZArgW = 2 
 
 if(timesZArgW == 1):
-	#functionType = "sine" 
+	functionType = "sine" 
 	#functionType = "gauss" 
-	functionType = "hankel" 
+	#functionType = "hankel" 
 	#argType = "x"
 	#argType = "y"
-	argType = "r"
-	#argType = "d1" 
+	#argType = "r"
+	argType = "d1" 
 	
 
 	if(argType == "x"):
+		nx = 1.0
 		wl = zf_0 - z0_0
+		k1 = nx / (zf_0 - z0_0)
+		k2 = 0
 		velFunc1 = lambda x1, x2, z: (x1,np.zeros(x2.shape))
 		func = lambda z: z[0] 
 	elif argType == "y":
 		wl = zf_1 - z0_1
+		ny = 1
+		k1 = 0
+		k2 = ny / (zf_1 - z0_1)
 		velFunc1 = lambda x1, x2, z: (np.zeros(x1.shape),x2)
 		func = lambda z: z[1] 
 	elif argType == "d1":
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
-		k1 = wl/(zf_0 - z0_0)
-		k2 = wl/(zf_1 - z0_1)
+		nx= 2.0
+		ny = 3.0	
+		k1 = nx/(zf_0 - z0_0)
+		k2 = ny/(zf_1 - z0_1)
+		modk = math.sqrt(k1**2 + k2**2)
 		print("k1=%d, k2=%d" % (k1,k2))
-		velFunc1 = lambda x1 ,x2, z: (k1 * x1 ,k2 * x2)
+		velFunc1 = lambda x1 ,x2, z: (k1/modk * x1 ,k2/modk * x2)
 		func = lambda z: z[0] * k1 + z[1] * k2 
 	elif argType == "r":
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
@@ -94,7 +103,7 @@ if(timesZArgW == 1):
 		phi0 = math.pi / 6.0 
 		#sine function
 		def w1(z,z0):
-			return np.sin(np.multiply((2.0 * math.pi/wl),func(z-z0)) + phi0 )
+			return np.sin(np.multiply((2.0 * math.pi),func(z-z0)) + phi0 )
 	
 	elif functionType == "gauss":
 		R = 0.05
