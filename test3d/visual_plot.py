@@ -9,8 +9,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 from notifier_params import projections, plotAnalitical
 
-#saveImages = True
-saveImages = False
+saveImages = True
+#saveImages = False
 
 
 	

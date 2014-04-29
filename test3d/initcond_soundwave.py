@@ -43,9 +43,9 @@ if wType == "pot":
 		omega = k * cs00
 		r = np.sqrt(z[0]**2 + z[1]**2)
 		gradW = getGradientFunction(f, z)
-		v1 = np.real(np.multiply(gradW, np.exp(1j * -omega * t)))
+		v1 = np.real(np.multiply(gradW, np.exp(-1j * omega * t)))
 		velPert = A* np.dstack(velFunc(v1, z))
-		presPert = rho00 * -omega * A * np.real(1j * f * np.exp(1j * omega * t))
+		presPert = rho00 * omega * A * np.real(1j * f * np.exp(-1j * omega * t))
 		rhoPert = presPert / cs00 ** 2
 		return {'pres': p00 + presPert  , 'rho': rho00 + rhoPert , 'vel': v00 + velPert } 
 
