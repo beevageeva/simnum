@@ -1,5 +1,8 @@
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.ticker import FormatStrFormatter
+
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -12,6 +15,10 @@ from notifier_params import projections, plotAnalitical
 saveImages = True
 #saveImages = False
 
+
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}} 
+#xlim = {"minX" : 0, "maxX" : 4.3}
+ylim = None
 
 	
 #because methods are different in python3 and python2
@@ -97,8 +104,13 @@ class VisualPlot:
 		if(markMaxValue):
 			ax.vlines(markMaxValue, np.min(vals[0]) if plotAnalitical else np.min(vals), np.max(vals[0]) if plotAnalitical else np.max(vals), color='b', label="max")
 			#ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-		ax.relim()
-		ax.autoscale_view(True,True,True)
+		if(ylim):
+			ax.set_ylim(ylim[title]["minY"],ylim[title]["maxY"])
+			ax.set_xlim(xlim["minX"],xlim["maxX"])
+			ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+		else:
+			ax.relim()
+			ax.autoscale_view(True,True,True)
 
 
 	#titles will be an array of  of 2 elem array : the first the title and the second if we will plot 
@@ -226,8 +238,13 @@ class VisualPlot:
 			ax.vlines(markMaxValue, np.min(vals[0]) if plotAnalitical else np.min(vals), np.max(vals[0]) if plotAnalitical else np.max(vals), color='b', label=maxLegend)
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.grid(True)
-		ax.relim()
-		ax.autoscale_view(True,True,True)
+		if(ylim):
+			ax.set_ylim(ylim[title]["minY"],ylim[title]["maxY"])
+			ax.set_xlim(xlim["minX"],xlim["maxX"])
+			ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+		else:
+			ax.relim()
+			ax.autoscale_view(True,True,True)
 
 
 	def updateAxisColor(self, ax, title, vals):	
@@ -255,7 +272,7 @@ class VisualPlot:
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
 				markMaxTitle = "ms= %4.3f" % maxSpeed
 				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
-			self.updateAxisProj(axesArray[1], "%s%d"% (title,index), values, markMaxValue, markMaxTitle)
+			self.updateAxisProj(axesArray[1], "%s"% (title), values, markMaxValue, markMaxTitle)
 		else:
 			ni = 1
 		if hasattr(self, "dim1ProjIndex"):
@@ -271,7 +288,7 @@ class VisualPlot:
 				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
 				markMaxTitle = "ms= %4.3f" % maxSpeed
 				self.maxPoints["dim1"]["%s%d" % (title, index)] = markMaxValue
-			self.updateAxisProj(axesArray[ni], "%s%d"%(title,index), values, markMaxValue, markMaxTitle)
+			self.updateAxisProj(axesArray[ni], "%s" %(title), values, markMaxValue, markMaxTitle)
 			ni+=1
 		if testKeyInDict("color", projections):
 			if(vdim == 2):

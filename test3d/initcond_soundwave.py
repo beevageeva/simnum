@@ -12,9 +12,9 @@ if(mediumType == "homog"):
 	
 else:
 	def getRho00(z):
-		from sound_wave_params import rho01, ze, densFunc, func, rho00
+		from sound_wave_params import rho01, ze, densFunc, densargfunc, rho00
 		from common import getArrayZShape
-		return rho00 + 0.5 * (rho01-rho00) * densFunc(func(z - getArrayZShape(ze[0], ze[1], len(z[0]))))
+		return rho00 + 0.5 * (rho01-rho00) * densFunc(densargfunc(z - getArrayZShape(ze[0], ze[1], len(z[0]))))
 		
 
 		

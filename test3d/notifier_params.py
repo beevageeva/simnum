@@ -10,8 +10,8 @@ projections = {"dim0": [0.5 * (zf_0 + z0_0), False], "dim1": [0.5 * (zf_1 + z0_1
 
 
 #use it in wave packet
-plotVelFFT = False
-#plotVelFFT = True
+#plotVelFFT = False
+plotVelFFT = True
 
 #plotAnalitical = True
 plotAnalitical = False

@@ -8,14 +8,15 @@ from sys import exit
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
-	#rho01 = 0.01
-	rho01 = 1.2
-	#ze = [0.5*(z0_0 + zf_0),0.5*(z0_1 + zf_1)]
-	ze = [z0_0 + 0.7*(zf_0 - z0_0),z0_1 + 0.7*(zf_1 - z0_1)]
+	rho01 = 0.01
+	#rho01 = 1.2#second exp of inhom
+	ze = [0.5*(z0_0 + zf_0),0.5*(z0_1 + zf_1)]
+	#ze = [z0_0 + 0.7*(zf_0 - z0_0),z0_1 + 0.7*(zf_1 - z0_1)]#second exp of inhom
 	we = 0.4
+	#we = 0.5#second exp of inhom
 	#densFunc = lambda z: 1 + np.tanh((z - getArrayZShape(ze[0], ze[1], len(z[0])))/we)
 	#I have to apply func (argument function) before applying tanh: see initcond_soundwave
 	densFunc = lambda z: 1 + np.tanh(z /we)
@@ -36,8 +37,8 @@ print("cs00 = %4.3f" % cs00)
 A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
-periodicType = "repeat" #used for moving plane
-#periodicType = "refl" #use it with wave packet
+#periodicType = "repeat" #used for moving plane
+periodicType = "refl" #use it with wave packet
 #periodicType = "diff" #tried to use it with hankel 
 wType = "all"
 #wType = "pot"
@@ -47,8 +48,8 @@ if(wType=="pot" and mediumType == "inhomog"):
 	sys.exit(0)
 
 
-timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
-#timesZArgW = 2 
+#timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
+timesZArgW = 2 
 
 if(timesZArgW == 1):
 	functionType = "sine" 
@@ -81,7 +82,6 @@ if(timesZArgW == 1):
 		k1 = nx/(zf_0 - z0_0)
 		k2 = ny/(zf_1 - z0_1)
 		modk = math.sqrt(k1**2 + k2**2)
-		print("k1=%d, k2=%d" % (k1,k2))
 		velFunc1 = lambda x1 ,x2, z: (k1/modk * x1 ,k2/modk * x2)
 		func = lambda z: z[0] * k1 + z[1] * k2 
 	elif argType == "r":
@@ -177,12 +177,13 @@ if(timesZArgW == 1):
 #wave packet
 elif(timesZArgW == 2):
 	kf = [2.0 * math.pi/ (zf_0 - z0_0), 2.0 * math.pi/ (zf_1 - z0_1)]
-	#k0 = [60.0,60.0]
-	k0 = [15.0,15.0] #second exp of inhom
+	k0 = [60.0,60.0]
+	#k0 = [15.0,15.0] #second exp of inhom
 	k = [k0[0] * kf[0], k0[1] * kf[1]]
 	zc = [0.5 * (z0_0+ zf_0), 0.5 * (z0_1 + zf_1)] #in the middle
 	#zc = [z0_0 + (3.0/20.0)*(zf_0 - z0_0),z0_1 + (3.0/20.0)*(zf_1 - z0_1) ] #second exp of inhom
 	W = 0.05
+	#W = 0.25#second exp of inhom
 	def w(z, nwav=k0):
 		n = len(z[0])
 		#z0 = getArrayZShape(z0_0,z0_1,n)
@@ -202,5 +203,6 @@ elif(timesZArgW == 2):
 		return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(np.add(sumt1, sumt2)))
 
 	modk = math.sqrt(k0[0] ** 2 + k0[1]**2)
-	func = lambda z: (k0[0]/modk) * z[0] +(k0[1]/modk) * z[1]
 	velFunc = lambda x, z: ((k0[0]/modk) * x , (k0[1]/modk) * x)
+	#densargfunc = lambda z: k0[0]/modk  * z[0] + k0[1] /modk * z[1] #constant in a dir perp to k
+	densargfunc = lambda z: z[0] #horrizontal
