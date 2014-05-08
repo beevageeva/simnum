@@ -7,6 +7,7 @@ D1-python/sound_wave_sine_params.py
 D1-python/visual_plot.py
 D1-python/common.py
 D1-python/notifier_params.py
+D1-python/test_fourier.py
 D1-python/main.py
 D1-python/model_soundwave.py
 D1-python/analyze_functions.py

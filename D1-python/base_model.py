@@ -44,7 +44,8 @@ class BaseModel:
 
 
 	def printVars(self):
-		print(self.z)
+		#print(self.z)
+		np.set_printoptions(threshold='nan')
 		print("rho")
 		print(self.rho)
 		print("pres")
@@ -95,7 +96,7 @@ class BaseModel:
 			self.vel = r["vel"]	
 			self.pres = r["pres"]
 			#print("NSTEP %d" % nstep)
-			#print("Before showing on plot at time=%4.3f\nz" % time)
+			#print("Before showing on plot at time=%4.3f" % time)
 			#self.printVars()
 			#splitted updateValues in updateValuesModel and updateValuesNotifier because I want to catch stop condition computed in updateValuesModel in each step
 			self.updateValuesModel(dt, time)	

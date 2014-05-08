@@ -220,7 +220,12 @@ class VisualPlot:
 			vals = vals[0]
 		#ax.plot_surface(self.z[0], self.z[1], vals, rstride=1, cstride=1, cmap=cm.coolwarm,linewidth=0, antialiased=False)
 		#ax.plot_surface(self.z[0], self.z[1], vals)
+		#import datetime
+		#print("before wireframe")
+		#print(datetime.datetime.now())
 		ax.plot_wireframe(self.z[0], self.z[1], vals)
+		#print("after wireframe")
+		#print(datetime.datetime.now())
 		ax.grid(True)
 		ax.relim()
 		ax.autoscale_view(True,True,True)

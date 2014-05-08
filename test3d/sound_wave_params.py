@@ -8,8 +8,8 @@ from sys import exit
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-#mediumType = "homog"
-mediumType = "inhomog"  #variable density rho00 to test with wave packet
+mediumType = "homog"
+#mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	rho01 = 0.01
 	#rho01 = 1.2#second exp of inhom
@@ -55,26 +55,24 @@ if(timesZArgW == 1):
 	functionType = "sine" 
 	#functionType = "gauss" 
 	#functionType = "hankel" 
-	#argType = "x"
+	argType = "x"
 	#argType = "y"
 	#argType = "r"
-	argType = "d1" 
+	#argType = "d1" 
 	
 
 	if(argType == "x"):
 		nx = 1.0
 		wl = zf_0 - z0_0
 		k1 = nx / (zf_0 - z0_0)
-		k2 = 0
 		velFunc1 = lambda x1, x2, z: (x1,np.zeros(x2.shape))
-		func = lambda z: z[0] 
+		func = lambda z: k1 * z[0] 
 	elif argType == "y":
 		wl = zf_1 - z0_1
 		ny = 1
-		k1 = 0
 		k2 = ny / (zf_1 - z0_1)
 		velFunc1 = lambda x1, x2, z: (np.zeros(x1.shape),x2)
-		func = lambda z: z[1] 
+		func = lambda z: k2 * z[1] 
 	elif argType == "d1":
 		wl =  math.sqrt((zf_0 - z0_0)**2 + (zf_1 - z0_1)**2)
 		nx= 2.0
@@ -172,7 +170,10 @@ if(timesZArgW == 1):
 			z0 = getArrayZShape(z0_0,z0_1,n)
 		return w1(z, z0)
 
-
+	#TODO: inhomegen medium in this case??
+	if mediumType == "inhomog":
+		print("!!!!mediumType = INHOMOG and timesZArgW=1(not in wave packet case)!!!")
+		densargfunc = func
 
 #wave packet
 elif(timesZArgW == 2):
@@ -204,5 +205,6 @@ elif(timesZArgW == 2):
 
 	modk = math.sqrt(k0[0] ** 2 + k0[1]**2)
 	velFunc = lambda x, z: ((k0[0]/modk) * x , (k0[1]/modk) * x)
-	#densargfunc = lambda z: k0[0]/modk  * z[0] + k0[1] /modk * z[1] #constant in a dir perp to k
-	densargfunc = lambda z: z[0] #horrizontal
+	if mediumType == "inhomog":
+		#densargfunc = lambda z: k0[0]/modk  * z[0] + k0[1] /modk * z[1] #constant in a dir perp to k
+		densargfunc = lambda z: z[0] #horrizontal

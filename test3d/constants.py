@@ -25,9 +25,9 @@ elif domainType == "pos00":
 
 	
 
-#nint = 64
+nint = 64
 #nint=128
-nint =  256
+#nint =  256
 #nint = 1024
 #nint = 32
 
@@ -43,6 +43,6 @@ if schemeType == "lf":
 	fcfl = 0.99 #use this for lax - fr scheme type
 elif schemeType == "fg":
 	fcfl = 0.97#use this for first generation scheme
-	bcStep = "interm"  #in which step to apply boundary conditions
-	#bcStep = "final"
+	#bcStep = "interm"  #in which step to apply boundary conditions
+	bcStep = "final"
 

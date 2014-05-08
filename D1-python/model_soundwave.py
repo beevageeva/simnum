@@ -7,8 +7,12 @@ from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoi
 
 
 
+#showErr = True
+showErr = False
+
 class Model(BaseModel):
 	
+
 	def __init__(self):
 		BaseModel.__init__(self)
 
@@ -52,7 +56,11 @@ class Model(BaseModel):
 		if(plotPresAn):
 			from initcond_soundwave import getPresCurve,getPresAn
 			presc = getPresCurve(self.z, time)
-			presNewVals = [self.pres, getPresAn(self.z, time, presc)]
+			anPres =  getPresAn(self.z, time, presc)
+			presNewVals = [self.pres, anPres]
+			if(showErr):
+				err = np.max(np.absolute(np.subtract(self.pres, anPres)))
+				print("time=%E,max abs (self.pres - anPres) = %E" % (time,err))
 			if(plotPresCurve):
 				presCurveNewVals = [getPresCurveNumeric(self.pres), presc]
 		else:
@@ -62,7 +70,11 @@ class Model(BaseModel):
 		if(plotRhoAn):
 			from initcond_soundwave import getRhoCurve,getRhoAn
 			rhoc = getRhoCurve(self.z, time)
-			rhoNewVals = [self.rho, getRhoAn(self.z, time, rhoc)]
+			anRho =  getRhoAn(self.z, time, rhoc)
+			rhoNewVals = [self.rho, anRho]
+			if(showErr):
+				err = np.max(np.absolute(np.subtract(self.rho, anRho)))
+				print("max abs (self.rho - rhoAn) = %E" % err)
 			if(plotRhoCurve):
 				rhoCurveNewVals = [getRhoCurveNumeric(self.rho), rhoc]
 		else:
@@ -72,7 +84,11 @@ class Model(BaseModel):
 		if(plotVelAn):
 			from initcond_soundwave import getVelCurve,getVelAn
 			velc = getVelCurve(self.z, time)
-			velNewVals = [self.vel, getPresAn(self.z, time, velc)]
+			anVel =  getVelAn(self.z, time, velc)
+			velNewVals = [self.vel, anVel]
+			if(showErr):
+				err = np.max(np.absolute(np.subtract(self.vel, anVel)))
+				print("max abs (self.vel - velAn) = %E" % err)
 			if(plotVelCurve):
 				velCurveNewVals = [getVelCurveNumeric(self.vel), velc]
 		else:
