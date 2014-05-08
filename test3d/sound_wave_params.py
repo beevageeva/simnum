@@ -38,26 +38,26 @@ A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
 #periodicType = "repeat" #used for moving plane
-periodicType = "refl" #use it with wave packet
-#periodicType = "diff" #tried to use it with hankel 
-wType = "all"
-#wType = "pot"
+#periodicType = "refl" #use it with wave packet
+periodicType = "diff" #tried to use it with hankel 
+#wType = "all"
+wType = "pot"
 
 if(wType=="pot" and mediumType == "inhomog"):
 	print("INVALID config: wType=pot and inhomog medium")
 	sys.exit(0)
 
 
-#timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
-timesZArgW = 2 
+timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
+#timesZArgW = 2 
 
 if(timesZArgW == 1):
-	functionType = "sine" 
+	#functionType = "sine" 
 	#functionType = "gauss" 
-	#functionType = "hankel" 
-	argType = "x"
+	functionType = "hankel" 
+	#argType = "x"
 	#argType = "y"
-	#argType = "r"
+	argType = "r"
 	#argType = "d1" 
 	
 
@@ -143,7 +143,7 @@ if(timesZArgW == 1):
 			#r = k * func(z-z0)
 			r = k * func(z)
 			res = hankel1(0, r)
-			#smoothInterp(z, res)
+			smoothInterp(z, res)
 			n = len(z[0]) - 1
 			#multiply by a window function
 			windowFunction1D = np.blackman(n+1)

@@ -5,8 +5,8 @@ zf_0 = 7.4
 z0_1 = 3.1
 zf_1 = 7.4
 
-#domainType = "centered"   #argType = r expects a domainType = centered
-domainType = "pos00" #use it with d1 and wave packet
+domainType = "centered"   #argType = r expects a domainType = centered
+#domainType = "pos00" #use it with d1 and wave packet
 #domainType = "unmodified"
 
 if domainType == "centered":

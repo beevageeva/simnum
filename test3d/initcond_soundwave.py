@@ -41,10 +41,12 @@ if wType == "pot":
 		cs00 = math.sqrt(gamma * p00 / rho00) #only for homogenous
 		f = w(z)
 		omega = k * cs00
-		r = np.sqrt(z[0]**2 + z[1]**2)
 		gradW = getGradientFunction(f, z)
+		np.set_printoptions(threshold='nan')
 		v1 = np.real(np.multiply(gradW, np.exp(-1j * omega * t)))
-		velPert = A* np.dstack(velFunc(v1, z))
+		#TODO velPert = A* np.dstack(velFunc(v1, z))
+		#do NOT APPLY velFunc as it's the gradient
+		velPert = A* np.dstack((v1[0],v1[1]))
 		presPert = rho00 * omega * A * np.real(1j * f * np.exp(-1j * omega * t))
 		rhoPert = presPert / cs00 ** 2
 		return {'pres': p00 + presPert  , 'rho': rho00 + rhoPert , 'vel': v00 + velPert } 
