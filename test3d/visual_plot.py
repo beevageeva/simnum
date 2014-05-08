@@ -185,8 +185,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		#import time
-		#time.sleep(20)
+		import time
+		time.sleep(20)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0

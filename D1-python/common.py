@@ -24,6 +24,13 @@ def getPeriodicX(xval, a=z0, b=zf):
 		res-=p
 	return res
 
+def getPeriodicXReflection(xval, a=z0, b=zf):
+	if xval > b:
+		return 2.0*b - xval
+	if xval < a:
+		return 2.0*a -xval
+	return xval
+
 
 def getPeriodicXArray(xarray, a=z0, b=zf):
 	res = []	
@@ -43,9 +50,12 @@ def getZIndex(z):
 	return int( float(nint)*(z - z0)/(zf - z0) )
 
 #assumes periodic function
-def displacedPoint(z, c, t):
+def displacedPoint(z, c, t, periodicType="repeat"):
 	newz = z + c * t
-	periodicz = getPeriodicX(newz)
+	if periodicType=="repeat":
+		periodicz = getPeriodicX(newz)
+	elif periodicType=="refl":
+		periodicz = getPeriodicXReflection(newz)	
 	return periodicz
 
 
@@ -63,5 +73,12 @@ def createFolder(dirname_base="out"):
 
 
 
+#because methods are different in python3 and python2
+def testKeyInDict(key, dictionary):
+	import sys	
+	if (sys.version_info[0]==2):
+		return dictionary.has_key(key)
+	else:
+		return key in dictionary	
 
 

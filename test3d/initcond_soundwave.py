@@ -45,7 +45,7 @@ if wType == "pot":
 		np.set_printoptions(threshold='nan')
 		v1 = np.real(np.multiply(gradW, np.exp(-1j * omega * t)))
 		#TODO velPert = A* np.dstack(velFunc(v1, z))
-		#do NOT APPLY velFunc as it's the gradient
+		#do NOT APPLY velFunc 
 		velPert = A* np.dstack((v1[0],v1[1]))
 		presPert = rho00 * omega * A * np.real(1j * f * np.exp(-1j * omega * t))
 		rhoPert = presPert / cs00 ** 2

@@ -122,7 +122,7 @@ if(timesZArgW == 1):
 
 		def smoothInterp(z, res):
 			from scipy.interpolate import CloughTocher2DInterpolator
-			RI = 5 #mask a circle around 0,0 -> assumes a centered domain with radius RI and sets  the values here by intterpolation
+			RI = 1 #mask a circle around 0,0 -> assumes a centered domain with radius RI and sets  the values here by intterpolation
 			n = len(z[0]) - 1
 			y,x=np.ogrid[-n / 2: n/2 + 1, -n / 2: n/2 + 1]
 			mask = x**2+y**2 < RI**2
@@ -155,8 +155,7 @@ if(timesZArgW == 1):
 
 
 		#uncomment the following in order to user analitic deriv of w, otherwise it will be numerically calculated using numpy.gradient: see initcont_soundwave
-		#take care when function is multiplied by a window function
-		#The following is ONLY valid in 1D!! TODO
+		#take care when function is multiplied by a window function the following is NOT the gradient
 #		def symDerivW(z):
 #			d1Arg = -k * hankel1(1, k * func(z))
 #			smoothInterp(z, d1Arg)

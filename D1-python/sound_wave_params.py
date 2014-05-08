@@ -5,15 +5,17 @@ from constants import gamma
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	from constants import z0, zf
 	rho01 = 0.01
 	#rho01 = 1.2#second exp of inhom
-	ze = 0.5*(z0 + zf)
+	#ze = 0.5*(z0 + zf)
 	#ze = z0 + 0.7*(zf - z0) #second exp of inhom
-	we = 0.4
+	ze = z0 + 0.2*(zf - z0) #first exp of inhom
+	#we = 0.4
+	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
 
 
@@ -48,7 +50,8 @@ init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
 
 #The following are used for the notifier(taken from notifier_params as they were wavesound specific)
 plotPresCurve = False
-plotRhoCurve = False
+#plotRhoCurve = False
+plotRhoCurve = True
 plotVelCurve = False
 #plotPresAn = False
 #plotRhoAn = False
@@ -62,7 +65,7 @@ plotVelFFT = False
 
 if(mediumType == "inhomog"):
 	plotPresCurve = False
-	plotRhoCurve = False
+	#plotRhoCurve = False
 	plotVelCurve = False
 
 

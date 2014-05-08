@@ -7,11 +7,14 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-#saveImages = False
-saveImages = True
+saveImages = False
+#saveImages = True
 
-#hlines = True
-hlines = False
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+from constants import z0, zf
+xlim = {"minX" : z0, "maxX" : zf}
+#ylim = None
 
 
 def getRandomColor():
@@ -24,15 +27,6 @@ def getRandomColor():
 def getColorFromArray(array):
 	return "#%02x%02x%02x" % (array[0][0]*255, array[0][1]*255, array[0][2]*255)
 
-
-
-#because methods are different in python3 and python2
-def testKeyInDict(key, dictionary):
-	import sys	
-	if (sys.version_info[0]==2):
-		return dictionary.has_key(key)
-	else:
-		return key in dictionary	
 
 
 	
@@ -66,8 +60,8 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def afterInit(self):
-		import time
-		time.sleep(5)
+		#import time
+		#time.sleep(5)
 		#save initial figures to files
 		if saveImages:
 			numFig = 0
@@ -96,22 +90,21 @@ class VisualPlot:
 				plotLegend = True
 				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
-		if hlines:
-			plotLegend = True
-			if(len(shape)==1):
-				ymin = np.min(vals)
-				ymax = np.max(vals)
-			elif(len(shape)==2):
-				ymin = np.min(vals[0])
-				ymax = np.max(vals[0])
-	 		ax.hlines(ymin, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymin)
- 			ax.hlines(ymax, self.z[0], self.z[len(self.z)-1], label="%2.5f" % ymax)
+		if(ylim):
+			from matplotlib.ticker import FormatStrFormatter
+			ax.set_ylim(ylim[title]["minY"],ylim[title]["maxY"])
+			ax.set_xlim(xlim["minX"],xlim["maxX"])
+			ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+		else:
+			ax.relim()
+			ax.autoscale_view(True,True,True)
 		if(plotLegend):
 			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 
 	def markPoint(self, axTitle, pointName, value):
+		from common import testKeyInDict
 		if not hasattr(self, 'markPoints'):
 			self.markPoints = {}
 		if(testKeyInDict(pointName, self.markPoints)):
@@ -181,6 +174,14 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
+	def plotAxisTwin(self, title, vals, newtitle):
+		ax2 = self.axes[title].twinx()
+		ax2.set_ylabel(newtitle)
+		ax2.plot(self.z, vals, color=getRandomColor())
+		plt.draw()
+		plt.show(block=False)
+
+
 	def updateValues(self, title, newValues):
 		#print("updateValues %s" % title)
 		shape = np.shape(newValues)
@@ -194,7 +195,7 @@ class VisualPlot:
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
-		if(not hlines):
+		if(not ylim):
 			self.axes[title].relim()
 			self.axes[title].autoscale_view(True,True,True)
 		

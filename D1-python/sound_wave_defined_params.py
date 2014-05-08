@@ -9,20 +9,21 @@ from math import pi
 #
 
 #gauss
-R = 0.05
-def w(z):
-	return np.exp(-(z - 0.5 *(z0 + zf))**2 / R) 
+#R = 0.05
+#def w(z):
+#	return np.exp(-(z - 0.5 *(z0 + zf))**2 / R) 
 
 #wave packet
 
-#kf = 2.0 * pi/ (zf - z0)
-#k0 = 60.0
+kf = 2.0 * pi/ (zf - z0)
+k0 = 60.0
 #zc = z0 + 0.2 * (zf - z0)
-#W = 0.05
-#def w(z, nwav=k0):
-#  k = k0 * kf
-#  t2 = np.subtract(z,zc) ** 2 
-#  return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0)))
+zc = z0 + (3.0/20.0)*(zf - z0)
+W = 0.05
+def w(z, nwav=k0):
+  k = k0 * kf
+  t2 = np.subtract(z,zc) ** 2 
+  return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0)))
 #
 #def wFFTAn(k):
 #	a = 	1/(2 * np.sqrt(2) * np.sqrt(1/W**2))

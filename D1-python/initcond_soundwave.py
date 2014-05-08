@@ -76,13 +76,7 @@ if mediumType == "homog":
 		wPresRho0= wavePresRho.getWaveShape(z)
 		return {'pres': p00 + gamma * p00 * wPresRho0  , 'rho': rho00 + rho00 *  wPresRho0 , 'vel': v00 + cs00 *  wVel0 } 
 	
-				
 	
-		
-	
-	def getRhoCurveNumeric(rho):
-		from sound_wave_params import rho00
-		return np.divide(np.subtract(rho,rho00),rho00)
 	
 	
 	def getPresCurveNumeric(p):
@@ -143,6 +137,11 @@ else:
 			print("functiontype %s not implemented" % functiontype)
 			sys.exit(0)
 
+	def getCs00(z):
+		from sound_wave_params import densFunc
+		rhoIni =  densFunc(z)
+		return np.sqrt(np.divide(gamma * p00,rhoIni))
+
 
 	def getInitialPresRhoVel(z):
 		from sound_wave_params import densFunc
@@ -151,6 +150,20 @@ else:
 		w = getWFunction()
 		f = w(z)
 		return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rho00 *A* f , 'vel': v00 + cs00 * A* f }
+
+
+
+
+def getRhoCurveNumeric(rho,z):
+	from sound_wave_params import mediumType, rho00
+	if(mediumType == "homog"):	
+		rhoIni = rho00
+	else:
+		from sound_wave_params import densFunc
+		rhoIni=densFunc(z)
+	return np.divide(np.subtract(rho,rhoIni),rho00)
+
+
 
 
 if periodicType == "repeat":
