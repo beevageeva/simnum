@@ -1,6 +1,7 @@
 combine multiple images from multiple figures
 in Fig0
 
+2images:
 for i in `ls *.png`; do
   echo $i;
   ls ../Fig1/$i;
@@ -8,6 +9,22 @@ for i in `ls *.png`; do
   #/usr/bin/montage -background #336699 -geometry +4+4 $i ../Fig1/$i ../combined/$i;
   /usr/bin/montage -geometry "+4+4"  $i ../Fig1/$i ../combined/$i;
 done
+
+3images:
+for i in `ls *.png`; do
+  echo $i;
+  ls ../Fig1/$i;
+  ls ../Fig2/$i;
+  #/usr/bin/montage -geometry "+4+4"  -tile "1x2" $i ../Fig1/$i  miff:- | montage  ../Fig2/$i -  -geometry "+2+2" -tile "2x1"  ../combined/$i;
+	/usr/bin/montage -geometry "+4+4"  -tile "1x2" ../Fig1/$i ../Fig2/$i  miff:- | montage  $i -  -geometry "+2+2" -tile "2x1"  ../combined/$i;
+done
+
+#4img
+for i in `ls *.png`; do
+  /usr/bin/montage -geometry "+4+4" -tile "2x2"  $i ../Fig2/$i ../Fig3/$i ../Fig4/$i ../combined/$i;
+done
+
+
 
 afterwards make the video
         #ffmpeg -r 1 -i img%05d.png -c:v libx264 -r 30 -pix_fmt yuv420p out.mp4

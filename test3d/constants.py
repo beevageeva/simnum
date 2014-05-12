@@ -25,8 +25,8 @@ elif domainType == "pos00":
 
 	
 
-nint = 64
-#nint=128
+#nint = 64
+nint=128
 #nint =  256
 #nint = 1024
 #nint = 32

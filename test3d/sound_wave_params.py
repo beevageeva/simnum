@@ -144,12 +144,12 @@ if(timesZArgW == 1):
 			r = k * func(z)
 			res = hankel1(0, r)
 			smoothInterp(z, res)
-			n = len(z[0]) - 1
 			#multiply by a window function
-			windowFunction1D = np.blackman(n+1)
-			windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
-			return res * windowFunction2D
-			#return res
+			#n = len(z[0]) - 1
+			#windowFunction1D = np.blackman(n+1)
+			#windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
+			#return res * windowFunction2D
+			return res
 
 			
 
@@ -159,6 +159,11 @@ if(timesZArgW == 1):
 #		def symDerivW(z):
 #			d1Arg = -k * hankel1(1, k * func(z))
 #			smoothInterp(z, d1Arg)
+#			#multiply by a window function
+#			n = len(z[0]) - 1
+#			windowFunction1D = np.blackman(n+1)
+#			windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
+#			d1Arg *= windowFunction2D
 #			return velFunc([d1Arg, d1Arg], z)
 		
 	def w(z):

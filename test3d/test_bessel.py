@@ -35,6 +35,9 @@ def gradNum(f):
 
 
 
+
+
+
 #bw = np.blackman(10)
 #print("blackman")
 #print(bw)
@@ -47,9 +50,6 @@ z = getZArray()
 
 #vals = w(z)
 
-#num deriv
-r = func(z)
-#f = w(z,k)
 
 #print("f=")
 #print(f)
@@ -62,12 +62,13 @@ r = func(z)
 
 #vals = np.outer(np.blackman(nint+2), np.blackman(nint+2))
 
-from sound_wave_params import w, symDerivW
+from sound_wave_params import w
+from sound_wave_params import symDerivW
 
 f = w(z)
 #vals = w(z)
-#vals = symDerivW(z)[0]
-vals = gradNum(f)[0]
+vals = symDerivW(z)[0]
+#vals = gradNum(f)[0]
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')

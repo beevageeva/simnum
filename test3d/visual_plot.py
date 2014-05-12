@@ -12,8 +12,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 from notifier_params import projections, plotAnalitical
 
-#saveImages = True
-saveImages = False
+saveImages = True
+#saveImages = False
 
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}} 

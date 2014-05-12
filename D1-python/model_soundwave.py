@@ -52,17 +52,32 @@ class Model(BaseModel):
 			self.maxVelZ = self.getNewPoint(self.maxVelZ,dt)
 		if hasattr(self, "addMarkPoint"):
 			if(calcKc):
+				#print("upd")
+				intlen =  self.z[len(self.z)-1] - self.z[0]	
 				from scipy.fftpack import fft,fftfreq#forFourierTransform
 				numPoints = len(self.z)
-				Y=fft(self.pres)/(numPoints)
-				kc = np.max(abs(Y))
+				#Y=fft(self.pres)/(numPoints)
+				Y=fft(self.pres)
+				F=fftfreq(numPoints, self.z[1] - self.z[0])
+#				np.set_printoptions(threshold='nan')
+#				print("fft")
+#				print(Y)
+#				print("absv")
+#				print(abs(Y))
+#				print("argmax")
+#				print(np.argmax(abs(Y)))
+#				print("F")
+#				print(F)
+				#TODO why first element has the biggest value = 1??
+				kc = abs(F[np.argmax(abs(Y[1:]))+1])
+				kc *=intlen
 				from sound_wave_params import mediumType
 				from initcond_soundwave import getCs00
 				if mediumType == "homog":
 					cs = getCs00()
 				else:
 					cs = getCs00(self.addMarkPoint)
-				print("Product of kc*cs const?? %E" % cs * kc)
+				print("%E\t%E" % (cs,kc))
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 
 

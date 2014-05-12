@@ -55,7 +55,7 @@ if mediumType == "homog":
 		from sound_wave_params import rho00
 		return rho00
 	
-	def getCs0():
+	def getCs00():
 		from sound_wave_params import p00, rho00
 		cs = math.sqrt(gamma *  p00 / rho00)
 		return cs
