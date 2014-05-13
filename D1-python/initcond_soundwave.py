@@ -151,6 +151,22 @@ else:
 		f = w(z)
 		return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rho00 *A* f , 'vel': v00 + cs00 * A* f }
 
+	def getInitialFunctionMaxMinZIndex(z):
+		w = getWFunction()(z)
+		print("argmin")
+		amin = np.argmin(w)
+		print(amin)
+		print("argmax")
+		amax = np.argmax(w)
+		print(amax)
+		print("min")
+		print(np.min(w))
+		print(w[amin])
+		print("max")
+		print(np.max(w))
+		print(w[amax])
+		return [np.argmin(w), np.argmax(w)]
+
 
 
 

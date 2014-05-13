@@ -7,17 +7,17 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-#saveImages = False
-saveImages = True
+saveImages = False
+#saveImages = True
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom2
-ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0003, "minY": -0.0003}} 
-from constants import z0, zf
-xlim = {"minX" : z0, "maxX" : zf}
-#ylim = None
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0003, "minY": -0.0003}} 
+#from constants import z0, zf
+#xlim = {"minX" : z0, "maxX" : zf}
+ylim = None
 
 
 def getRandomColor():
@@ -185,6 +185,12 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
+	def plotAxis(self, title, vals, label=None):
+		ax = self.axes[title]
+		ax.plot(self.z, vals, color=getRandomColor(),label=label)
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		plt.draw()
+		plt.show(block=False)
 
 	def updateValues(self, title, newValues):
 		#print("updateValues %s" % title)

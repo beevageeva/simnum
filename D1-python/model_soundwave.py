@@ -12,18 +12,25 @@ showErr = False
 #calcKc = True
 calcKc = False
 
+addMarkPoint = None
+#uncomment this to add a new mark point
+#the following for the wave packet
+from sound_wave_defined_params import zc,W
+addMarkPoint = zc 
+#addMarkPoint = zc - 0.98*W #other point at the beginning of the packet
+
+
+#plotCsMaxMin = True
+plotCsMaxMin = False
 
 class Model(BaseModel):
 	
 
 	def __init__(self):
 		BaseModel.__init__(self)
-		#uncomment this to add a new mark point
-		#the following for the wave packet
-		from sound_wave_defined_params import zc,W
-		self.addMarkPoint = zc 
-		#self.addMarkPoint = zc - 0.98*W #other point at the beginning of the packet
-		print("addMarkPoint = %E, plotting on pres axis" % self.addMarkPoint)
+		if addMarkPoint:
+			self.addMarkPoint = addMarkPoint
+			print("addMarkPoint = %E, plotting on pres axis" % self.addMarkPoint)
 
 
 	def getNewPoint(self, zval, dt):
@@ -203,7 +210,35 @@ class Model(BaseModel):
 		if(mediumType=="inhomog"):
 			from initcond_soundwave import getCs00
 			self.notifier.plotAxisTwin("vel",getCs00(self.z) , "cs00")
+		if(plotCsMaxMin):
+			if(mediumType=="inhomog"):
+				from initcond_soundwave import  getInitialFunctionMaxMinZIndex, getCs00
+				r = getInitialFunctionMaxMinZIndex(self.z)
+				minZIndex = r[0]
+				maxZIndex = r[1]
+				print("minZIndex")
+				print(minZIndex)
+				print("maxZIndex")
+				print(maxZIndex)
+				cs00 = getCs00(self.z)
+				if(plotRhoCurve):
+					from initcond_soundwave import getRhoCurveNumeric
+					for alpha in np.arange(-2.5, 2.5, 0.5):
+						const = self.rho[minZIndex] / (cs00[minZIndex] ** alpha)
+						print("const rho min")
+						print(const)
+						vals = const * np.power(cs00, alpha)
+						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(vals, self.z), "(min)%1.1f" % alpha)
+				for alpha in np.arange(-2.5, 2.5, 0.5):
+					const11 = self.pres[minZIndex] / (cs00[minZIndex] ** alpha)
+					const12 = self.pres[maxZIndex] / (cs00[maxZIndex] ** alpha)
+					vals = np.power(cs00, alpha)
+					self.notifier.plotAxis("pres", const11 * vals, "(min)%1.1f" % alpha)
+					self.notifier.plotAxis("pres", const12 * vals, "(max)%1.1f" % alpha)
 
+			else:
+				print("plotCsMin does not make sense with homogeneous medium")
+		
 
 
 
