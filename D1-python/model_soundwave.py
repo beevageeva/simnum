@@ -20,8 +20,12 @@ addMarkPoint = zc
 #addMarkPoint = zc - 0.98*W #other point at the beginning of the packet
 
 
-#plotCsMaxMin = True
-plotCsMaxMin = False
+plotCsMaxMin = True
+#plotCsMaxMin = False
+
+#calcAmp = True
+calcAmp = False
+
 
 class Model(BaseModel):
 	
@@ -66,6 +70,7 @@ class Model(BaseModel):
 				#Y=fft(self.pres)/(numPoints)
 				Y=fft(self.pres)
 				F=fftfreq(numPoints, self.z[1] - self.z[0])
+				F = np.multiply(intlen , F)
 #				np.set_printoptions(threshold='nan')
 #				print("fft")
 #				print(Y)
@@ -77,7 +82,7 @@ class Model(BaseModel):
 #				print(F)
 				#TODO why first element has the biggest value = 1??
 				kc = abs(F[np.argmax(abs(Y[1:]))+1])
-				kc *=intlen
+				#kc *=intlen #alreday multiplied all array
 				from sound_wave_params import mediumType
 				from initcond_soundwave import getCs00
 				if mediumType == "homog":
@@ -85,7 +90,16 @@ class Model(BaseModel):
 				else:
 					cs = getCs00(self.addMarkPoint)
 				print("%E\t%E" % (cs,kc))
+				#from common import getDz
+				#from analyze_functions import getIndexRightAlmost0
+				#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
+				print("width fourier pres = %E" % (2.0*kc))
+				
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+		if(calcAmp):
+			print("pres amp = %E" % (np.max(self.pres) - np.min(self.pres)))
+			print("vel amp = %E" % (np.max(self.vel) - np.min(self.vel)))
+			print("rho amp = %E" % (np.max(self.rho) - np.min(self.rho)))
 
 
 	def updateValuesNotifier(self, dt, time):
@@ -216,25 +230,21 @@ class Model(BaseModel):
 				r = getInitialFunctionMaxMinZIndex(self.z)
 				minZIndex = r[0]
 				maxZIndex = r[1]
-				print("minZIndex")
-				print(minZIndex)
-				print("maxZIndex")
-				print(maxZIndex)
+				#print("minZIndex")
+				#print(minZIndex)
+				#print("maxZIndex")
+				#print(maxZIndex)
 				cs00 = getCs00(self.z)
-				if(plotRhoCurve):
-					from initcond_soundwave import getRhoCurveNumeric
-					for alpha in np.arange(-2.5, 2.5, 0.5):
-						const = self.rho[minZIndex] / (cs00[minZIndex] ** alpha)
-						print("const rho min")
-						print(const)
-						vals = const * np.power(cs00, alpha)
-						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(vals, self.z), "(min)%1.1f" % alpha)
 				for alpha in np.arange(-2.5, 2.5, 0.5):
-					const11 = self.pres[minZIndex] / (cs00[minZIndex] ** alpha)
-					const12 = self.pres[maxZIndex] / (cs00[maxZIndex] ** alpha)
 					vals = np.power(cs00, alpha)
-					self.notifier.plotAxis("pres", const11 * vals, "(min)%1.1f" % alpha)
-					self.notifier.plotAxis("pres", const12 * vals, "(max)%1.1f" % alpha)
+					self.notifier.plotAxis("pres", np.multiply(self.pres[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
+					self.notifier.plotAxis("pres", np.multiply(self.pres[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
+					self.notifier.plotAxis("vel", np.multiply(self.vel[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
+					self.notifier.plotAxis("vel", np.multiply(self.vel[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
+					if(plotRhoCurve):
+						from initcond_soundwave import getRhoCurveNumeric
+						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[minZIndex] / vals[minZIndex],vals), self.z), "(min)%1.1f" % alpha)
+						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[maxZIndex] / vals[maxZIndex],vals), self.z), "(max)%1.1f" % alpha)
 
 			else:
 				print("plotCsMin does not make sense with homogeneous medium")

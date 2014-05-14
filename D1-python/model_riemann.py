@@ -148,13 +148,14 @@ class Model(BaseModel):
 
 
 	def updateValuesModel(self, dt, time):
-		from common import getDz
+		from common import getDz, getZIndex
 		from riemann_params import zC
 		delta = getDz()
 		from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getFirstIndexConstant
-		zi = getFirstIndexDifferentLeft(self.pres, delta, self.zcPoint)
+		dind = getZIndex(self.zcPoint)
+		zi = getFirstIndexDifferentLeft(self.pres, delta, dind)
 		self.rwPoint = self.z[zi]
-		zi2 = getFirstIndexDifferentRight(self.pres, delta, self.zcPoint)
+		zi2 = getFirstIndexDifferentRight(self.pres, delta, dind)
 		self.shPoint = self.z[zi2] 
 		#ANALYTICAL DCPoint
 		self.dcPoint = self.getNewDcPoint(dt)

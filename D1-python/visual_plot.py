@@ -7,17 +7,17 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-saveImages = False
-#saveImages = True
+#saveImages = False
+saveImages = True
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
-#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
 #inhom2
-#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0003, "minY": -0.0003}} 
-#from constants import z0, zf
-#xlim = {"minX" : z0, "maxX" : zf}
-ylim = None
+#ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
+from constants import z0, zf
+xlim = {"minX" : z0, "maxX" : zf}
+#ylim = None
 
 
 def getRandomColor():
@@ -102,7 +102,7 @@ class VisualPlot:
 			ax.relim()
 			ax.autoscale_view(True,True,True)
 		if(plotLegend):
-			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 
@@ -131,7 +131,7 @@ class VisualPlot:
 		if(maxValue == minValue):
 			maxValue = minValue + 1
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
-		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 			
 	def fftplot(self, ax, vals, aFunc=None):
 		numPoints = len(self.z)
@@ -139,10 +139,10 @@ class VisualPlot:
 		Y=fft(vals)/(numPoints)
 		F=fftfreq(numPoints, self.z[1] - self.z[0])
 		intlen = self.z[len(self.z)-1] - self.z[0]
-		#ax.set_xlim(-130,130)
-		ax.set_xlim(-40,40)# second exp of inhom
-		#ax.set_xticks(np.arange(-130, 131, 20))
-		ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
+		ax.set_xlim(-130,130)
+		#ax.set_xlim(-40,40)# second exp of inhom
+		ax.set_xticks(np.arange(-130, 131, 20))
+		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
 		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="-", marker="o")
 		if not aFunc is None:
 			for i in range(len(F)):
@@ -188,7 +188,7 @@ class VisualPlot:
 	def plotAxis(self, title, vals, label=None):
 		ax = self.axes[title]
 		ax.plot(self.z, vals, color=getRandomColor(),label=label)
-		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 		plt.draw()
 		plt.show(block=False)
 

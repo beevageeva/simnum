@@ -2,18 +2,18 @@ import numpy as np
 import math
 from constants import gamma
 
-#rho00 = 1.0
-rho00 = 0.3  #second exp of inhom
+rho00 = 1.0
+#rho00 = 0.3  #second exp of inhom
 
 #mediumType = "homog"
 mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	from constants import z0, zf
-	#rho01 = 0.01
-	rho01 = 1.2#second exp of inhom
+	rho01 = 0.01
+	#rho01 = 1.2#second exp of inhom
 	#ze = 0.5*(z0 + zf)
-	#ze = z0 + 0.2*(zf - z0) #first exp of inhom new
-	ze = z0 + 0.7*(zf - z0) #second exp of inhom
+	ze = z0 + 0.2*(zf - z0) #first exp of inhom new
+	#ze = z0 + 0.7*(zf - z0) #second exp of inhom
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
