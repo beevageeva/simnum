@@ -56,7 +56,7 @@ def getTimestep(v, p, rho):
 	return dt
 
 
-from constants import schemeType
+from constants import schemeType, loopType
 
 if schemeType == "fg":
 	
@@ -64,12 +64,21 @@ if schemeType == "fg":
 		from common import getDz
 		from constants import nint
 		lambdaParam = dt / getDz()
-		res = []
-		for i in range(1, nint+2):
-			#points displaced right +1 
-			val = 0.5 * (u[i] + u[i-1]) - 0.5 * lambdaParam  * (f[i] - f[i-1])
-			#print(val)
-			res.append(val)
+		res = np.zeros(nint+1)
+		if loopType == "python":
+			for i in range(1, nint+2):
+				#points displaced right +1 
+				res[i-1] = 0.5 * (u[i] + u[i-1]) - 0.5 * lambdaParam  * (f[i] - f[i-1])
+		elif loopType == "weave":
+			from scipy.weave import inline, converters
+			lambdaParam = float(lambdaParam)
+			code = """
+			for(int i = 1;i<nint+2; i++) {
+				res(i-1) = 0.5 * (u(i) + u(i-1)) - 0.5 * lambdaParam  * (f(i) - f(i-1));
+			}
+			"""
+			inline(code, ['u', 'lambdaParam', 'res', 'f', 'nint'],type_converters=converters.blitz)
+
 		return res
 
 
@@ -77,10 +86,21 @@ if schemeType == "fg":
 		from common import getDz
 		from constants import nint
 		lambdaParam = dt / getDz()
-		res = []
-		for i in range(0, len(intermF)-1):
-			val = u[i+skip] - lambdaParam  * (intermF[i+1] - intermF[i]) 
-			res.append(val)
+		n = len(intermF)-1
+		res = np.zeros(n)
+		if loopType == "python":
+			for i in range(0, n):
+				res[i] =  u[i+skip] - lambdaParam  * (intermF[i+1] - intermF[i]) 
+		elif loopType == "weave":
+			from scipy.weave import inline, converters
+			skip = int(skip)
+			lambdaParam = float(lambdaParam)
+			code = """
+			for(int i = 0;i<n; i++) {
+				res(i) =  u(i+skip) - lambdaParam  * (intermF(i+1) - intermF(i));
+			}
+			"""
+			inline(code, ['u', 'lambdaParam', 'res', 'intermF', 'n', 'skip'],type_converters=converters.blitz)
 		return res
 
 	from constants import bcStep
@@ -90,7 +110,7 @@ if schemeType == "fg":
 			#left and right boundary condition  skip one point !!! both right and left the intermediate array will have nint + 3 points see array limits
 			#print("calcIntermStep before bc")
 			#print(res)	
-			lrBoundaryConditions(res, 1)
+			res = lrBoundaryConditions(res, 1)
 			#print("calcIntermStep after bc")
 			#print(res)	
 			return res
@@ -106,7 +126,7 @@ if schemeType == "fg":
 			res = calcFinalUArray(u, f, dt,1)
 			#print("final bc array before bc")
 			#print(res)
-			lrBoundaryConditions(res)
+			res = lrBoundaryConditions(res)
 			#print("final bc array after bc")
 			#print(res)
 			return res
@@ -138,14 +158,23 @@ elif schemeType == "lf":
 		from common import getDz
 		from constants import nint
 		lambdaParam = dt / getDz()
-		res = []
-		for i in range(1, nint+1):
-			val = 0.5 * (u[i-1] + u[i+1]) - 0.5 * lambdaParam  * (f[i+1] - f[i-1]) 
-			#print(val)	
-			res.append(val)
+		res = np.zeros(nint)
+		if loopType == "python":
+			for i in range(1, nint+1):
+				res[i-1] =  0.5 * (u[i-1] + u[i+1]) - 0.5 * lambdaParam  * (f[i+1] - f[i-1]) 
+		elif loopType == "weave":
+			lambdaParam = float(lambdaParam)
+			code = """
+			for(int i = 1;i<nint+1; i++) {
+				res(i-1) =  0.5 * (u(i-1) + u(i+1)) - 0.5 * lambdaParam  * (f(i+1) - f(i-1));
+			} 
+
+			"""
+			inline(code, ['u', 'lambdaParam', 'res', 'f', 'nint'],type_converters=converters.blitz)
+		
 		#print("calcSingleStep before bc")
 		#print(res)	
-		lrBoundaryConditions(res)
+		res = lrBoundaryConditions(res)
 		#print("calcSingleStep after bc")
 		#print(res)	
 		return res

@@ -60,8 +60,8 @@ plotPresAn = True
 plotRhoAn = True
 plotVelAn = True
 markPoints = False
-plotVelFFT = True
-#plotVelFFT = False
+#plotVelFFT = True
+plotVelFFT = False
 
 if(mediumType == "inhomog"):
 	plotPresCurve = False

@@ -9,10 +9,10 @@ from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoi
 
 #showErr = True
 showErr = False
-#calcKc = True
-calcKc = False
+calcKc = True
+#calcKc = False
 
-addMarkPoint = None
+#addMarkPoint = None
 #uncomment this to add a new mark point
 #the following for the wave packet
 from sound_wave_defined_params import zc,W
@@ -20,8 +20,8 @@ addMarkPoint = zc
 #addMarkPoint = zc - 0.98*W #other point at the beginning of the packet
 
 
-plotCsMaxMin = True
-#plotCsMaxMin = False
+#plotCsMaxMin = True
+plotCsMaxMin = False
 
 #calcAmp = True
 calcAmp = False
@@ -67,8 +67,8 @@ class Model(BaseModel):
 				intlen =  self.z[len(self.z)-1] - self.z[0]	
 				from scipy.fftpack import fft,fftfreq#forFourierTransform
 				numPoints = len(self.z)
-				#Y=fft(self.pres)/(numPoints)
-				Y=fft(self.pres)
+				Y=fft(self.pres)/(numPoints)
+				#Y=fft(self.pres)
 				F=fftfreq(numPoints, self.z[1] - self.z[0])
 				F = np.multiply(intlen , F)
 #				np.set_printoptions(threshold='nan')
@@ -89,7 +89,7 @@ class Model(BaseModel):
 					cs = getCs00()
 				else:
 					cs = getCs00(self.addMarkPoint)
-				print("%E\t%E" % (cs,kc))
+				print("%E\t%E\t%E" % (cs,kc, cs*kc))
 				#from common import getDz
 				#from analyze_functions import getIndexRightAlmost0
 				#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)

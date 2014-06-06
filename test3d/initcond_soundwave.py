@@ -155,7 +155,7 @@ if periodicType == "refl":
 		elif (skip==1):
 			array[0,:] = 0
 			array = np.insert(array, 0,  -array[2,:], axis = 0)
-			array[:,-1] = 0			
+			array[-1,:] = 0			
 			array = np.insert(array, n+2,  -array[-2,:], axis = 0)
 			array[:,0] = 0
 			array = np.insert(array, 0,  -array[:,2], axis = 1)

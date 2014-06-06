@@ -40,16 +40,16 @@ A = 3.0 * 10.0 ** (-4)
 #periodicType = "repeat" #used for moving plane
 #periodicType = "refl" #use it with wave packet
 periodicType = "diff" #tried to use it with hankel 
-#wType = "all"
-wType = "pot"
+wType = "all"
+#wType = "pot"
 
 if(wType=="pot" and mediumType == "inhomog"):
 	print("INVALID config: wType=pot and inhomog medium")
 	sys.exit(0)
 
 
-timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
-#timesZArgW = 2 
+#timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
+timesZArgW = 2 
 
 if(timesZArgW == 1):
 	#functionType = "sine" 

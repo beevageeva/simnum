@@ -7,8 +7,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-#saveImages = False
-saveImages = True
+saveImages = False
+#saveImages = True
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
@@ -139,7 +139,8 @@ class VisualPlot:
 		Y=fft(vals)/(numPoints)
 		F=fftfreq(numPoints, self.z[1] - self.z[0])
 		intlen = self.z[len(self.z)-1] - self.z[0]
-		ax.set_xlim(-130,130)
+		print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
+		ax.set_xlim(-330,330)
 		#ax.set_xlim(-40,40)# second exp of inhom
 		ax.set_xticks(np.arange(-130, 131, 20))
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
