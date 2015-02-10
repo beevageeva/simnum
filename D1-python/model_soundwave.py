@@ -66,7 +66,7 @@ class Model(BaseModel):
 			else:
 				newZ = self.z[np.argmax(self.pres)]	
 				maxSpeed = (newZ - self.maxPresZ)/dt
-				print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
+				#print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
 				self.maxPresZ = newZ
 		if hasattr(self, "addMarkPoint"):
 			if(calcKc):
@@ -105,11 +105,17 @@ class Model(BaseModel):
 					from sound_wave_defined_params import k0
 					#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
 					#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
-					print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
+					if(hasattr(self, "oldKc")):
+						#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
+						if(abs(self.oldKc - kc)>1e-10):
+							print("%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs   ))   #!
+
+					#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
 				#from common import getDz
 				#from analyze_functions import getIndexRightAlmost0
 				#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
 				#print("width fourier pres = %E" % (2.0*kc))  #!
+				self.oldKc = kc
 				
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 		if(calcAmp):

@@ -62,8 +62,8 @@ plotVelAn = False
 #in inhomogeneous medium maximum does not travel at cs speed(phase velocity) , but  at group velocity, see initcond_sounwave the functio
 #to get max for ini pres and rho is only defined for homog medium
 markPoints = True
-#plotVelFFT = True
-plotVelFFT = False
+plotVelFFT = True
+#plotVelFFT = False
 
 if(mediumType == "inhomog"):
 	plotPresCurve = False

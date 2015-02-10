@@ -8,8 +8,8 @@ from sys import exit
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-#mediumType = "homog"
-mediumType = "inhomog"  #variable density rho00 to test with wave packet
+mediumType = "homog"
+#mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	rho01 = 0.01
 	#rho01 = 1.2#second exp of inhom
@@ -37,8 +37,8 @@ print("cs00 = %4.3f" % cs00)
 A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
-#periodicType = "repeat" #used for moving plane
-periodicType = "refl" #use it with wave packet
+periodicType = "repeat" #used for moving plane
+#periodicType = "refl" #use it with wave packet
 #periodicType = "diff" #tried to use it with hankel 
 
 wType = "all"
@@ -49,17 +49,17 @@ if(wType=="pot" and mediumType == "inhomog"):
 	sys.exit(0)
 
 
-#timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
-timesZArgW = 2 
+timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
+#timesZArgW = 2 
 
 if(timesZArgW == 1):
-	#functionType = "sine" 
+	functionType = "sine" 
 	#functionType = "gauss" 
-	functionType = "hankel" 
+	#functionType = "hankel" 
 	#argType = "x"
 	#argType = "y"
-	argType = "r"
-	#argType = "d1" 
+	#argType = "r"
+	argType = "d1" 
 	
 
 	if(argType == "x"):

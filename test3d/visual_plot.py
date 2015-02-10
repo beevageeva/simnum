@@ -273,8 +273,11 @@ class VisualPlot:
 	def updateProjAxis(self, axesArray, title, vals, index, dt):
 		from common import getSpeedPeriodic0, getSpeedPeriodic1
 		vdim = vals[0].ndim if plotAnalitical else vals.ndim
+		if plots["3d"]:
+			ni=1
+		else:
+			ni=0
 		if hasattr(self, "dim0ProjIndex"):
-			ni = 1
 			if(vdim == 2):
 				values = [vals[0][self.dim0ProjIndex, :] , vals[1][self.dim0ProjIndex, :]] if plotAnalitical else vals[self.dim0ProjIndex, :]
 			else:
@@ -287,10 +290,7 @@ class VisualPlot:
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
 				markMaxTitle = "ms= %4.3f" % maxSpeed
 				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
-			self.updateAxisProj(axesArray[1], "%s"% (title), values, markMaxValue, markMaxTitle)
-		else:
-			ni = 0
-		if plots["3d"]:
+			self.updateAxisProj(axesArray[ni], "%s"% (title), values, markMaxValue, markMaxTitle)
 			ni+=1
 		if hasattr(self, "dim1ProjIndex"):
 			if(vdim == 2):

@@ -142,8 +142,10 @@ class VisualPlot:
 		F=fftfreq(numPoints, self.z[1] - self.z[0])
 		intlen = self.z[len(self.z)-1] - self.z[0]
 		print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
-		ax.set_xlim(-330,330)
+		#ax.set_xlim(-330,330)
+		ax.set_xlim(-130,130) #inhomog first
 		#ax.set_xlim(-40,40)# second exp of inhom
+		#ax.set_xticks(np.arange(-130, 131, 20))
 		ax.set_xticks(np.arange(-130, 131, 20))
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
 		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="-", marker="o")

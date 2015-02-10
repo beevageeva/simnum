@@ -17,8 +17,8 @@ elif problemType == "riemann":
 #nint = 64
 #nint=128
 #nint =  256
-#nint = 1024
-nint = 2048
+nint = 1024
+#nint = 2048
 #nint = 4096
 #nint = 32
 
