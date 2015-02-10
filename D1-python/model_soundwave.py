@@ -107,8 +107,9 @@ class Model(BaseModel):
 					#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
 					if(hasattr(self, "oldKc")):
 						#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
+						print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
 						if(abs(self.oldKc - kc)>1e-10):
-							print("%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs   ))   #!
+							print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
 
 					#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
 				#from common import getDz
