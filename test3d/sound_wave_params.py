@@ -8,8 +8,8 @@ from sys import exit
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	rho01 = 0.01
 	#rho01 = 1.2#second exp of inhom
@@ -38,18 +38,18 @@ A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 
 #periodicType = "repeat" #used for moving plane
-#periodicType = "refl" #use it with wave packet
-periodicType = "diff" #tried to use it with hankel 
-#wType = "all"
-wType = "pot"
+periodicType = "refl" #use it with wave packet
+#periodicType = "diff" #tried to use it with hankel 
+wType = "all"
+#wType = "pot"
 
 if(wType=="pot" and mediumType == "inhomog"):
 	print("INVALID config: wType=pot and inhomog medium")
 	sys.exit(0)
 
 
-timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
-#timesZArgW = 2 
+#timesZArgW = 1 #1(sine, gauss, hankel test - with wType = "pot") or 2(wave packet)
+timesZArgW = 2 
 
 if(timesZArgW == 1):
 	#functionType = "sine" 
@@ -144,12 +144,12 @@ if(timesZArgW == 1):
 			r = k * func(z)
 			res = hankel1(0, r)
 			smoothInterp(z, res)
-			n = len(z[0]) - 1
 			#multiply by a window function
-			windowFunction1D = np.blackman(n+1)
-			windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
-			return res * windowFunction2D
-			#return res
+			#n = len(z[0]) - 1
+			#windowFunction1D = np.blackman(n+1)
+			#windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
+			#return res * windowFunction2D
+			return res
 
 			
 
@@ -159,6 +159,11 @@ if(timesZArgW == 1):
 #		def symDerivW(z):
 #			d1Arg = -k * hankel1(1, k * func(z))
 #			smoothInterp(z, d1Arg)
+#			#multiply by a window function
+#			n = len(z[0]) - 1
+#			windowFunction1D = np.blackman(n+1)
+#			windowFunction2D = np.outer(windowFunction1D, windowFunction1D)
+#			d1Arg *= windowFunction2D
 #			return velFunc([d1Arg, d1Arg], z)
 		
 	def w(z):
@@ -205,5 +210,5 @@ elif(timesZArgW == 2):
 	modk = math.sqrt(k0[0] ** 2 + k0[1]**2)
 	velFunc = lambda x, z: ((k0[0]/modk) * x , (k0[1]/modk) * x)
 	if mediumType == "inhomog":
-		#densargfunc = lambda z: k0[0]/modk  * z[0] + k0[1] /modk * z[1] #constant in a dir perp to k
-		densargfunc = lambda z: z[0] #horrizontal
+		densargfunc = lambda z: k0[0]/modk  * z[0] + k0[1] /modk * z[1] #constant in a dir perp to k
+		#densargfunc = lambda z: z[0] #horrizontal

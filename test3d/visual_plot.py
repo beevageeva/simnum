@@ -10,10 +10,10 @@ import numpy as np
 import sys, os
 from scipy.fftpack import fft,fftfreq#forFourierTransform
 
-from notifier_params import projections, plotAnalitical
+from notifier_params import plots, plotAnalitical
 
-#saveImages = True
-saveImages = False
+saveImages = True
+#saveImages = False
 
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}} 
@@ -63,7 +63,7 @@ class VisualPlot:
 			else:
 				values = vals[self.dim0ProjIndex, :, subplotNumber]
 			markMaxValue = None
-			if(projections["dim0"][1]):
+			if(plots["dim0"][1]):
 				markMaxIndex = np.argmax(values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				self.maxPoints["dim0"]["%s%d" % (title, subplotNumber)] = markMaxValue
@@ -80,13 +80,13 @@ class VisualPlot:
 			else:
 				ax = plt.subplot2grid((n,2), (i,subplotNumber))
 			markMaxValue = None
-			if(projections["dim1"][1]):
+			if(plots["dim1"][1]):
 				markMaxIndex = np.argmax(values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				self.maxPoints["dim1"]["%s%d" % (title, subplotNumber)] = markMaxValue
 			self.addAxisProj(ax, title, values, markMaxValue)
 			arrayToAppendAxes.append(ax)
-		if testKeyInDict("color", projections):
+		if testKeyInDict("color", plots):
 			plt.figure(4)
 			self.addAxisColor(arrayToAppendAxes, title, vals, n , i, subplotNumber,colspan)
 			if plotAnalitical:
@@ -120,31 +120,33 @@ class VisualPlot:
 			self.dirname = createFolder("outImages")
 		#if for example velocity has 2 components I have to have 2 subplots
 		self.z = z
-		fig = plt.figure(1)
-		fig.suptitle("3D plot")
-		self.figures = [fig]
 		self.maxPoints = {}
-		if projections:
+		self.figures = []
+		if(plots["3d"]):
+			fig = plt.figure(1)
+			fig.suptitle("3D plot")
+			self.figures.append(fig)
+		if plots:
 			from common import getZIndex0, getZIndex1
-			if testKeyInDict("dim0", projections):
-				if projections["dim0"][1]:
+			if testKeyInDict("dim0", plots):
+				if plots["dim0"][1]:
 					self.maxPoints["dim0"] = {}
 				fig = plt.figure(2)
-				self.dim0ProjIndex = getZIndex0(projections["dim0"][0])
-				fig.suptitle("Dim0 z1=%4.3f" % projections["dim0"][0])
+				self.dim0ProjIndex = getZIndex0(plots["dim0"][0])
+				fig.suptitle("Dim0 z1=%4.3f" % plots["dim0"][0])
 				plt.get_current_fig_manager().window.wm_geometry("1000x900+50+50")
 				fig.subplots_adjust(right=0.8)
 				self.figures.append(fig)
-			if testKeyInDict("dim1", projections):
-				if projections["dim1"][1]:
+			if testKeyInDict("dim1", plots):
+				if plots["dim1"][1]:
 					self.maxPoints["dim1"] = {}
 				fig = plt.figure(3)
-				fig.suptitle("Dim1 z0=%4.3f" % projections["dim1"][0])
-				self.dim1ProjIndex = getZIndex1(projections["dim1"][0])
+				fig.suptitle("Dim1 z0=%4.3f" % plots["dim1"][0])
+				self.dim1ProjIndex = getZIndex1(plots["dim1"][0])
 				plt.get_current_fig_manager().window.wm_geometry("1000x900+50+50")
 				fig.subplots_adjust(right=0.8)
 				self.figures.append(fig)
-			if testKeyInDict("color", projections):
+			if testKeyInDict("color", plots):
 				fig = plt.figure(4)
 				fig.suptitle("color")
 				self.figures.append(fig)
@@ -158,29 +160,37 @@ class VisualPlot:
 		for i in range(0, len(titles)):
 			vals = iniValues[i]
 			title = titles[i]
-			plt.figure(1)
 			if(vals.ndim == 2):	
-				ax = plt.subplot2grid((n,2), (i,0), colspan=2, projection='3d')
-				self.addAxis(ax, title, vals)
-				self.axes[title] = [ax]
+				self.axes[title] = []
+				if(plots["3d"]):
+					plt.figure(1)
+					ax = plt.subplot2grid((n,2), (i,0), colspan=2, projection='3d')
+					self.addAxis(ax, title, vals)
+					self.axes[title].append(ax)
 				self.addProjAxes(self.axes[title], title, vals, n, i, 0,  True)
 
 			elif(vals.ndim == 3):	
-				ax = plt.subplot2grid((n,2), (i,0), projection='3d')
-				self.addAxis(ax, ("%s dim 0" % title), vals[:,:,0])
-				self.axes[title] = [[ax]]
+				self.axes[title] = [[]]
+				if(plots["3d"]):
+					plt.figure(1)
+					ax = plt.subplot2grid((n,2), (i,0), projection='3d')
+					self.addAxis(ax, ("%s dim 0" % title), vals[:,:,0])
+					self.axes[title][0].append(ax)
 				self.addProjAxes(self.axes[title][0], title, vals, n, i, 0)
-				plt.figure(1)
-				ax2 = plt.subplot2grid((n,2), (i,1), projection='3d')
-				self.addAxis(ax2, ("%s dim 1" % title), vals[:,:,1])
-				self.axes[title].append([ax2])
+				self.axes[title].append([])
+				if(plots["3d"]):
+					plt.figure(1)
+					ax2 = plt.subplot2grid((n,2), (i,1), projection='3d')
+					self.addAxis(ax2, ("%s dim 1" % title), vals[:,:,1])
+					self.axes[title][1].append(ax2)
 				self.addProjAxes(self.axes[title][1], title, vals, n, i, 1)
 			else:
 				#print("Dim invalid %d" % vals.ndim)
 				sys.exit(0)
-		plt.figure(1)
-		wm = plt.get_current_fig_manager()
-		wm.window.wm_geometry("800x900+50+50")
+		if(plots["3d"]):
+			plt.figure(1)
+			wm = plt.get_current_fig_manager()
+			wm.window.wm_geometry("800x900+50+50")
 		plt.draw()
 		plt.show(block=False)
 
@@ -264,14 +274,14 @@ class VisualPlot:
 		from common import getSpeedPeriodic0, getSpeedPeriodic1
 		vdim = vals[0].ndim if plotAnalitical else vals.ndim
 		if hasattr(self, "dim0ProjIndex"):
-			ni = 2
+			ni = 1
 			if(vdim == 2):
 				values = [vals[0][self.dim0ProjIndex, :] , vals[1][self.dim0ProjIndex, :]] if plotAnalitical else vals[self.dim0ProjIndex, :]
 			else:
 				values = [vals[0][self.dim0ProjIndex, :, index],vals[1][self.dim0ProjIndex, :, index] ]	if plotAnalitical else vals[self.dim0ProjIndex, :, index]	
 			markMaxValue = None
 			markMaxTitle = None
-			if(projections["dim0"][1]):
+			if(plots["dim0"][1]):
 				markMaxIndex = np.argmax(values[0] if plotAnalitical else values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed  = getSpeedPeriodic0(markMaxValue, self.maxPoints["dim0"]["%s%d" % (title, index)], dt)
@@ -279,7 +289,9 @@ class VisualPlot:
 				self.maxPoints["dim0"]["%s%d" % (title, index)] = markMaxValue
 			self.updateAxisProj(axesArray[1], "%s"% (title), values, markMaxValue, markMaxTitle)
 		else:
-			ni = 1
+			ni = 0
+		if plots["3d"]:
+			ni+=1
 		if hasattr(self, "dim1ProjIndex"):
 			if(vdim == 2):
 				values =  [vals[0][:,self.dim1ProjIndex], vals[1][:,self.dim1ProjIndex]] if plotAnalitical else vals[:,self.dim1ProjIndex]
@@ -287,7 +299,7 @@ class VisualPlot:
 				values = [vals[0][:,self.dim1ProjIndex, index], vals[1][:,self.dim1ProjIndex, index]]  if plotAnalitical else vals[:,self.dim1ProjIndex, index]
 			markMaxValue = None
 			markMaxTitle = None
-			if(projections["dim1"][1]):
+			if(plots["dim1"][1]):
 				markMaxIndex = np.argmax(values[0]) if plotAnalitical else np.argmax(values)
 				markMaxValue = self.z[0][0][markMaxIndex]
 				maxSpeed = getSpeedPeriodic1(markMaxValue, self.maxPoints["dim1"]["%s%d" % (title, index)], dt)	
@@ -295,7 +307,7 @@ class VisualPlot:
 				self.maxPoints["dim1"]["%s%d" % (title, index)] = markMaxValue
 			self.updateAxisProj(axesArray[ni], "%s" %(title), values, markMaxValue, markMaxTitle)
 			ni+=1
-		if testKeyInDict("color", projections):
+		if testKeyInDict("color", plots):
 			if(vdim == 2):
 				values = vals[0] if plotAnalitical else vals
 			else:
@@ -320,12 +332,14 @@ class VisualPlot:
 		
 		vdim = vals[0].ndim if plotAnalitical else vals.ndim
 		if(vdim == 2):
-			self.updateAxis(ax[0], title, [vals[0], vals[1]] if plotAnalitical else vals)
+			if(plots["3d"]):
+				self.updateAxis(ax[0], title, [vals[0], vals[1]] if plotAnalitical else vals)
 			self.updateProjAxis(ax, title, vals,0,dt)
 		else:
-			self.updateAxis(ax[0][0],  title, [vals[0][...,0], vals[1][...,0]] if plotAnalitical else vals[...,0])
+			if(plots["3d"]):
+				self.updateAxis(ax[0][0],  title, [vals[0][...,0], vals[1][...,0]] if plotAnalitical else vals[...,0])
+				self.updateAxis(ax[1][0], title, [vals[0][...,1], vals[1][...,1]] if plotAnalitical else  vals[...,1])
 			self.updateProjAxis(ax[0], title, vals, 0, dt)
-			self.updateAxis(ax[1][0], title, [vals[0][...,1], vals[1][...,1]] if plotAnalitical else  vals[...,1])
 			self.updateProjAxis(ax[1], title, vals, 1, dt)
 
 			

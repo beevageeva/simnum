@@ -96,9 +96,10 @@ def getTimestep(v, p, rho):
 
 
 
-from constants import schemeType
+from constants import schemeType, loopType
 
 if schemeType == "fg":
+
 	
 	def calcIntermUArray(u, f, dt):
 		#print("calcIntermU")
@@ -110,20 +111,45 @@ if schemeType == "fg":
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint+1, nint+1))
 			#res = np.array(nint+1, nint+1) #TODO do not initialize how?
+			if loopType == "python":
+				for i in range(1, nint+2):
+					for j in range(1, nint+2):
+						#points displaced right +1 
+						res[i-1][j-1]  = 0.25 * (u[i-1][j-1] + u[i-1][j] + u[i][j-1] + u[i][j]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1] + f[i][j-1][1] - f[i-1][j-1][1])/dz1 + (f[i][j][0] - f[i][j-1][0]+f[i-1][j][0] - f[i-1][j-1][0]) / dz0)
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				code = """
+				for (int i = 1; i< nint+2; i++) {
+					for (int j = 1; j< nint+2; j++) {
+						res(i-1,j-1) = 0.25 * (u(i-1,j-1) + u(i-1,j) + u(i,j-1) + u(i,j)) - 0.25 * dt  * ((f(i,j,1) - f(i-1,j,1) + f(i,j-1,1) - f(i-1,j-1,1))/dz1 + (f(i,j,0) - f(i,j-1,0)+f(i-1,j,0) - f(i-1,j-1,0)) / dz0);
+					}
+				}
+				
+				"""	
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'f', 'nint'],type_converters=converters.blitz)
 		else:
 			res = np.zeros((nint+1, nint+1, 2))
 			#res = np.array(nint+1, nint+1, 2)
-		for i in range(1, nint+2):
-			for j in range(1, nint+2):
-				#points displaced right +1 
-				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = 0.25 * (u[i-1][j-1] + u[i-1][j] + u[i][j-1] + u[i][j]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1] + f[i][j-1][1] - f[i-1][j-1][1])/dz1 + (f[i][j][0] - f[i][j-1][0]+f[i-1][j][0] - f[i-1][j-1][0]) / dz0)
-					res[i-1][j-1] = val
-				else:
-					val = 0.25 * (u[i-1][j-1][0] + u[i-1][j][0] + u[i][j-1][0] + u[i][j][0]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1]+f[i][j-1][1] - f[i-1][j-1][1]) / dz1 + (f[i][j][0] - f[i][j-1][0] + f[i-1][j][0] - f[i-1][j-1][0])/dz0 )
-					val2 = 0.25 * (u[i-1][j-1][1] + u[i-1][j][1] + u[i][j-1][1] + u[i][j][1]) - 0.25 * dt * ((f[i][j][2] - f[i-1][j][2]+f[i][j-1][2] - f[i-1][j-1][2]) / dz1 + (f[i][j][1] - f[i][j-1][1] + f[i-1][j][1] - f[i-1][j-1][1])/dz0)
-					res[i-1][j-1][0] = val
-					res[i-1][j-1][1] = val2
+			if loopType == "python":
+				for i in range(1, nint+2):
+					for j in range(1, nint+2):
+					#points displaced right +1 
+						res[i-1][j-1][0] = 0.25 * (u[i-1][j-1][0] + u[i-1][j][0] + u[i][j-1][0] + u[i][j][0]) - 0.25 * dt  * ((f[i][j][1] - f[i-1][j][1]+f[i][j-1][1] - f[i-1][j-1][1]) / dz1 + (f[i][j][0] - f[i][j-1][0] + f[i-1][j][0] - f[i-1][j-1][0])/dz0 )
+						res[i-1][j-1][1]  = 0.25 * (u[i-1][j-1][1] + u[i-1][j][1] + u[i][j-1][1] + u[i][j][1]) - 0.25 * dt * ((f[i][j][2] - f[i-1][j][2]+f[i][j-1][2] - f[i-1][j-1][2]) / dz1 + (f[i][j][1] - f[i][j-1][1] + f[i-1][j][1] - f[i-1][j-1][1])/dz0)
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				code = """
+				for(int i = 1;i<nint+2; i++) {
+					for(int j = 1;j<nint+2; j++) {
+						res(i-1,j-1,0) = 0.25 * (u(i-1,j-1,0) + u(i-1,j,0) + u(i,j-1,0) + u(i,j,0)) - 0.25 * dt  * ((f(i,j,1) - f(i-1,j,1)+f(i,j-1,1) - f(i-1,j-1,1)) / dz1 + (f(i,j,0) - f(i,j-1,0) + f(i-1,j,0) - f(i-1,j-1,0))/dz0 );
+						res(i-1,j-1,1) = 0.25 * (u(i-1,j-1,1) + u(i-1,j,1) + u(i,j-1,1) + u(i,j,1)) - 0.25 * dt * ((f(i,j,2) - f(i-1,j,2)+f(i,j-1,2) - f(i-1,j-1,2)) / dz1 + (f(i,j,1) - f(i,j-1,1) + f(i-1,j,1) - f(i-1,j-1,1))/dz0);
+						}
+					}				
+
+				"""
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'f', 'nint'],type_converters=converters.blitz)
 	
 		return res
 
@@ -138,19 +164,44 @@ if schemeType == "fg":
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((n, n))
 			#res = np.array(nint+1, nint+1) #TODO do not initialize how?
+			if loopType == "python":
+				for i in range(0, n):
+					for j in range(0, n):
+						res[i][j] = u[i+skip][j+skip] - dt  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0])/dz0)
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				skip = int(skip)
+				code = """
+				for(int i = 0;i<n; i++) {
+					for(int j = 0;j<n; j++) {
+						res(i,j) = u(i+skip,j+skip) - dt  * 0.5 * ((intermF(i+1,j,1) - intermF(i,j,1) + intermF(i+1,j+1,1) - intermF(i,j+1,1))/dz1 + (intermF(i,j+1,0) - intermF(i,j,0) + intermF(i+1,j+1,0) - intermF(i+1,j,0))/dz0);
+					}
+				}
+				"""
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'skip', 'intermF', 'n'],type_converters=converters.blitz)
 		else:
 			res = np.zeros((n, n, 2))
 			#res = np.array(nint+1, nint+1, 2)
-		for i in range(0, n):
-			for j in range(0, n):
-				if(u.ndim == 2): #case of um and ue that are not vectors
-					val = u[i+skip][j+skip] - dt  * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0])/dz0)
-					res[i][j]=val
-				else:
-					val = u[i+skip][j+skip][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
-					val2 = u[i+skip][j+skip][1] - dt  * 0.5* ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
-					res[i][j][0] = val
-					res[i][j][1] = val2
+			if loopType == "python":
+				for i in range(0, n):
+					for j in range(0, n):
+						res[i][j][0]  = u[i+skip][j+skip][0] - dt * 0.5 * ((intermF[i+1][j][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i][j+1][1])/dz1 + (intermF[i][j+1][0] - intermF[i][j][0] + intermF[i+1][j+1][0] - intermF[i+1][j][0]) / dz0)
+						res[i][j][1]  = u[i+skip][j+skip][1] - dt  * 0.5* ((intermF[i+1][j][2] - intermF[i][j][2] + intermF[i+1][j+1][2] - intermF[i][j+1][2])/dz1 + (intermF[i][j+1][1] - intermF[i][j][1] + intermF[i+1][j+1][1] - intermF[i+1][j][1])/dz0)
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				skip = int(skip)
+				code = """
+				for(int i = 0;i<n; i++) {
+					for(int j = 0;j<n; j++) {
+						res(i,j,0)  = u(i+skip,j+skip,0) - dt * 0.5 * ((intermF(i+1,j,1) - intermF(i,j,1) + intermF(i+1,j+1,1) - intermF(i,j+1,1))/dz1 + (intermF(i,j+1,0) - intermF(i,j,0) + intermF(i+1,j+1,0) - intermF(i+1,j,0)) / dz0);
+						res(i,j,1) = u(i+skip,j+skip,1) - dt  * 0.5* ((intermF(i+1,j,2) - intermF(i,j,2) + intermF(i+1,j+1,2) - intermF(i,j+1,2))/dz1 + (intermF(i,j+1,1) - intermF(i,j,1) + intermF(i+1,j+1,1) - intermF(i+1,j,1))/dz0);
+	
+					}
+				}
+				"""
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'skip', 'intermF', 'n'],type_converters=converters.blitz)
 		#no more boundary conditions because intermediate array alreday has nint + 3 points
 		return np.array(res)
 		
@@ -215,21 +266,46 @@ elif schemeType == "lf":
 		dz1 = getDz1()
 		if(u.ndim == 2): #case of um and ue that are not vectors
 			res = np.zeros((nint, nint))
+			if loopType == "python":
+				for i in range(1, nint+1):
+					for j in range(1, nint+1):
+						#averaging on the first term makes the scheme stable (see Appendix: The lax-Fr scheme)
+						res[i-1][j-1] = 0.25 * (u[i][j-1] + u[i][j+1] + u[i+1][j] + u[i-1][j]) - 0.5 * dt * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				code = """
+				for(int i = 1;i<nint+1; i++) {
+					for(int j = 1;j<nint+1; j++) {
+						res(i-1,j-1) = 0.25 * (u(i,j-1) + u(i,j+1) + u(i+1,j) + u(i-1,j)) - 0.5 * dt * ((f(i+1,j,1) - f(i-1,j,1))/dz1 + (f(i,j+1,0) - f(i,j-1,0))/dz0); 
+
+					}
+				}
+				
+				"""
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'f', 'nint'],type_converters=converters.blitz)
 		else:
 			res = np.zeros((nint, nint, 2))
 			#print("calcSingleStepU f third comp")
 			#print(f[:,:,2])
-		for i in range(1, nint+1):
-			for j in range(1, nint+1):
-				if(u.ndim == 2): #case of um and ue that are not vectors
-					#averaging on the first term makes the scheme stable (see Appendix: The lax-Fr scheme)
-					val = 0.25 * (u[i][j-1] + u[i][j+1] + u[i+1][j] + u[i-1][j]) - 0.5 * dt * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
-					res[i-1][j-1] = val
-				else:
-					val = 0.25 * (u[i][j-1][0] + u[i][j+1][0] + u[i+1][j][0] + u[i-1][j][0]) - 0.5 * dt  * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
-					val2 = 0.25 * (u[i][j-1][1] + u[i][j+1][1] + u[i+1][j][1] + u[i-1][j][1]) - 0.5 * dt * ((f[i+1][j][2] - f[i-1][j][2])/dz1 + (f[i][j+1][1] - f[i][j-1][1])/dz0) 
-					res[i-1][j-1][0] = val
-					res[i-1][j-1][1] = val2
+			if loopType == "python":
+				for i in range(1, nint+1):
+					for j in range(1, nint+1):
+						res[i-1][j-1][0] = 0.25 * (u[i][j-1][0] + u[i][j+1][0] + u[i+1][j][0] + u[i-1][j][0]) - 0.5 * dt  * ((f[i+1][j][1] - f[i-1][j][1])/dz1 + (f[i][j+1][0] - f[i][j-1][0])/dz0) 
+						res[i-1][j-1][1] = 0.25 * (u[i][j-1][1] + u[i][j+1][1] + u[i+1][j][1] + u[i-1][j][1]) - 0.5 * dt * ((f[i+1][j][2] - f[i-1][j][2])/dz1 + (f[i][j+1][1] - f[i][j-1][1])/dz0) 
+			elif loopType == "weave":
+				from scipy.weave import inline, converters
+				dt = float(dt)
+				code = """
+				for(int i = 1;i<nint+1; i++) {
+					for(int j = 1;j<nint+1; j++) {
+						res(i-1,j-1,0) = 0.25 * (u(i,j-1,0) + u(i,j+1,0) + u(i+1,j,0) + u(i-1,j,0)) - 0.5 * dt  * ((f(i+1,j,1) - f(i-1,j,1))/dz1 + (f(i,j+1,0) - f(i,j-1,0))/dz0); 
+						res(i-1,j-1,1) = 0.25 * (u(i,j-1,1) + u(i,j+1,1) + u(i+1,j,1) + u(i-1,j,1)) - 0.5 * dt * ((f(i+1,j,2) - f(i-1,j,2))/dz1 + (f(i,j+1,1) - f(i,j-1,1))/dz0); 
+				
+					}
+				}
+				"""
+				inline(code, ['u', 'dz0', 'dz1', 'dt', 'res', 'f', 'nint'],type_converters=converters.blitz)
 		#print("calcSingleStep before BC PX")
 		#print(res[0,...])
 		res = lrBoundaryConditions(res)

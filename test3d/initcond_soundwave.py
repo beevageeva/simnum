@@ -144,26 +144,26 @@ elif periodicType == "refl" or periodicType == "diff":
 		return array
 
 
-if periodicType == "refl":
-	def lrBoundaryConditionsVel(array, skip=0):
-		n = array.shape[0] - 1
-		if(skip==0):
-			array = np.insert(array, 0,  -array[0,:], axis = 0)
-			array = np.insert(array, n+2,  -array[-1,:], axis = 0)
-			array = np.insert(array, 0,  -array[:,0], axis = 1)
-			array = np.insert(array, n+2,  -array[:,-1], axis = 1)
-		elif (skip==1):
-			array[0,:] = 0
-			array = np.insert(array, 0,  -array[2,:], axis = 0)
-			array[:,-1] = 0			
-			array = np.insert(array, n+2,  -array[-2,:], axis = 0)
-			array[:,0] = 0
-			array = np.insert(array, 0,  -array[:,2], axis = 1)
-			array[:,-1] = 0			
-			array = np.insert(array, n+2,  -array[:,-2], axis = 1)
-		return array
-
-elif periodicType == "diff":
-	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
+	if periodicType == "refl":
+		def lrBoundaryConditionsVel(array, skip=0):
+			n = array.shape[0] - 1
+			if(skip==0):
+				array = np.insert(array, 0,  -array[0,:], axis = 0)
+				array = np.insert(array, n+2,  -array[-1,:], axis = 0)
+				array = np.insert(array, 0,  -array[:,0], axis = 1)
+				array = np.insert(array, n+2,  -array[:,-1], axis = 1)
+			elif (skip==1):
+				array[0,:] = 0
+				array = np.insert(array, 0,  -array[2,:], axis = 0)
+				array[-1,:] = 0			
+				array = np.insert(array, n+2,  -array[-2,:], axis = 0)
+				array[:,0] = 0
+				array = np.insert(array, 0,  -array[:,2], axis = 1)
+				array[:,-1] = 0			
+				array = np.insert(array, n+2,  -array[:,-2], axis = 1)
+			return array
+	
+	elif periodicType == "diff":
+		lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 
 

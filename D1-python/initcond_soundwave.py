@@ -55,7 +55,7 @@ if mediumType == "homog":
 		from sound_wave_params import rho00
 		return rho00
 	
-	def getCs0():
+	def getCs00():
 		from sound_wave_params import p00, rho00
 		cs = math.sqrt(gamma *  p00 / rho00)
 		return cs
@@ -151,6 +151,10 @@ else:
 		f = w(z)
 		return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rho00 *A* f , 'vel': v00 + cs00 * A* f }
 
+	def getInitialFunctionMaxMinZIndex(z):
+		w = getWFunction()(z)
+		return [np.argmin(w), np.argmax(w)]
+
 
 
 
@@ -169,9 +173,10 @@ def getRhoCurveNumeric(rho,z):
 if periodicType == "repeat":
 
 	def  lrBoundaryConditionsPresRho(array, skip=0):
-		n = len(array) - 1
-		array.insert(0, array[n - skip])
-		array.append(array[1 + skip])
+		n = array.shape[0] - 1
+		array = np.insert(array, 0,  array[n-skip])
+		array = np.insert(array, n+2,  array[1+skip])
+		return array
 
 	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 
@@ -180,21 +185,26 @@ elif periodicType == "refl":
 		
 
 	def lrBoundaryConditionsPresRho(array, skip=0):
-		array.insert(0, 2 * array[0] - array[1])
-		array.append(2 * array[-1] - array[-2])
+		n = array.shape[0] - 1
+		array = np.insert(array, 0,  2 * array[0] - array[1])
+		array = np.insert(array, n+2, 2 * array[-1] - array[-2])
+		return array
 
 	def lrBoundaryConditionsVel(array, skip=0):
 		#I already know
 		#if(len(array)<1+skip):
 		#	return
+		n = array.shape[0] - 1
 		if(skip==0):
-			array.insert(0, -array[0])
-			array.append(-array[-1]) 
+			array = np.insert(array, 0,  -array[0])
+			array = np.insert(array, n+2,  -array[-1])
 		elif (skip==1):
 			array[0] = 0
-			array.insert(0, -array[2])
+			array = np.insert(array, 0,  -array[2])
 			array[-1] = 0
-			array.append(-array[-2]) 
+			array = np.insert(array, n+2,  -array[-2])
+		return array
+		
 
 
 

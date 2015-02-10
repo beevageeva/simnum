@@ -13,7 +13,7 @@ def getFirstIndexDifferentLeft(y, delta, default):
 	return default
 
 
-def getFirstIndexDifferentRight(y, delta, default):
+def getFirstIndexDifferentRight(y, delta, default=None):
 	#I know they have it
 	#if not hasattr(y, '__len__') or len(y) == 0:
 	#	return None
@@ -21,7 +21,19 @@ def getFirstIndexDifferentRight(y, delta, default):
 	for i in range(len(y) - 1, -1, -1):
 		if abs(rightVal - y[i])>delta * rightVal:
 			return i
-	return default
+	return len(y) - 1 if default is None else default
+
+
+#def getIndexRightAlmost0(y, delta, startIndex = 0):
+#	for i in range(startIndex, len(y)):
+#		#print("i = %d, abs(y[i])" % i)
+#		#print(abs(y[i]))
+#		#print("delta")
+#		#print(delta)
+#		if abs(y[i])<delta :
+#			return i
+#	return 0
+
 
 def getFirstIndexConstant(y, startIndex, delta):
 	for i in range(startIndex, len(y)-1):

@@ -10,8 +10,11 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 saveImages = False
 #saveImages = True
 
-#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
-ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+#inhom1
+ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+#inhom2
+#ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
 from constants import z0, zf
 xlim = {"minX" : z0, "maxX" : zf}
 #ylim = None
@@ -99,11 +102,12 @@ class VisualPlot:
 			ax.relim()
 			ax.autoscale_view(True,True,True)
 		if(plotLegend):
-			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 		ax.relim()
 		ax.autoscale_view(True,True,True)
 
 	def markPoint(self, axTitle, pointName, value):
+		#print("markPoint on axTitle = %s, pointName = %s, value = %E" % (axTitle, pointName, value))
 		from common import testKeyInDict
 		if not hasattr(self, 'markPoints'):
 			self.markPoints = {}
@@ -121,25 +125,28 @@ class VisualPlot:
 		yvals = l.get_ydata()
 		minValue =  np.min(yvals)
 		maxValue =  np.max(yvals)
+		delta = 0.2
 		#I have to make the following test because
 		#sometimes (in the case of riemann problem and initial velocity  0 )
 		#because zC is only marked once at the beginning  when velocity is 0 for all z
 		#TODO I choose 1 but it might be too small
 		if(maxValue == minValue):
 			maxValue = minValue + 1
-		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue, maxValue, color=color, label=pointName)
-		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue - delta, maxValue + delta, color=color, label=pointName)
+		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 			
 	def fftplot(self, ax, vals, aFunc=None):
 		numPoints = len(self.z)
 		ax.grid(True)
 		Y=fft(vals)/(numPoints)
-		F=fftfreq(numPoints, self.z[0] - self.z[1])
-		ax.set_xlim(-80,80)
-		#ax.set_xlim(0,80)
-		ax.set_xticks(np.arange(-80, 81, 10))
-		#ax.vlines(F,0,abs(Y))
-		ax.plot(F,abs(Y), markersize=3, linestyle="-", marker="o")
+		F=fftfreq(numPoints, self.z[1] - self.z[0])
+		intlen = self.z[len(self.z)-1] - self.z[0]
+		print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
+		ax.set_xlim(-330,330)
+		#ax.set_xlim(-40,40)# second exp of inhom
+		ax.set_xticks(np.arange(-130, 131, 20))
+		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
+		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="-", marker="o")
 		if not aFunc is None:
 			for i in range(len(F)):
 				print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
@@ -181,6 +188,12 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
+	def plotAxis(self, title, vals, label=None):
+		ax = self.axes[title]
+		ax.plot(self.z, vals, color=getRandomColor(),label=label)
+		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
+		plt.draw()
+		plt.show(block=False)
 
 	def updateValues(self, title, newValues):
 		#print("updateValues %s" % title)

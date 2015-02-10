@@ -159,11 +159,11 @@ class Model:
 			#self.showVars()
 			nstep+=1
 			#recalculate u at next step - time	
-			#print("before recalculate at time %4.3f" % time)
-			#print(datetime.datetime.now())
+			print("before recalculate at time %4.3f" % time)
+			print(datetime.datetime.now())
 			result = recalculateU(self.rho, self.uc, self.ue, self.fm, self.fc, self.fe, dt)
-			#print("after recalculate at time %4.3f" % time)
-			#print(datetime.datetime.now())
+			print("after recalculate at time %4.3f" % time)
+			print(datetime.datetime.now())
 			self.rho = result["rho"]
 			self.uc = result["uc"]
 			self.ue = result["ue"]

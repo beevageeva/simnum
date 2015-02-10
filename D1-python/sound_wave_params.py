@@ -12,8 +12,8 @@ if(mediumType=="inhomog"):
 	rho01 = 0.01
 	#rho01 = 1.2#second exp of inhom
 	#ze = 0.5*(z0 + zf)
+	ze = z0 + 0.2*(zf - z0) #first exp of inhom new
 	#ze = z0 + 0.7*(zf - z0) #second exp of inhom
-	ze = z0 + 0.2*(zf - z0) #first exp of inhom
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
@@ -53,19 +53,20 @@ plotPresCurve = False
 #plotRhoCurve = False
 plotRhoCurve = True
 plotVelCurve = False
-#plotPresAn = False
-#plotRhoAn = False
-#plotVelAn = False
-plotPresAn = True
-plotRhoAn = True
-plotVelAn = True
-markPoints = False
+plotPresAn = False
+plotRhoAn = False
+plotVelAn = False
+#plotPresAn = True
+#plotRhoAn = True
+#plotVelAn = True
+#in inhomogeneous medium maximum does not travel at cs speed(phase velocity) , but  at group velocity, see initcond_sounwave the functio
+#to get max for ini pres and rho is only defined for homog medium
+markPoints = True
 #plotVelFFT = True
 plotVelFFT = False
 
 if(mediumType == "inhomog"):
 	plotPresCurve = False
-	#plotRhoCurve = False
 	plotVelCurve = False
 
 
@@ -74,7 +75,6 @@ if periodicType == "refl" or mediumType == "inhomog":
 	plotPresAn = False
 	plotRhoAn = False
 	plotVelAn = False
-	markPoints = False
 
 
 

@@ -1,1 +1,0 @@
-a=0;for i in `du -h carton_d1_* | cut -f1 -d"M" | sed "s/,/./"`; do echo "add $i";a=`echo $a $i | awk '{print $1 + $2}'`; done; echo "sum=$a";
