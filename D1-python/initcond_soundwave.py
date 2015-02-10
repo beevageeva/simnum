@@ -129,7 +129,8 @@ else:
 			from sound_wave_sine_params import phi0
 			wl = zf - z0
 			phi = phi0 - 2.0 * math.pi * z0 / wl
-			return lambda z: np.sin(np.multiply((2.0 * pi/wl),z) + phi )
+			k = 3
+			return lambda z: np.sin((k * 2.0 * math.pi/wl) *z + phi )
 		elif functiontype == "defined":
 			from sound_wave_defined_params import w
 			return w	
