@@ -40,6 +40,7 @@ A = 3.0 * 10.0 ** (-4)
 #periodicType = "repeat" #used for moving plane
 periodicType = "refl" #use it with wave packet
 #periodicType = "diff" #tried to use it with hankel 
+
 wType = "all"
 #wType = "pot"
 

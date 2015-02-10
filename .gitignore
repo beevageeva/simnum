@@ -8,4 +8,5 @@ D1-python/pdf/riemann.out
 *.pyc
 __pycache__
 videos
+newvideos
 test3d/tempImages

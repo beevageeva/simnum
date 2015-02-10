@@ -20,6 +20,7 @@ elif problemType == "riemann":
 #nint = 1024
 nint = 2048
 #nint = 4096
+#nint = 32
 
 timeEnd = 1.0 #if not set as program argument it's taken from here
 

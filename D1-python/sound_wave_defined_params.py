@@ -47,4 +47,3 @@ elif ftype == "wavepacket":
 	#   Sinh[(k^2 W^2)/4 + 1/2 k k0 W^2 + (k0^2 W^2)/4 + I k0 z0 - I k zc +
 	#      I k0 zc])
 	
-
