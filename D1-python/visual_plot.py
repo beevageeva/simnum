@@ -150,14 +150,15 @@ class VisualPlot:
 		ax.set_xticks(np.arange(-130, 131, 20))
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
 		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="None", marker="o")
+		#ax.plot(F,abs(Y), markersize=3, linestyle="None", marker="o")
 		if not aFunc is None:
 			#for i in range(len(F)):
 			#	print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
 			#c = np.polyfit(aFunc(F), abs(Y) , 1)
 			#print("coef polyfit aFunc(F), Y degree 1")
 			#print(c)
-			print("coef mult  %e " % (np.max(abs(Y)) / np.max(abs(aFunc(F))) ) )
-			ax.plot(F,1.328710e-02 * abs(aFunc(F)), markersize=3, linestyle="None", marker="o", color="r")
+			#print("coef mult  %e " % (np.max(abs(Y)) / np.max(abs(aFunc(F))) ) )
+			ax.plot(F,abs(aFunc(F) / intlen), markersize=3, linestyle="None", marker="o", color="r")
 			
 
 

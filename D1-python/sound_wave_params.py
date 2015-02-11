@@ -5,8 +5,8 @@ from constants import gamma
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	from constants import z0, zf
 	rho01 = 0.01
@@ -21,7 +21,10 @@ if(mediumType=="inhomog"):
 
 
 #functiontype = 'sine'
-functiontype = 'defined'
+#functiontype = 'gauss'
+#functiontype = 'bessel'
+functiontype = 'wavepacket'
+
 periodicType = "repeat" 
 #periodicType = "refl" 
 
@@ -40,11 +43,12 @@ A = 3.0 * 10.0 ** (-4)
 #A = 5.0 * 10.0 ** (-2)
 #A = 10.0 ** (-2) #this will work fine as well with fg scheme
 
-#init_functions_generation = [{'csSign':1, 'A': A}, {'csSign':-1, 'A': 0.5*A}] #SUPERPOSITION wave travelling right with amp A and left with amp 0.5 * A
-#init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': 0.5*A}] #SUPERPOSITION wave travelling left with amp A and right with amp 0.5 * A
-#init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': A}] #SUPERPOSITION wave travelling left with amp A and right with amp  A
-#init_functions_generation = [{'csSign':-1, 'A': A}] #travelling left
-init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
+if(mediumType == "homog"):
+	#init_functions_generation = [{'csSign':1, 'A': A}, {'csSign':-1, 'A': 0.5*A}] #SUPERPOSITION wave travelling right with amp A and left with amp 0.5 * A
+	#init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': 0.5*A}] #SUPERPOSITION wave travelling left with amp A and right with amp 0.5 * A
+	#init_functions_generation = [{'csSign':-1, 'A': A}, {'csSign':1, 'A': A}] #SUPERPOSITION wave travelling left with amp A and right with amp  A
+	#init_functions_generation = [{'csSign':-1, 'A': A}] #travelling left
+	init_functions_generation = [{'csSign':1, 'A': A}] #travelling right
 
 
 

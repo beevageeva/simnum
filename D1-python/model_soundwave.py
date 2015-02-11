@@ -6,7 +6,8 @@ from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoi
 from initcond_soundwave import getCs00
 
 
-
+#plotVelFFTAnal=False
+plotVelFFTAnal=True
 
 showErr = True
 #showErr = False
@@ -191,8 +192,10 @@ class Model(BaseModel):
 			self.notifier.updateValues("rhoCurve", rhoCurveNewVals)
 		if(plotVelFFT):
 			#TODO it is calculated every time 
-			from initcond_soundwave import getVelFFTAn
-			#getVelFFTAn = None
+			if plotVelFFTAnal:	
+				from initcond_soundwave import getVelFFTAn
+			else:
+				getVelFFTAn = None
 			self.notifier.updateFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			#only for pres	
@@ -235,7 +238,6 @@ class Model(BaseModel):
 			self.notifier.addGraph("rhoCurve", [getRhoCurveNumeric(self.rho,self.z),getRhoCurveNumeric(self.rho, self.z)] if plotRhoAn else getRhoCurveNumeric(self.rho, self.z))
 		if(plotVelFFT):
 			from initcond_soundwave import getVelFFTAn
-			getVelFFTAn = None
 			self.notifier.addFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			if mediumType == "homog":
