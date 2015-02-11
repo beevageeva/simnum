@@ -155,7 +155,7 @@ class VisualPlot:
 			c = np.polyfit(aFunc(F), abs(Y) , 1)
 			print("coef polyfit aFunc(F), Y degree 1")
 			print(c)
-			ax.plot(F,aFunc(F), markersize=3, linestyle="None", marker="o", color="r")
+			ax.plot(F,abs(aFunc(F)), markersize=3, linestyle="None", marker="o", color="r")
 			
 
 

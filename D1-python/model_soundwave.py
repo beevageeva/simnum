@@ -8,8 +8,8 @@ from initcond_soundwave import getCs00
 
 
 
-#showErr = True
-showErr = False
+showErr = True
+#showErr = False
 calcKc = True
 #calcKc = False
 
@@ -69,15 +69,16 @@ class Model(BaseModel):
 				print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
 				self.maxPresZ = newZ
 		if hasattr(self, "addMarkPoint"):
-			if(calcKc):
-				#print("upd")
-				intlen =  self.z[len(self.z)-1] - self.z[0]	
-				from scipy.fftpack import fft,fftfreq#forFourierTransform
-				numPoints = len(self.z)
-				Y=fft(self.pres)/(numPoints)
-				#Y=fft(self.pres)
-				F=fftfreq(numPoints, self.z[1] - self.z[0])
-				F = np.multiply(intlen , F)
+			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+		if(calcKc):
+			#print("upd")
+			intlen =  self.z[len(self.z)-1] - self.z[0]	
+			from scipy.fftpack import fft,fftfreq#forFourierTransform
+			numPoints = len(self.z)
+			Y=fft(self.pres)/(numPoints)
+			#Y=fft(self.pres)
+			F=fftfreq(numPoints, self.z[1] - self.z[0])
+			F = np.multiply(intlen , F)
 #				np.set_printoptions(threshold='nan')
 #				print("fft")
 #				print(Y)
@@ -87,39 +88,41 @@ class Model(BaseModel):
 #				print(np.argmax(abs(Y)))
 #				print("F")
 #				print(F)
-				#TODO why first element has the biggest value = 1??
-				kc = abs(F[np.argmax(abs(Y[1:]))+1])
-				#kc *=intlen #alreday multiplied all array
-				#print("%E\t%E\t%E" % (cs,kc, cs*kc))   #!
-				#TODO ONLY if markPoints = True ??
-				if(markPoints):
-					from initcond_soundwave import getCs00
-					if mediumType == "homog":
-						cs = getCs00()
-						gradCs = 0
-					else:
-						cs = getCs00(self.maxPresZ)
-						#TODO argmax calculated twice (see before in this function)
-						gradientCs =  np.gradient(getCs00(self.z))
-						gradCs = gradientCs[np.argmax(self.pres)]
-					from sound_wave_defined_params import k0
-					#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
-					#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
-					if(hasattr(self, "oldKc")):
-						#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
-						#print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
-						if(abs(self.oldKc - kc)>1e-10):
-							#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-							print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
+			#TODO why first element has the biggest value = 1??
+			kc = abs(F[np.argmax(abs(Y[1:]))+1])
+			#kc *=intlen #alreday multiplied all array
+			#print("%E\t%E\t%E" % (cs,kc, cs*kc))   #!
+			#TODO ONLY if markPoints = True ??
+			if(markPoints):
+				from initcond_soundwave import getCs00
+				if mediumType == "homog":
+					cs = getCs00()
+					gradCs = 0
+				else:
+					cs = getCs00(self.maxPresZ)
+					#TODO argmax calculated twice (see before in this function)
+					gradientCs =  np.gradient(getCs00(self.z))
+					gradCs = gradientCs[np.argmax(self.pres)]
+				from sound_wave_defined_params import k0
+				#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
+				#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
+				if(hasattr(self, "oldKc")):
+					#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
+					#print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
+					if(abs(self.oldKc - kc)>1e-10):
+						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
+						print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
+						if ('maxSpeed' in vars()) :
+							print("Max speed = %e" % maxSpeed)
+						#pass	
 
-					#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
-				#from common import getDz
-				#from analyze_functions import getIndexRightAlmost0
-				#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
-				#print("width fourier pres = %E" % (2.0*kc))  #!
-				self.oldKc = kc
+				#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
+			#from common import getDz
+			#from analyze_functions import getIndexRightAlmost0
+			#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
+			#print("width fourier pres = %E" % (2.0*kc))  #!
+			self.oldKc = kc
 				
-			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 		if(calcAmp):
 			print("pres amp = %E" % (np.max(self.pres) - np.min(self.pres)))
 			print("vel amp = %E" % (np.max(self.vel) - np.min(self.vel)))
@@ -189,7 +192,7 @@ class Model(BaseModel):
 		if(plotVelFFT):
 			#TODO it is calculated every time 
 			from initcond_soundwave import getVelFFTAn
-			getVelFFTAn = None
+			#getVelFFTAn = None
 			self.notifier.updateFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			#only for pres	
@@ -244,6 +247,7 @@ class Model(BaseModel):
 				from initcond_soundwave import  getInitialFunctionMaxMinZIndex, getCs00
 				r = getInitialFunctionMaxMinZIndex(self.z)
 				self.maxPresZ = self.z[r[1]]
+				print("Group velocity??????  = %e" % getCs00(r[1]))
 				from sound_wave_defined_params import k0
 				self.omega0 = getCs00(self.maxPresZ) * k0
 

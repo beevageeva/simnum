@@ -3,9 +3,10 @@ import sys,math
 from constants import gamma,zf, z0
 
 from sound_wave_params import p00, rho00, v00, A, init_functions_generation, functiontype, periodicType, mediumType
-from sound_wave import SoundWave, SoundWaveSine
 
 if mediumType == "homog":
+
+	from sound_wave import SoundWave, SoundWaveSine
 	
 	def createWave(csSign , A):
 		if functiontype == "sine":
@@ -117,7 +118,7 @@ if mediumType == "homog":
 		if velCurve is None:
 			velCurve = getVelCurve(z, t)
 		from sound_wave_params import v00
-		result = np.add(np.multiply(velCurve, getCs0()), v00)	
+		result = np.add(np.multiply(velCurve, getCs00()), v00)	
 		return result
 	
 	#analitycal values end
@@ -157,6 +158,44 @@ else:
 		return [np.argmin(w), np.argmax(w)]
 
 
+	if functiontype == "defined":
+		from sound_wave_defined_params import ftype
+		if(ftype == "wavepacket"):
+			from  sound_wave_defined_params import wAnal
+							
+			#analitycal values
+			def getRhoCurve(z, t):
+				res =  wavePresRho.getWaveShape(z, t)	
+				return res
+						
+			def getVelCurve(z, t):
+				return  wAnal(z,t,getCs00(z))
+						
+			
+			def getPresCurve(z, t):
+				return gamma * getRhoCurve(z,t)	
+			
+			#we can send curves calculated previously as parameters in order not to calculate them twice: I need to represent both on the graph
+			def getRhoAn(z, t , rhoCurve=None):
+				if rhoCurve is None:
+					rhoCurve = getRhoCurve(z, t)
+				from sound_wave_params import rho00
+				return np.add(np.multiply(rhoCurve ,rho00), rho00)
+			
+			def getPresAn(z, t, presCurve=None):
+				if presCurve is None:
+					presCurve = getPresCurve(z, t)
+				from sound_wave_params import p00
+				return presCurve * p00 + p00
+			
+			def getVelAn(z, t, velCurve=None):
+				if velCurve is None:
+					velCurve = getVelCurve(z, t)
+				from sound_wave_params import v00
+				result = np.add(np.multiply(velCurve, getCs00(z)), v00)	
+				return result
+			
+			#analitycal values end
 
 
 def getRhoCurveNumeric(rho,z):
