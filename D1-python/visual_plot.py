@@ -12,12 +12,12 @@ saveImages = False
 
 #ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
-#ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
 #inhom2
 #ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
 from constants import z0, zf
 xlim = {"minX" : z0, "maxX" : zf}
-ylim = None
+#ylim = None
 
 
 def getRandomColor():
@@ -148,14 +148,14 @@ class VisualPlot:
 		#ax.set_xticks(np.arange(-130, 131, 20))
 		ax.set_xticks(np.arange(-130, 131, 20))
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
-		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="-", marker="o")
+		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="None", marker="o")
 		if not aFunc is None:
 			for i in range(len(F)):
 				print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
 			c = np.polyfit(aFunc(F), abs(Y) , 1)
 			print("coef polyfit aFunc(F), Y degree 1")
 			print(c)
-			ax.plot(F,aFunc(F), markersize=3, linestyle="-", marker="o", color="r")
+			ax.plot(F,aFunc(F), markersize=3, linestyle="None", marker="o", color="r")
 			
 
 

@@ -20,10 +20,10 @@ if(mediumType=="inhomog"):
 
 
 
-functiontype = 'sine'
-#functiontype = 'defined'
-periodicType = "repeat" 
-#periodicType = "refl" 
+#functiontype = 'sine'
+functiontype = 'defined'
+#periodicType = "repeat" 
+periodicType = "refl" 
 
 p00 = 1.0
 
