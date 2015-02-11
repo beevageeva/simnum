@@ -10,9 +10,9 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 saveImages = False
 #saveImages = True
 
-#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
-ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+#ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
 #inhom2
 #ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
 from constants import z0, zf
@@ -142,6 +142,7 @@ class VisualPlot:
 		F=fftfreq(numPoints, self.z[1] - self.z[0])
 		intlen = self.z[len(self.z)-1] - self.z[0]
 		#print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
+		ax.set_ylim(0,0.000007)
 		#ax.set_xlim(-330,330)
 		ax.set_xlim(-130,130) #inhomog first
 		#ax.set_xlim(-40,40)# second exp of inhom
@@ -150,12 +151,13 @@ class VisualPlot:
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
 		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="None", marker="o")
 		if not aFunc is None:
-			for i in range(len(F)):
-				print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
-			c = np.polyfit(aFunc(F), abs(Y) , 1)
-			print("coef polyfit aFunc(F), Y degree 1")
-			print(c)
-			ax.plot(F,abs(aFunc(F)), markersize=3, linestyle="None", marker="o", color="r")
+			#for i in range(len(F)):
+			#	print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
+			#c = np.polyfit(aFunc(F), abs(Y) , 1)
+			#print("coef polyfit aFunc(F), Y degree 1")
+			#print(c)
+			print("coef mult  %e " % (np.max(abs(Y)) / np.max(abs(aFunc(F))) ) )
+			ax.plot(F,1.328710e-02 * abs(aFunc(F)), markersize=3, linestyle="None", marker="o", color="r")
 			
 
 

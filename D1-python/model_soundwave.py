@@ -10,8 +10,8 @@ from initcond_soundwave import getCs00
 
 showErr = True
 #showErr = False
-calcKc = True
-#calcKc = False
+#calcKc = True
+calcKc = False
 
 #addMarkPoint = None
 #uncomment this to add a new mark point

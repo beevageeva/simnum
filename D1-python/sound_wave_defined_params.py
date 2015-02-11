@@ -28,7 +28,7 @@ elif ftype == "wavepacket":
 	zc = z0 + (3.0/20.0)*(zf - z0)#second exp of inhom and first new
 	W = 0.05
 	#W = 0.25 #second exp of inhom
-	def w(z, nwav=k0):
+	def w(z):
 	  t2 = np.subtract(z,zc) ** 2 
 	  return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0)))
 
@@ -40,13 +40,12 @@ elif ftype == "wavepacket":
 			return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0 - t * cs)))
 
 	#
-	kk = k
 	def wFFTAn(k):
 		a = 	1/(2 * np.sqrt(2) * np.sqrt(1/W**2))
 		t3 = k*k0	* W**2 + 1j * 2*k0*z0
 		t1 = np.cos(2 * k0 * zc) +  np.cosh(t3)  +   np.sinh(t3) + 1j *  np.sin(2 * k0 *zc)	
 		t2 = np.cosh(0.25*(k**2 * W**2) + 0.5* k*k0 * W**2 + 0.25*(k0**2 * W**2) + 1j *( k0 * z0 -  k* zc + k0 * zc))  - np.sinh(0.25*(k**2 * W**2) + 0.5* k*k0 * W**2 + 0.25*(k0**2 * W**2) + 1j * ( k0 * z0 -  k* zc + k0 * zc)) 
-		return (1/kk) * a * t1 * t2  
+		return  a * t1 * t2  
 	
 	
 	#	(1/(2 Sqrt[2] Sqrt[1/W^2]))(Cos[2 k0 zc] + 
@@ -56,3 +55,6 @@ elif ftype == "wavepacket":
 	#   Sinh[(k^2 W^2)/4 + 1/2 k k0 W^2 + (k0^2 W^2)/4 + I k0 z0 - I k zc +
 	#      I k0 zc])
 	
+#(E^(-(1/4) (k^2 + k0^2) W^2 + I k zc)
+#  Cosh[1/2 k0 (k W^2 + 2 I (z0 - zc))])/(Sqrt[2] Sqrt[1/W^2]) 
+

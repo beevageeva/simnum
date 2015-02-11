@@ -5,8 +5,8 @@ from constants import gamma
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-#mediumType = "homog"
-mediumType = "inhomog"  #variable density rho00 to test with wave packet
+mediumType = "homog"
+#mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	from constants import z0, zf
 	rho01 = 0.01
@@ -22,8 +22,8 @@ if(mediumType=="inhomog"):
 
 #functiontype = 'sine'
 functiontype = 'defined'
-#periodicType = "repeat" 
-periodicType = "refl" 
+periodicType = "repeat" 
+#periodicType = "refl" 
 
 p00 = 1.0
 
