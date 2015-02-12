@@ -10,9 +10,9 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 saveImages = False
 #saveImages = True
 
-ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
 #inhom1
-#ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
 #inhom2
 #ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
 from constants import z0, zf

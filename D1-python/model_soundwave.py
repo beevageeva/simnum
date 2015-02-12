@@ -6,13 +6,13 @@ from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoi
 from initcond_soundwave import getCs00
 
 
-#plotVelFFTAnal=False
-plotVelFFTAnal=True
+plotVelFFTAnal=False
+#plotVelFFTAnal=True
 
 showErr = True
 #showErr = False
-#calcKc = True
-calcKc = False
+calcKc = True
+#calcKc = False
 
 #addMarkPoint = None
 #uncomment this to add a new mark point
@@ -67,7 +67,7 @@ class Model(BaseModel):
 			else:
 				newZ = self.z[np.argmax(self.pres)]	
 				maxSpeed = (newZ - self.maxPresZ)/dt
-				print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
+				#print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
 				self.maxPresZ = newZ
 		if hasattr(self, "addMarkPoint"):
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
@@ -104,15 +104,17 @@ class Model(BaseModel):
 					#TODO argmax calculated twice (see before in this function)
 					gradientCs =  np.gradient(getCs00(self.z))
 					gradCs = gradientCs[np.argmax(self.pres)]
-				from sound_wave_defined_params import k0
+				from sound_wave_packet_params import k0
 				#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
 				#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
 				if(hasattr(self, "oldKc")):
 					#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
 					#print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
-					if(abs(self.oldKc - kc)>1e-10):
+					#if(abs(self.oldKc - kc)>1e-10):
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-						print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
+						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
+						from sound_wave_params import csderAnal
+						print("numkc = %E\ttkc = %E" % (kc, k0 * np.exp(-csderAnal(self.maxPresZ)  * time) ))   #!
 						if ('maxSpeed' in vars()) :
 							print("Max speed = %e" % maxSpeed)
 						#pass	

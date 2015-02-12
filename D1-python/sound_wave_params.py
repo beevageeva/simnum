@@ -17,6 +17,9 @@ if(mediumType=="inhomog"):
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
+	#desympy
+	csderAnal = lambda z: np.sqrt(gamma * p00) * (-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
+
 
 
 
