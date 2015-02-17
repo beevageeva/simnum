@@ -135,21 +135,23 @@ class VisualPlot:
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue - delta, maxValue + delta, color=color, label=pointName)
 		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 			
-	def fftplot(self, ax, vals, aFunc=None):
-		numPoints = len(self.z)
+	def fftplot(self, ax, vals, aFunc=None, middlePoints=True):
+		if(middlePoints):
+			vals = (vals[1:] + vals[:-1]) / 2
 		ax.grid(True)
-		Y=fft(vals)/(numPoints)
-		F=fftfreq(numPoints, self.z[1] - self.z[0])
-		intlen = self.z[len(self.z)-1] - self.z[0]
+		Y=fft(vals)/len(vals)
+		F=fftfreq(len(vals), self.z[1] - self.z[0])
+		from constants import z0, zf
+		#intlen = self.z[len(self.z)-1] - self.z[0]
+		intlen = zf - z0
 		#print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
-		ax.set_ylim(0,0.000007)
 		#ax.set_xlim(-330,330)
-		ax.set_xlim(-130,130) #inhomog first
+		ax.set_xlim(-60,60) #inhomog first
 		#ax.set_xlim(-40,40)# second exp of inhom
 		#ax.set_xticks(np.arange(-130, 131, 20))
-		ax.set_xticks(np.arange(-130, 131, 20))
+		ax.set_xticks(np.arange(-60, 61, 20))
 		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
-		ax.plot(intlen * F,abs(Y), markersize=3, linestyle="None", marker="o")
+		ax.plot(F,intlen * abs(Y), markersize=3, linestyle="None", marker="o")
 		#ax.plot(F,abs(Y), markersize=3, linestyle="None", marker="o")
 		if not aFunc is None:
 			#for i in range(len(F)):
@@ -158,7 +160,7 @@ class VisualPlot:
 			#print("coef polyfit aFunc(F), Y degree 1")
 			#print(c)
 			#print("coef mult  %e " % (np.max(abs(Y)) / np.max(abs(aFunc(F))) ) )
-			ax.plot(F,abs(aFunc(F) / intlen), markersize=3, linestyle="None", marker="o", color="r")
+			ax.plot(F, aFunc(F), markersize=3, linestyle="None", marker="o", color="r")
 			
 
 
@@ -166,6 +168,8 @@ class VisualPlot:
 		fig = plt.figure()
 		ax = fig.add_subplot(111)
 		self.axes[title] = ax
+		ax.set_xlabel("k")
+		ax.set_ylabel(title)
 		self.fftplot(ax, vals, aFunc)
 		self.figures.append(fig)
 		fig.subplots_adjust(right=0.8)
