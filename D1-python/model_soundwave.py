@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from constants import gamma
 from base_model import BaseModel
-from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoints, plotPresAn, plotRhoAn, plotVelAn, plotVelFFT, plotVelFFTAnal, mediumType
+from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoints, plotPresAn, plotRhoAn, plotVelAn, plotVelFFT, plotVelFFTAnal, mediumType, plotPresFFT
 from initcond_soundwave import getCs00
 
 
@@ -16,8 +16,8 @@ calcKc = True
 #uncomment this to add a new mark point
 #the following for the wave packet
 from sound_wave_defined_params import zc,W
-addMarkPoint = zc 
-#addMarkPoint = zc - 0.98*W #other point at the beginning of the packet
+#addMarkPoint = zc 
+addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
 
 
 #plotCsMaxMin = True
@@ -71,24 +71,13 @@ class Model(BaseModel):
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 		if(calcKc):
 			#print("upd")
-			intlen =  self.z[len(self.z)-1] - self.z[0]	
-			from scipy.fftpack import fft,fftfreq#forFourierTransform
-			numPoints = len(self.z)
-			Y=fft(self.pres)/(numPoints)
-			#Y=fft(self.pres)
-			F=fftfreq(numPoints, self.z[1] - self.z[0])
-			F = np.multiply(intlen , F)
-#				np.set_printoptions(threshold='nan')
-#				print("fft")
-#				print(Y)
-#				print("absv")
-#				print(abs(Y))
-#				print("argmax")
-#				print(np.argmax(abs(Y)))
-#				print("F")
-#				print(F)
-			#TODO why first element has the biggest value = 1??
-			kc = abs(F[np.argmax(abs(Y[1:]))+1])
+			self.presFFT = self.getPresFFTVals(False)
+			F = self.presFFT[1]
+			Y = self.presFFT[0]
+			#first value is the mean
+			print("F=")
+			print(F)
+			kc = abs(F[np.argmax(Y[1:])+1])
 			#kc *=intlen #alreday multiplied all array
 			#print("%E\t%E\t%E" % (cs,kc, cs*kc))   #!
 			#TODO ONLY if markPoints = True ??
@@ -189,12 +178,16 @@ class Model(BaseModel):
 		if(plotRhoCurve):
 			self.notifier.updateValues("rhoCurve", rhoCurveNewVals)
 		if(plotVelFFT):
-			#TODO it is calculated every time 
-			if plotVelFFTAnal:	
-				from initcond_soundwave import getVelFFTAn
+			self.notifier.updateValues("velFFT", self.getVelFFTVals(True)[0:-1])
+		if(plotPresFFT):
+			#if ('presFFT' in vars()):
+			if (hasattr(self, 'presFFT')):
+				print("Alreday calculated")
+				presFFT = self.presFFT
 			else:
-				getVelFFTAn = None
-			self.notifier.updateFFTAxis("velFFT", self.vel, getVelFFTAn)
+				presFFT = self.getPresFFTVals(True)
+			self.notifier.updateValues("presFFT", presFFT[0])
+
 		if(markPoints):
 			#only for pres	
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
@@ -220,26 +213,65 @@ class Model(BaseModel):
 		return  [presIniVal, rhoIniVal, velIniVal]
 
 		
+	def getVelFFTVals(self, middlePoints):
+		if(middlePoints):
+			vals = (self.vel[1:] + self.vel[:-1]) / 2
+		else:
+			vals = self.vel	
+		from constants import z0, zf
+		intlen = zf - z0
+		from scipy.fftpack import fft,fftfreq
+		Y=fft(vals)/len(vals)
+		F=fftfreq(len(vals), self.z[1] - self.z[0]) 
+		#print("max freq in plotVelFFT %e" % intlen * F[np.argmax(Y[1:]) + 1 ])
+		if(plotVelFFTAnal):
+			from initcond_soundwave import getVelFFTAn
+			vals = [intlen * abs(Y), getVelFFTAn(F), F * intlen]
+			#vals = [intlen * abs(Y), getVelFFTAn(F), F ]
+		else:
+			vals = [intlen * abs(Y), F * intlen]	
+			#vals = [intlen * abs(Y), F ]	
+		return vals
 
+	def getPresFFTVals(self, middlePoints):
+		if(middlePoints):
+			vals = (self.pres[1:] + self.pres[:-1]) / 2
+		else:
+			vals = self.pres	
+		from constants import z0, zf
+		intlen = zf - z0
+		from scipy.fftpack import fft,fftfreq
+		Y=fft(vals)/len(vals)
+		F=fftfreq(len(vals), self.z[1] - self.z[0])
+		#print("getPresFFT")
+		#print(abs(Y)) 
+		#print("max freq in plotPresFFT %e " % intlen * F[np.argmax(Y[1:]) + 1 ] )
+		return  [intlen * abs(Y), F * intlen]	
+		#return [intlen * abs(Y), F ]	
+	
+	
 
 	def additionalInit(self):
 		#TODO all initial values of curves are calcutaed 2 times: 2 function calls for each
 		#plot Curves of pression , vel, density
 		if(plotPresCurve):
 			from initcond_soundwave import getPresCurveNumeric
-			self.notifier.addGraph("presCurve",[getPresCurveNumeric(self.pres), getPresCurveNumeric(self.pres)] if plotPresAn else getPresCurveNumeric(self.pres))
+			self.notifier.addGraph(self.z, "presCurve",[getPresCurveNumeric(self.pres), getPresCurveNumeric(self.pres)] if plotPresAn else getPresCurveNumeric(self.pres))
 		if(plotVelCurve):
 			from initcond_soundwave import getVelCurveNumeric
-			self.notifier.addGraph("velCurve", [getVelCurveNumeric(self.vel), getVelCurveNumeric(self.vel)] if plotVelAn else getVelCurveNumeric(self.vel) )
+			self.notifier.addGraph(self.z, "velCurve", [getVelCurveNumeric(self.vel), getVelCurveNumeric(self.vel)] if plotVelAn else getVelCurveNumeric(self.vel) )
 		if(plotRhoCurve):
 			from initcond_soundwave import getRhoCurveNumeric
-			self.notifier.addGraph("rhoCurve", [getRhoCurveNumeric(self.rho,self.z),getRhoCurveNumeric(self.rho, self.z)] if plotRhoAn else getRhoCurveNumeric(self.rho, self.z))
+			self.notifier.addGraph(self.z, "rhoCurve", [getRhoCurveNumeric(self.rho,self.z),getRhoCurveNumeric(self.rho, self.z)] if plotRhoAn else getRhoCurveNumeric(self.rho, self.z))
 		if(plotVelFFT):
-			if(plotVelFFTAnal):
-				from initcond_soundwave import getVelFFTAn
-			else:
-				getVelFFTAn = None	
-			self.notifier.addFFTAxis("velFFT", self.vel, getVelFFTAn)
+			vals = self.getVelFFTVals(True)
+			self.notifier.addGraph(vals[-1], "velFFT", vals[0:-1] , "k" , 'None')
+		if(plotPresFFT):
+			vals = self.getPresFFTVals(False)
+			print("PRES FFT")
+			print(vals)
+			self.notifier.addGraph(vals[-1], "presFFT", vals[0] , "k", 'None')
+	
 		if(markPoints):
 			if mediumType == "homog":
 				from initcond_soundwave import  getInitialFunctionMaxZ
@@ -254,7 +286,7 @@ class Model(BaseModel):
 
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if(mediumType=="inhomog"):
-			self.notifier.plotAxisTwin("vel",getCs00(self.z) , "cs00")
+			self.notifier.plotAxisTwin(self.z, "vel",getCs00(self.z) , "cs00")
 		if(plotCsMaxMin):
 			if(mediumType=="inhomog"):
 				from initcond_soundwave import  getInitialFunctionMaxMinZIndex, getCs00

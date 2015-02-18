@@ -5,21 +5,26 @@ from constants import gamma
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
+	inhomogSubtype = 1	
+	#inhomogSubtype = 2	
 	from constants import z0, zf
-	rho01 = 0.01
-	#rho01 = 1.2#second exp of inhom
-	#ze = 0.5*(z0 + zf)
-	ze = z0 + 0.2*(zf - z0) #first exp of inhom new
-	#ze = z0 + 0.7*(zf - z0) #second exp of inhom
+	if inhomogSubtype == 1:	
+		rho01 = 0.01
+		#ze = 0.5*(z0 + zf)   #start of change in rho
+		ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
+	else:	
+		rho01 = 1.2#second exp of inhom
+		e = z0 + 0.7*(zf - z0) #second exp of inhom
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
 	#desympy
 	csderAnal = lambda z: np.sqrt(gamma * p00) * (-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
-
+	#de mathematica
+	intXAnal = lambda z,t : 0.5*rh01*z + 0.5*rho00*z + (0.5*rh01 - 0.5*rho00)*we*Log[Cosh[(z - 1.*ze)/we]]
 
 
 
@@ -28,8 +33,8 @@ if(mediumType=="inhomog"):
 #functiontype = 'bessel'
 functiontype = 'wavepacket'
 
-periodicType = "repeat" 
-#periodicType = "refl" 
+#periodicType = "repeat" 
+periodicType = "refl" 
 
 p00 = 1.0
 
@@ -73,6 +78,8 @@ plotVelFFT = True
 #plotVelFFT = False
 #plotVelFFTAnal=False
 plotVelFFTAnal=True
+plotPresFFT = True
+#plotPresFFT = False
 
 if(mediumType == "inhomog"):
 	plotPresCurve = False

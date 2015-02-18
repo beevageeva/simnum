@@ -10,13 +10,82 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 saveImages = False
 #saveImages = True
 
-#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025}} 
+def getXLimits(title):
+	if(title == "velFFT" or title == "presFFT"):
+		return {"minX":-80, "maxX":80}
+	from constants import z0, zf
+	return {"minX" : z0, "maxX" : zf}
+
+def getYLimits(title):
+	from sound_wave_params import mediumType
+	if mediumType == "homog":
+		medType = "homog"
+	else:	
+		from sound_wave_params import inhomogSubtype
+		if inhomogSubtype == 1:
+			medType = "inhomog1"
+		else:
+			medType = "inhomog2"
+	if(title == "pres"):
+		if medType == "homog":
+			return { "maxY": 1.0005, "minY": 0.9995} #homog
+		elif medType == "inhomog1":
+			return { "maxY": 1.0006, "minY": 0.9995} #inhomog1
+		elif medType == "inhomog2":
+			return {  "maxY": 1.0008, "minY": 0.9992} #inhomog2
+	elif(title == "vel"):
+		if medType == "homog":
+			return	{ "maxY": 0.00035, "minY": -0.00035} 
+		elif medType == "inhomog1":
+			return	{ "maxY": 0.0015, "minY": -0.0015} 
+		elif medType == "inhomog2":
+			return	 { "maxY": 0.0015, "minY": -0.0015}
+	elif(title == "rho"):
+		if medType == "homog":
+			return { "maxY": 1.0004, "minY": 0.9996} 
+		elif medType == "inhomog1":
+			return { "maxY": 1.0004, "minY": 0}	 
+		elif medType == "inhomog2":
+			return { "maxY": 1.3, "minY": 0} 	 
+	elif(title == "rhoCurve"):
+		if medType == "homog":
+			return { "maxY": 0.00025, "minY": -0.00025}		
+		elif medType == "inhomog1":
+			return	{ "maxY": 0.00035, "minY": -0.00035}	
+		elif medType == "inhomog2":
+			return	{ "maxY": 0.0020, "minY": -0.0020}
+	elif(title == "presFFT"):
+			return	{ "maxY": 0.00015, "minY": 0}
+
+	return None
+
+
+def relimAxis(ax, title, setLimits = False):
+	ylim = getYLimits(title)
+	xlim = getXLimits(title)
+	if(xlim or ylim):
+		ax.relim()
+	if not xlim and not ylim:
+		ax.autoscale_view(True,True,True)
+	else:
+		if setLimits:	
+			if ylim:
+				from matplotlib.ticker import FormatStrFormatter
+				ax.set_ylim(ylim["minY"],ylim["maxY"])
+				ax.yaxis.set_major_formatter(FormatStrFormatter('%.5f'))
+			if xlim:
+				ax.set_xlim(xlim["minX"],xlim["maxX"])
+		if not xlim:
+			ax.autoscale_view(True,True,False)
+		else:
+			ax.autoscale_view(True,False,True)
+
+
+#ylim = {"pres":{ "maxY": 1.0005, "minY": 0.9995} , "vel" : { "maxY": 0.00035, "minY": -0.00035}, "rho":{ "maxY": 1.0004, "minY": 0.9996}, 'rhoCurve': { "maxY": 0.00025, "minY": -0.00025} , 'velFFT' : {"maxX" : 80, "minX" : -80} } 
 #inhom1
-ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035}} 
+#ylim = {"pres":{ "maxY": 1.0006, "minY": 0.9995} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.0004, "minY": 0}, 'rhoCurve': { "maxY": 0.00035, "minY": -0.00035} , 'velFFT' : {"maxX" : 80, "minX" : -80} } 
 #inhom2
-#ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}} 
-from constants import z0, zf
-xlim = {"minX" : z0, "maxX" : zf}
+#ylim = {"pres":{ "maxY": 1.0008, "minY": 0.9992} , "vel" : { "maxY": 0.0015, "minY": -0.0015}, "rho":{ "maxY": 1.3, "minY": 0}, 'rhoCurve': { "maxY": 0.0020, "minY": -0.0020}, 'velFFT' : {"maxX" : 80, "minX" : -80} } 
 #ylim = None
 
 
@@ -42,7 +111,6 @@ class VisualPlot:
 			from common import createFolder	
 			self.dirname = createFolder("outImages")
 		nplots = len(titles)
-		self.z = z
 		fig, ax =  plt.subplots(nplots,1,True)
 		#fig.set_size_inches(300,200)
 		#fig.set_figwidth(300)
@@ -54,7 +122,7 @@ class VisualPlot:
 		self.axes = {}
 		for i in range(0, nplots):
 			title = titles[i]
-			self.addAxis(ax[i], title, iniValues[i])
+			self.addAxis(z, ax[i], title, iniValues[i])
 		self.plotTitle = ax[0].set_title("Time 0")
 		wm = plt.get_current_fig_manager()
 		wm.window.wm_geometry("1000x900+50+50")
@@ -74,8 +142,8 @@ class VisualPlot:
 				numFig +=1
 
 
-	def addAxis(self, ax, title, vals):
-		ax.set_xlabel("z")
+	def addAxis(self, z, ax, title, vals, xlabel="z", linestyle="-"):
+		ax.set_xlabel(xlabel)
 		ax.set_ylabel(title)
 		ax.grid(True)
 		self.axes[title] = ax
@@ -83,28 +151,39 @@ class VisualPlot:
 		plotLegend = False
 		#we can plot multiple graphs on the same axis : example numerical and analytical
 		if(len(shape)==1):
-			l, = ax.plot(self.z, vals, lw=2, color='b')
-			#l, = ax.plot(self.z, vals[i], lw=2, color='b', markersize=5, linestyle="-", marker="o")
+			if(linestyle == '-'):
+				l, = ax.plot(z, vals, lw=2, color='b')
+			else:
+				l, = ax.plot(z, vals,  markersize=3, linestyle="None", marker="o",  color='b')
+			#l, = ax.plot(z, vals[i], lw=2, color='b', markersize=5, linestyle="-", marker="o")
 			self.lines[title] = l
 		elif(len(shape)==2):
 			self.lines[title] = []
 			for i in range(0, shape[0]):
-				l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), label="%d" % i)
+				if(linestyle == '-'):
+					l, = ax.plot(z, vals[i], lw=2, color=getRandomColor(),  label="%d" % i)
+				else:
+					l, = ax.plot(z, vals[i], color=getRandomColor(),  markersize=3, linestyle="None", marker="o",  label="%d" % i)
 				plotLegend = True
-				#l, = ax.plot(self.z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
+				#l, = ax.plot(z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
-		if(ylim):
-			from matplotlib.ticker import FormatStrFormatter
-			ax.set_ylim(ylim[title]["minY"],ylim[title]["maxY"])
-			ax.set_xlim(xlim["minX"],xlim["maxX"])
-			ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
-		else:
-			ax.relim()
-			ax.autoscale_view(True,True,True)
+#		ylim = getYLimits(title)
+#		xlim = getXLimits(title)
+#		if not xlim and not ylim:
+#			ax.relim()
+#			ax.autoscale_view(True,True,True)
+#		else:
+#			if (ylim):
+#				from matplotlib.ticker import FormatStrFormatter
+#				ax.set_ylim(ylim["minY"],ylim["maxY"])
+#				ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+#			if xlim:
+#				ax.set_xlim(xlim["minX"],xlim["maxX"])
 		if(plotLegend):
 			ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
-		ax.relim()
-		ax.autoscale_view(True,True,True)
+		relimAxis(ax, title, True)	
+		#ax.relim()
+		#ax.autoscale_view(True,True,True)
 
 	def markPoint(self, axTitle, pointName, value):
 		#print("markPoint on axTitle = %s, pointName = %s, value = %E" % (axTitle, pointName, value))
@@ -135,71 +214,26 @@ class VisualPlot:
 		self.markPoints[pointName] = self.axes[axTitle].vlines(value, minValue - delta, maxValue + delta, color=color, label=pointName)
 		self.axes[axTitle].legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 			
-	def fftplot(self, ax, vals, aFunc=None, middlePoints=True):
-		if(middlePoints):
-			vals = (vals[1:] + vals[:-1]) / 2
-		ax.grid(True)
-		Y=fft(vals)/len(vals)
-		F=fftfreq(len(vals), self.z[1] - self.z[0])
-		from constants import z0, zf
-		#intlen = self.z[len(self.z)-1] - self.z[0]
-		intlen = zf - z0
-		#print("in visual plot fft vel kc = %E" % (intlen * abs(F[np.argmax(abs(Y[1:]))+1])) )
-		#ax.set_xlim(-330,330)
-		ax.set_xlim(-60,60) #inhomog first
-		#ax.set_xlim(-40,40)# second exp of inhom
-		#ax.set_xticks(np.arange(-130, 131, 20))
-		ax.set_xticks(np.arange(-60, 61, 20))
-		#ax.set_xticks(np.arange(-70, 70, 5)) #second exp of inhom
-		ax.plot(F,intlen * abs(Y), markersize=3, linestyle="None", marker="o")
-		#ax.plot(F,abs(Y), markersize=3, linestyle="None", marker="o")
-		if not aFunc is None:
-			#for i in range(len(F)):
-			#	print("f=%4.3f,aFunc=%4.3f, fftval(Y)=%4.3f" % (F[i], aFunc(F[i]), Y[i]))
-			#c = np.polyfit(aFunc(F), abs(Y) , 1)
-			#print("coef polyfit aFunc(F), Y degree 1")
-			#print(c)
-			#print("coef mult  %e " % (np.max(abs(Y)) / np.max(abs(aFunc(F))) ) )
-			ax.plot(F, aFunc(F), markersize=3, linestyle="None", marker="o", color="r")
-			
 
-
-	def addFFTAxis(self, title, vals, aFunc=None):
+	def addGraph(self, z, title, vals, xlabel="z", linestyle="-"):
 		fig = plt.figure()
 		ax = fig.add_subplot(111)
-		self.axes[title] = ax
-		ax.set_xlabel("k")
-		ax.set_ylabel(title)
-		self.fftplot(ax, vals, aFunc)
-		self.figures.append(fig)
-		fig.subplots_adjust(right=0.8)
-		plt.draw()
-		plt.show(block=False)
-		
-	def updateFFTAxis(self, title, vals, aFunc=None):
-		ax = self.axes[title]
-		ax.cla()
-		self.fftplot(ax,vals, aFunc)
-
-	def addGraph(self, title, vals):
-		fig = plt.figure()
-		ax = fig.add_subplot(111)
-		self.addAxis(ax, title, vals)
+		self.addAxis(z, ax, title, vals, xlabel, linestyle)
 		self.figures.append(fig)
 		fig.subplots_adjust(right=0.8)
 		plt.draw()
 		plt.show(block=False)
 
-	def plotAxisTwin(self, title, vals, newtitle):
+	def plotAxisTwin(self, z, title, vals, newtitle):
 		ax2 = self.axes[title].twinx()
 		ax2.set_ylabel(newtitle)
-		ax2.plot(self.z, vals, color=getRandomColor())
+		ax2.plot(z, vals, color=getRandomColor())
 		plt.draw()
 		plt.show(block=False)
 
-	def plotAxis(self, title, vals, label=None):
+	def plotAxis(self, z, title, vals, label=None):
 		ax = self.axes[title]
-		ax.plot(self.z, vals, color=getRandomColor(),label=label)
+		ax.plot(z, vals, color=getRandomColor(),label=label)
 		ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 		plt.draw()
 		plt.show(block=False)
@@ -217,9 +251,7 @@ class VisualPlot:
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
 					self.lines[title][i].set_ydata(newValues[i])
-		if(not ylim):
-			self.axes[title].relim()
-			self.axes[title].autoscale_view(True,True,True)
+		relimAxis(self.axes[title], title)	
 		
 		
 	def afterUpdateValues(self, newTime):
