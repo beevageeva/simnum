@@ -23,6 +23,7 @@ ft2[k_]:= FullSimplify[FourierTransform[hh[z], z, k, FourierParameters->{0,-2 Pi
 
 
 ft[k_, k0_, z0_, zf_, zc_, W_]:=(E^(-(zc^2/W^2) + ((2*I)*k0*Pi*z0)/(z0 - zf))*(E^((W^2*(I*k + (2*zc)/W^2 + ((2*I)*k0*Pi)/(-z0 + zf))^2)/4) + E^((W^2*(I*k + (2*zc)/W^2 + ((2*I)*k0*Pi)/(z0 - zf))^2)/4 + ((4*I)*k0*Pi*z0)/(-z0 + zf))))/(2*Sqrt[2]*Sqrt[W^(-2)])
+
 ft2[k_, k0_, z0_, zf_, zc_, W_]:= (E^(-(zc^2/W^2) + ((2*I)*k0*Pi*z0)/(z0 - zf))*(E^((W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(z0 - zf)))^2)/4) + E^(((4*I)*k0*Pi*z0)/(-z0 + zf) + (W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(-z0 + zf)))^2)/4))*Sqrt[Pi])/(2*Sqrt[W^(-2)])
 
 

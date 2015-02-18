@@ -1,12 +1,12 @@
 import numpy as np
-import math
 from constants import gamma
+from math import sqrt, atan, atanh, cos, log
 
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-#mediumType = "homog"
-mediumType = "inhomog"  #variable density rho00 to test with wave packet
+mediumType = "homog"
+#mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	inhomogSubtype = 1	
 	#inhomogSubtype = 2	
@@ -24,7 +24,8 @@ if(mediumType=="inhomog"):
 	#desympy
 	csderAnal = lambda z: np.sqrt(gamma * p00) * (-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
 	#de mathematica
-	intXAnal = lambda z,t : 0.5*rh01*z + 0.5*rho00*z + (0.5*rh01 - 0.5*rho00)*we*Log[Cosh[(z - 1.*ze)/we]]
+	sqrtDensInt = lambda z: sqrt(rh01)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)* tanh((z - ze)/we)))/sqrt(rh01))
+ -  sqrt(rho00)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)*tanh((z - ze)/we)))/sqrt(rho00))
 
 
 
