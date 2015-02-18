@@ -2,12 +2,10 @@ import numpy as np
 import sys
 from constants import gamma
 from base_model import BaseModel
-from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoints, plotPresAn, plotRhoAn, plotVelAn, plotVelFFT, mediumType
+from sound_wave_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoints, plotPresAn, plotRhoAn, plotVelAn, plotVelFFT, plotVelFFTAnal, mediumType
 from initcond_soundwave import getCs00
 
 
-plotVelFFTAnal=False
-#plotVelFFTAnal=True
 
 showErr = True
 #showErr = False
@@ -104,19 +102,18 @@ class Model(BaseModel):
 					#TODO argmax calculated twice (see before in this function)
 					gradientCs =  np.gradient(getCs00(self.z))
 					gradCs = gradientCs[np.argmax(self.pres)]
-				from sound_wave_packet_params import k0
-				#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
-				#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
-				if(hasattr(self, "oldKc")):
+					from sound_wave_packet_params import k0
+					#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
+					#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
 					#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
 					#print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
 					#if(abs(self.oldKc - kc)>1e-10):
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-						from sound_wave_params import csderAnal
-						print("numkc = %E\ttkc = %E" % (kc, k0 * np.exp(-csderAnal(self.maxPresZ)  * time) ))   #!
-						if ('maxSpeed' in vars()) :
-							print("Max speed = %e" % maxSpeed)
+					from sound_wave_params import csderAnal
+					print("numkc = %E\ttkc = %E" % (kc, k0 * np.exp(-csderAnal(self.maxPresZ)  * time) ))   #!
+					if ('maxSpeed' in vars()) :
+						print("Max speed = %e" % maxSpeed)
 						#pass	
 
 				#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
@@ -124,7 +121,6 @@ class Model(BaseModel):
 			#from analyze_functions import getIndexRightAlmost0
 			#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
 			#print("width fourier pres = %E" % (2.0*kc))  #!
-			self.oldKc = kc
 				
 		if(calcAmp):
 			print("pres amp = %E" % (np.max(self.pres) - np.min(self.pres)))
@@ -239,7 +235,10 @@ class Model(BaseModel):
 			from initcond_soundwave import getRhoCurveNumeric
 			self.notifier.addGraph("rhoCurve", [getRhoCurveNumeric(self.rho,self.z),getRhoCurveNumeric(self.rho, self.z)] if plotRhoAn else getRhoCurveNumeric(self.rho, self.z))
 		if(plotVelFFT):
-			from initcond_soundwave import getVelFFTAn
+			if(plotVelFFTAnal):
+				from initcond_soundwave import getVelFFTAn
+			else:
+				getVelFFTAn = None	
 			self.notifier.addFFTAxis("velFFT", self.vel, getVelFFTAn)
 		if(markPoints):
 			if mediumType == "homog":
@@ -252,8 +251,6 @@ class Model(BaseModel):
 				r = getInitialFunctionMaxMinZIndex(self.z)
 				self.maxPresZ = self.z[r[1]]
 				print("Group velocity??????  = %e" % getCs00(r[1]))
-				from sound_wave_defined_params import k0
-				self.omega0 = getCs00(self.maxPresZ) * k0
 
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if(mediumType=="inhomog"):

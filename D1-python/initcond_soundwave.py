@@ -27,14 +27,6 @@ def getWFunction():
 		sys.exit(0)
 
 
-def getVelFFTAn(k):
-	if functiontype == "wavepacket":
-		from sound_wave_params import A, p00, rho00
-		cs00 = math.sqrt(gamma * p00 / rho00)
-		from sound_wave import getSoundWavePacketFFTAnalytical as wFFTAn
-		from sound_wave_packet_params import k0, zc, W
-		return A * cs00 * wFFTAn(k0, zc, W)(k)
-	return None
 
 
 if mediumType == "homog":
@@ -83,6 +75,14 @@ if mediumType == "homog":
 		from sound_wave_params import p00, rho00
 		cs = math.sqrt(gamma *  p00 / rho00)
 		return cs
+	def getVelFFTAn(k):
+		if functiontype == "wavepacket":
+			from sound_wave_params import A, p00, rho00
+			cs00 = math.sqrt(gamma * p00 / rho00)
+			from sound_wave import getSoundWavePacketFFTAnalyticalAbs as wFFTAn
+			from sound_wave_packet_params import k0, zc, W
+			return A * cs00 * wFFTAn(k0, zc, W)(k)
+		return None
 	
 	def getInitialFunctionMaxZ(z):
 		wVel0= waveVel.getWaveShape(z)
