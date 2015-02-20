@@ -24,8 +24,7 @@ if(mediumType=="inhomog"):
 	#desympy
 	csderAnal = lambda z: np.sqrt(gamma * p00) * (-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
 	#de mathematica
-	sqrtDensInt = lambda z: sqrt(rh01)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)* tanh((z - ze)/we)))/sqrt(rh01))
- -  sqrt(rho00)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)*tanh((z - ze)/we)))/sqrt(rho00))
+	sqrtDensInt = lambda z: sqrt(rh01)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)* tanh((z - ze)/we)))/sqrt(rh01)) -  sqrt(rho00)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)*tanh((z - ze)/we)))/sqrt(rho00))
 
 
 
