@@ -1,5 +1,7 @@
 (* <<JavaGraphics` *)
 
+$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
+
 
 h[z_, k0_, z0_, zf_, zc_, W_]:= Exp[-(z-zc)^2/W^2] Cos[2 Pi k0 (z - z0) / (zf - z0) ]
 (*
@@ -7,11 +9,13 @@ hh[z_] := h[z, k0, z0, zf, zc, W]
 Print[FullSimplify[FourierTransform[hh[z], z, k]]]
 Print[FullSimplify[FourierTransform[hh[z], z, k, FourierParameters->{0,-2 Pi}]] ]
 *)
-(*
 
-Print[FullSimplify[FourierTransform[h[z, k0, z0, zf, zc, W], z, k]]]
-*)
+
+Print[FullSimplify[FourierTransform[h[z, k0, z0, zf, zc, W], z, k, FourierParameters->{0,-2 Pi}]] ]
+
+(*
 Print[ComplexExpand[FullSimplify[FourierTransform[h[z, k0, z0, zf, zc, W], z, k, FourierParameters->{0,-2 Pi}]] ]]
+*)
 
 (*
 
@@ -23,8 +27,10 @@ ft2[k_]:= FullSimplify[FourierTransform[hh[z], z, k, FourierParameters->{0,-2 Pi
 
 (*
 ft[k_, k0_, z0_, zf_, zc_, W_]:=(E^(-(zc^2/W^2) + ((2*I)*k0*Pi*z0)/(z0 - zf))*(E^((W^2*(I*k + (2*zc)/W^2 + ((2*I)*k0*Pi)/(-z0 + zf))^2)/4) + E^((W^2*(I*k + (2*zc)/W^2 + ((2*I)*k0*Pi)/(z0 - zf))^2)/4 + ((4*I)*k0*Pi*z0)/(-z0 + zf))))/(2*Sqrt[2]*Sqrt[W^(-2)])
-ft2[k_, k0_, z0_, zf_, zc_, W_]:= (E^(-(zc^2/W^2) + ((2*I)*k0*Pi*z0)/(z0 - zf))*(E^((W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(z0 - zf)))^2)/4) + E^(((4*I)*k0*Pi*z0)/(-z0 + zf) + (W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(-z0 + zf)))^2)/4))*Sqrt[Pi])/(2*Sqrt[W^(-2)])
 
+ft2[k_, k0_, z0_, zf_, zc_, W_]:= (E^(-(zc^2/W^2) + ((2*I)*k0*Pi*z0)/(z0 - zf))*(E^((W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(z0 - zf)))^2)/4) + E^(((4*I)*k0*Pi*z0)/(-z0 + zf) + (W^2*((2*zc)/W^2 - (2*I)*Pi*(k + k0/(-z0 + zf)))^2)/4))*Sqrt[Pi])/(2*Sqrt[W^(-2)])
+((E^(-((Pi*(k0^2*Pi*W^2 - 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)) + 
+      E^(-((Pi*(k0^2*Pi*W^2 + 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)))*Sqrt[Pi]*W)/2
 
 z0 = 3.1
 zf = 7.4

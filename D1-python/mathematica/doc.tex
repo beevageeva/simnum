@@ -20,7 +20,8 @@
 \section*{Results}
 
 
-$ft2(k, k0, z0, zf, zc, W)= $
+Salida de FourierTransform mathematica con FourierParameters 0, -2$\pi$  (despues de que puse a mano el k como k0 - multiplicándolo con $\frac{2 \pi}{z_f - z_0}$)
+$F(k)= $
 
 
 $ \frac{W \sqrt{\pi}}{2} e^{-\frac{z_c^2}{W^2} + \frac{ 2 i \pi k_0  z_0}{z_0 - z_f}} (e^{ \frac {W^2 }{4} ( \frac{2 z_c}{W^2} - 2 i \pi  \frac{k - k_0}{z_f - z_0})^2} + e^{ \frac{ 4i \pi k_0 z_0}{z_f-z_0} + \frac{W^2 }{4} ( \frac{2 zc}{W^2} - 2i \pi \frac{k + k_0}{z_f - z_0})^2}) $
@@ -35,6 +36,21 @@ $ \frac{W \sqrt{\pi}}{2}  (e^{ - \frac{ 2 i \pi k_0  z_0}{z_f - z_0} + \frac {W^
 
 $ \frac{W \sqrt{\pi}}{2}  (e^{ - \frac{ 2 i \pi k_0  z_0}{z_f - z_0} - W^2  (  \pi  \frac{k - k_0}{z_f - z_0})^2} + e^{ \frac{ 2i \pi k_0 z_0}{z_f-z_0} - W^2 (\pi \frac{k + k_0}{z_f - z_0})^2}) $
 
+
+Salida de mathematica de la integral de la transf fourier:
+
+
+$
+F( \frac{2\pi m}{z_f - z_0} ) = \int_{- \infty}^{\infty}{e^{-\frac{(z-z_c)^2}{W^2}} cos(\frac{2 \pi k_0 (z-z_0)}{z_f - z_0}) e^{-\frac{2 \pi i m z }{z_f - z_0}} dz } = $
+
+
+
+$
+\frac{(e^{ \frac{ 4i k0 \pi z_0 (z_c + z_f)}{(z_0 - z_f)^2}} + e^{ \frac{4 k_0 \pi (m \pi W^2 + i (z_0^2 + z_c z_f))}{(z_0 - z_f)^2}}) \sqrt{\pi} W}{
+  2 e^{ \frac{\pi (k_0^2 \pi W^2 + m (m \pi W^2 - 2i z_c (z_0 - z_f)) + 2 k_0 (m \pi W^2 + i(z_0 + z_c) (z_0 + z_f)))}{(z_0 - z_f)^2}}}
+$ =
+
+$ \frac{W \sqrt{\pi}}{2}  e^{-\frac{\pi (k_0^2 \pi W^2 + m (m \pi W^2 - 2i z_c (z_0 - z_f)) + 2 k_0 (m \pi W^2 + i(z_0 + z_c) (z_0 + z_f)))}{(z_0 - z_f)^2}} (e^{ \frac{ 4i k0 \pi z_0 (z_c + z_f)}{(z_0 - z_f)^2}} + e^{ \frac{4 k_0 \pi (m \pi W^2 + i (z_0^2 + z_c z_f))}{(z_0 - z_f)^2}})  $
 
 
 
