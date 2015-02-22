@@ -209,13 +209,20 @@ else:
 			return k0
 		def a0Func(z):
 			return getSoundWaveGaussFunction(zc, W)(z)
+		def getphi0():
+			from math import pi
+			from constants import z0, zf
+			return 2 * pi * k0 * z0 / (zf - z0)
 
 	def wAnal(z, t):
+		from cache import getValue, putValue
+		if getValue("timeWAnal") == t:
+			return getValue("wAnal") 
 		cs = getCs00(z)
 		res = np.zeros(len(z))
 		a0 = a0Func(z)
+		phi0 = getphi0()
 		from common import getPeriodicXArray, getPeriodicX
-		from cache import getValue, putValue
 		FValues = getValue("FValues")
 		print(FValues)
 		if(FValues is None):
@@ -234,9 +241,13 @@ else:
 			csPrime = csderAnal(zval)
 			k = k0x0 * np.exp(-csPrime * t)
 			a = cs[index] * a0[x0Index] / cs[x0Index] * np.exp(-0.5 * csPrime * t)
-			res[index] = a * np.cos(k * zval + omega0 * t)
+			res[index] = a * np.cos(k * zval + omega0 * t +phi0 )
 		from sound_wave_params import A
-		return A * res
+		finalVals =  A * res
+		putValue("wAnal", finalVals)
+		putValue("timeWAnal", t)
+		return finalVals
+		
 
 						
 	#analitycal values TO KEEP them like in homog case 

@@ -100,7 +100,7 @@ class Model(BaseModel):
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
 					from initcond_soundwave import csderAnal
-					print("numkc = %E\ttkc = %E" % (kc, k0 * np.exp(-csderAnal(self.maxPresZ)  * time) ))   #!
+					print("numkc = %E\ttkc = %E" % (kc, k0 * np.mean(np.exp(-csderAnal(self.z)  * time) )) )   #!
 					if ('maxSpeed' in vars()) :
 						print("Max speed = %e" % maxSpeed)
 						#pass	
