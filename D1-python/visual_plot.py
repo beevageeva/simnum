@@ -54,8 +54,13 @@ def getYLimits(title):
 			return	{ "maxY": 0.00035, "minY": -0.00035}	
 		elif medType == "inhomog2":
 			return	{ "maxY": 0.0020, "minY": -0.0020}
+	#I should always relim y for pres fft beacuse of the central value in k = 0 (= 1 ,=  p00, = mean value of p)
+	#there is no need for vel fft beacuse mean vel = 0
 	elif(title == "presFFT"):
+		if medType == "inhomog1":
 			return	{ "maxY": 0.00015, "minY": 0}
+		elif medType == "homog":
+			return	{ "maxY": 0.000025, "minY": 0}
 
 	return None
 
@@ -72,7 +77,7 @@ def relimAxis(ax, title, setLimits = False):
 			if ylim:
 				from matplotlib.ticker import FormatStrFormatter
 				ax.set_ylim(ylim["minY"],ylim["maxY"])
-				ax.yaxis.set_major_formatter(FormatStrFormatter('%.5f'))
+				ax.yaxis.set_major_formatter(FormatStrFormatter('%f'))
 			if xlim:
 				ax.set_xlim(xlim["minX"],xlim["maxX"])
 		if not xlim:

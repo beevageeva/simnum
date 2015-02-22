@@ -5,8 +5,8 @@ from math import sqrt, atan, atanh, cos, log
 rho00 = 1.0
 #rho00 = 0.3  #second exp of inhom
 
-mediumType = "homog"
-#mediumType = "inhomog"  #variable density rho00 to test with wave packet
+#mediumType = "homog"
+mediumType = "inhomog"  #variable density rho00 to test with wave packet
 if(mediumType=="inhomog"):
 	inhomogSubtype = 1	
 	#inhomogSubtype = 2	
@@ -17,24 +17,41 @@ if(mediumType=="inhomog"):
 		ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
 	else:	
 		rho01 = 1.2#second exp of inhom
-		e = z0 + 0.7*(zf - z0) #second exp of inhom
+		ze = z0 + 0.7*(zf - z0) #second exp of inhom
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
 	#desympy
-	csderAnal = lambda z: np.sqrt(gamma * p00) * (-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
+	sqrtDensPowMinusOneDer = lambda z:(-(-0.5*rho00 + 0.5*rho01)*(-np.tanh((z - ze)/we)**2 + 1)/(2*we*(rho00 + (-0.5*rho00 + 0.5*rho01)*(np.tanh((z - ze)/we) + 1))**(3/2)))
+
 	#de mathematica
-	sqrtDensInt = lambda z: sqrt(rh01)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)* tanh((z - ze)/we)))/sqrt(rh01)) -  sqrt(rho00)*we*atanh((sqrt(2)*sqrt(rh01 + rho00 + (rh01 - rho00)*tanh((z - ze)/we)))/sqrt(rho00))
+	#but the value evaluated in 3.1 for example is complex!!!
+	sqrtDensIntMathematica = lambda z: sqrt(rho01)*we*np.arctanh((sqrt(2)*sqrt(rho01 + rho00 + (rho01 - rho00)* np.tanh((z - ze)/we)))/sqrt(rho01)) -  sqrt(rho00)*we*np.arctanh((sqrt(2)*sqrt(rho01 + rho00 + (rho01 - rho00)*np.tanh((z - ze)/we)))/sqrt(rho00))
 
+	#calculate numerically!
+	def sqrtDensIntNumeric(z):
+		from constants import z0
+		intFunc = lambda z: np.sqrt(densFunc(z))
+		from scipy import integrate
+		def getIntOneValue(zval):
+			int1 = integrate.quad(intFunc, z0, zval)	
+			return int1[0]
+		if(hasattr(z,'__len__')):
+			res = np.zeros(len(z))
+			for i in range(len(z)):
+				res[i] = getIntOneValue(z[i])	
+			return res
+		return getIntOneValue(z)
 
+	sqrtDensInt = sqrtDensIntNumeric			
 
 #functiontype = 'sine'
 #functiontype = 'gauss'
-#functiontype = 'bessel'
 functiontype = 'wavepacket'
+#functiontype = 'defined'
 
-#periodicType = "repeat" 
-periodicType = "refl" 
+periodicType = "repeat" 
+#periodicType = "refl" 
 
 p00 = 1.0
 
@@ -81,12 +98,16 @@ plotVelFFTAnal=True
 plotPresFFT = True
 #plotPresFFT = False
 
-if(mediumType == "inhomog"):
+#if(mediumType == "inhomog"):
+if(mediumType == "inhomog" ):
 	plotPresCurve = False
 	plotVelCurve = False
 	plotVelFFTAnal = False
 
-if periodicType == "refl" or mediumType == "inhomog":
+
+#adding packet analytical solution for inhomog type
+#if periodicType == "refl" or mediumType == "inhomog":
+if periodicType == "refl" or mediumType == "inhomog" and functiontype!="wavepacket":
 	#analytical function does not make sense
 	plotPresAn = False
 	plotRhoAn = False

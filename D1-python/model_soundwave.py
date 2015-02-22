@@ -15,7 +15,7 @@ calcKc = True
 #addMarkPoint = None
 #uncomment this to add a new mark point
 #the following for the wave packet
-from sound_wave_defined_params import zc,W
+from sound_wave_packet_params import zc,W
 #addMarkPoint = zc 
 addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
 
@@ -99,7 +99,7 @@ class Model(BaseModel):
 					#if(abs(self.oldKc - kc)>1e-10):
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
 						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-					from sound_wave_params import csderAnal
+					from initcond_soundwave import csderAnal
 					print("numkc = %E\ttkc = %E" % (kc, k0 * np.exp(-csderAnal(self.maxPresZ)  * time) ))   #!
 					if ('maxSpeed' in vars()) :
 						print("Max speed = %e" % maxSpeed)
@@ -226,7 +226,7 @@ class Model(BaseModel):
 		#print("max freq in plotVelFFT %e" % intlen * F[np.argmax(Y[1:]) + 1 ])
 		if(plotVelFFTAnal):
 			from initcond_soundwave import getVelFFTAn
-			vals = [intlen * abs(Y), getVelFFTAn(F), F * intlen]
+			vals = [intlen * abs(Y), abs(getVelFFTAn(F)), F * intlen]
 			#vals = [intlen * abs(Y), getVelFFTAn(F), F ]
 		else:
 			vals = [intlen * abs(Y), F * intlen]	

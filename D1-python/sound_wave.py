@@ -1,39 +1,7 @@
 import numpy as np
-from math import pi
 
-def getSoundWaveGaussFunction(R):
-	def w(z):
-		return np.exp(-(z - 0.5 *(z0 + zf))**2 / R)
-	return w;
 	 
-def getSoundWaveBesselFunction():
-	from scipy.special import jv
-	def w(z):
-		return jv(0,  np.multiply(z, 2.2)) * (np.add(np.tanh((np.subtract(z,4.3))/0.3),1.0)) * (np.subtract(1.0,np.tanh((np.subtract(z,6.2))/0.3))) 
-	return w
 
-def getSoundWaveSineFunction(wl, phi):
-		def sinFunction(z):
-			return np.sin(np.multiply((2.0 * pi/wl),z) + phi )
-		return sinFunction
-
-def getSoundWavePacketFunction(k0, zc, W):
-		from constants import z0, zf
-		kf = 2.0 * pi/ (zf - z0)
-		k = k0 * kf
-		def gaussPacketFunction(z):
-		  t2 = np.subtract(z,zc) ** 2 
-		  return np.multiply(np.exp(-np.divide(t2, W**2)), np.cos(k * (z-z0)))
-		return gaussPacketFunction
-
-def getSoundWavePacketFFTAnalyticalAbs(k0, zc, W):
-	from constants import z0, zf
-	def analyticFFT(k):
-		from math import sqrt	
-		real = (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos(2.0*pi*zc*(k + k0/(z0 - zf)))*np.cos((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.cos((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.sin(2.0*pi*zc*(k + k0/(z0 - zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) - (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.sin((2.0*k0*pi*z0)/(z0 - zf))*np.sin((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2)))  
-		imag = (-(np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.sin(2.0*pi*zc*(k + k0/(z0 - zf))))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos(2.0*pi*zc*(k + k0/(z0 - zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.sin((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2))))
-		return np.sqrt(real**2+imag**2)
-	return analyticFFT
 
 	#u(x) = periodicFunction (x)
 	#after time t

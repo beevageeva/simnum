@@ -16,6 +16,12 @@ def gaussPacketFunction(z):
   return np.exp(-(z - zc)**2 / W**2) *  np.cos( 2.0 * pi * k0 * (z-z0) / (zf - z0))
 
 
+def fftMathNoAssumptions(k):
+	from math import sqrt	
+	real = (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos(2.0*pi*zc*(k + k0/(z0 - zf)))*np.cos((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.cos((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.sin(2.0*pi*zc*(k + k0/(z0 - zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) - (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.sin((2.0*k0*pi*z0)/(z0 - zf))*np.sin((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2)))  
+		imag = (-(np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.sin(2.0*pi*zc*(k + k0/(z0 - zf))))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(z0 - zf))**2))/4)*sqrt(pi)*np.cos(2.0*pi*zc*(k + k0/(z0 - zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf)))*np.sin((2.0*k0*pi*z0)/(z0 - zf)))/(2.0*sqrt(W**(-2))) + (np.exp(-(zc**2/W**2) + (W**2.0*((4.0*zc**2)/W**4 - 4.0*pi**2.0*(k + k0/(-z0 + zf))**2))/4)*sqrt(pi)*np.cos((2.0*k0*pi*z0)/(z0 - zf))*np.sin((4.0*k0*pi*z0)/(-z0 + zf) - 2.0*pi*zc*(k + k0/(-z0 + zf))))/(2.0*sqrt(W**(-2))))
+	return np.sqrt(real**2+imag**2)
+
 
 def fftMathExplExp(m):
 	#(Sqrt[Pi]*W)/E^((Pi*(k0^2*Pi*W^2 - 2*k0*(m*Pi*W^2 + I*(z0 - zc)*(z0 - zf)) + m*(m*Pi*W^2 - (2*I)*zc*(z0 - zf))))/(z0 - zf)^2)
