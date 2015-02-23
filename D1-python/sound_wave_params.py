@@ -48,14 +48,15 @@ if(mediumType=="inhomog"):
 
 	sqrtDensInt = sqrtDensIntNumeric			
 
+	#HOMOG
 	#try homgenous distribution!
-	densFunc = lambda z: rho00 * np.ones(z.shape)
-	sqrtDensPowMinusOneDer 	= lambda z: np.zeros(z.shape)
-	sqrtDensInt = lambda z: sqrt(rho00) * z
+#	densFunc = lambda z: rho00 * np.ones(z.shape)
+#	sqrtDensPowMinusOneDer 	= lambda z: np.zeros(z.shape)
+#	sqrtDensInt = lambda z: sqrt(rho00) * z
 
-#functiontype = 'sine'
+functiontype = 'sine'
 #functiontype = 'gauss'
-functiontype = 'wavepacket'
+#functiontype = 'wavepacket'
 #functiontype = 'defined'
 
 periodicType = "repeat" 
@@ -113,9 +114,9 @@ if(mediumType == "inhomog" ):
 	plotVelFFTAnal = False
 
 
-#adding packet analytical solution for inhomog type
+#adding packet analytical solution for inhomog type wavepacket, sine
 #if periodicType == "refl" or mediumType == "inhomog":
-if periodicType == "refl" or mediumType == "inhomog" and functiontype!="wavepacket":
+if periodicType == "refl" or mediumType == "inhomog" and functiontype!="wavepacket" and functiontype != "sine":
 	#analytical function does not make sense
 	plotPresAn = False
 	plotRhoAn = False

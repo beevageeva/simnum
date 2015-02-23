@@ -6,10 +6,8 @@ from sound_wave_params import p00, rho00, v00, A, functiontype, periodicType, me
 
 def getWFunction():
 	if functiontype == "sine":
-		from sound_wave_sine_params import phi0, getSoundWaveFunction
-		wl = zf - z0
-		phi = phi0 - 2.0 * math.pi * z0 / wl
-		return getSoundWaveFunction(wl, phi)
+		from sound_wave_sine_params import phi, k0, getSoundWaveFunction
+		return getSoundWaveFunction(k0, phi)
 	elif functiontype == "gauss":
 		from sound_wave_gauss_params import R, getSoundWaveFunction
 		return  getFunction(R) 	
@@ -214,6 +212,16 @@ else:
 			from math import pi
 			from constants import z0, zf
 			return - 2 * pi * k0 * z0 / (zf - z0)
+	elif functiontype == "sine":
+		from sound_wave_sine_params import phi, k0, getSoundWaveFunction
+		def k0Func(z):
+			from math import pi
+			return 2 * pi * k0/ (zf - z0)
+		def getphi0():
+			return phi
+		def a0Func(z):
+			return np.ones(z.shape)
+
 
 	def wAnal(z, t):
 		from cache import getValue, putValue
@@ -245,8 +253,8 @@ else:
 			x0Index = np.searchsorted(FValues, FSearchVal)
 
 			#HOMOG 
-			from common import getZIndex
-			x0Index = getZIndex(zval - t * cs[index])
+#			from common import getZIndex
+#			x0Index = getZIndex(zval - t * cs[index])
 
 			if x0Index >= z.shape:
 				x0Index -=1
