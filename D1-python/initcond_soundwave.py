@@ -166,7 +166,7 @@ else:
 	#F in eq dx / dt = cs(x) after integrating: F(x) - t = F(x0) F(x) = Int(1/cs(x))
 	#TODO boundary conditions	
 	def getXIntF(z):
-		return 1.0 / np.sqrt(gamma * p00) * sqrtDensInt(z)
+		return (1.0 / np.sqrt(gamma * p00)) * sqrtDensInt(z)
 #	#and solve implicit F(x) = v, for monoton F
 #	def getXImpl(z, F,v):
 ##		n = len(z) - 1
@@ -206,25 +206,32 @@ else:
 	if functiontype == "wavepacket":
 		from sound_wave_packet_params import k0, zc, W, getSoundWaveGaussFunction
 		def k0Func(z):
-			return k0
+			from math import pi
+			return k0 *  2.0 * pi /  (zf - z0)
 		def a0Func(z):
 			return getSoundWaveGaussFunction(zc, W)(z)
 		def getphi0():
 			from math import pi
 			from constants import z0, zf
-			return 2 * pi * k0 * z0 / (zf - z0)
+			return - 2 * pi * k0 * z0 / (zf - z0)
 
 	def wAnal(z, t):
 		from cache import getValue, putValue
 		if getValue("timeWAnal") == t:
 			return getValue("wAnal") 
 		cs = getCs00(z)
+		#print("cs is")
+		#print(cs)
 		res = np.zeros(len(z))
 		a0 = a0Func(z)
+		np.set_printoptions(threshold='nan')
+		#print("a0 = ")
+		#print(a0)
+		#print("MAXINDEX is %d " % np.argmax(a0))
 		phi0 = getphi0()
 		from common import getPeriodicXArray, getPeriodicX
 		FValues = getValue("FValues")
-		print(FValues)
+		#print(FValues)
 		if(FValues is None):
 			print("FValues not cached..")
 			FValues = getPeriodicXArray(getXIntF(z))
@@ -236,11 +243,20 @@ else:
 			zval = z[index]
 			FSearchVal = getPeriodicX(getXIntF(zval) -t)
 			x0Index = np.searchsorted(FValues, FSearchVal)
+
+			#HOMOG 
+			from common import getZIndex
+			x0Index = getZIndex(zval - t * cs[index])
+
+			if x0Index >= z.shape:
+				x0Index -=1
+			#print("x0Index = %d" % x0Index)
 			k0x0 = k0Func(z[x0Index])
 			omega0  = cs[x0Index] * k0x0
 			csPrime = csderAnal(zval)
 			k = k0x0 * np.exp(-csPrime * t)
 			a = cs[index] * a0[x0Index] / cs[x0Index] * np.exp(-0.5 * csPrime * t)
+			#print("index = %d, FSearchVal = %e, indexX0=%d, a = %e, k = %e, omega = %e, a01 = %e, a02 = %e" % (index, FSearchVal, x0Index, a, k, omega0, a0[x0Index], cs[index] * a0[x0Index] / cs[x0Index]))
 			res[index] = a * np.cos(k * zval + omega0 * t +phi0 )
 		from sound_wave_params import A
 		finalVals =  A * res

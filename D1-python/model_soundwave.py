@@ -75,8 +75,8 @@ class Model(BaseModel):
 			F = self.presFFT[1]
 			Y = self.presFFT[0]
 			#first value is the mean
-			print("F=")
-			print(F)
+			#print("F=")
+			#print(F)
 			kc = abs(F[np.argmax(Y[1:])+1])
 			#kc *=intlen #alreday multiplied all array
 			#print("%E\t%E\t%E" % (cs,kc, cs*kc))   #!

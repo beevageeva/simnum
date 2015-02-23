@@ -28,6 +28,9 @@ if(mediumType=="inhomog"):
 	#but the value evaluated in 3.1 for example is complex!!!
 	sqrtDensIntMathematica = lambda z: sqrt(rho01)*we*np.arctanh((sqrt(2)*sqrt(rho01 + rho00 + (rho01 - rho00)* np.tanh((z - ze)/we)))/sqrt(rho01)) -  sqrt(rho00)*we*np.arctanh((sqrt(2)*sqrt(rho01 + rho00 + (rho01 - rho00)*np.tanh((z - ze)/we)))/sqrt(rho00))
 
+
+
+
 	#calculate numerically!
 	def sqrtDensIntNumeric(z):
 		from constants import z0
@@ -44,6 +47,11 @@ if(mediumType=="inhomog"):
 		return getIntOneValue(z)
 
 	sqrtDensInt = sqrtDensIntNumeric			
+
+	#try homgenous distribution!
+	densFunc = lambda z: rho00 * np.ones(z.shape)
+	sqrtDensPowMinusOneDer 	= lambda z: np.zeros(z.shape)
+	sqrtDensInt = lambda z: sqrt(rho00) * z
 
 #functiontype = 'sine'
 #functiontype = 'gauss'
