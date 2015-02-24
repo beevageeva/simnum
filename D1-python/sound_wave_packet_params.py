@@ -16,12 +16,10 @@ def getSoundWaveGaussFunction(zc, W):
 		return np.exp(-np.divide(t2, W**2))	 
 	return gaussFunction
 
+
 def getSoundWaveFunction(k0, zc, W):
-		from constants import z0, zf
-		kf = 2.0 * pi/ (zf - z0)
-		k = k0 * kf
 		def gaussPacketFunction(z):
-			return np.multiply(getSoundWaveGaussFunction(zc, W)(z), np.cos(k * (z-z0)))
+			return np.multiply(getSoundWaveGaussFunction(zc, W)(z),  np.cos(2.0 * pi * k0 * (z-z0)/ (zf - z0) ) )
 		return gaussPacketFunction
 
 def getSoundWaveFFTAnalytical(k0, zc, W):

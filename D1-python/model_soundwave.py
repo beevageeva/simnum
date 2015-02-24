@@ -16,8 +16,8 @@ calcKc = True
 #uncomment this to add a new mark point
 #the following for the wave packet
 from sound_wave_packet_params import zc,W
-#addMarkPoint = zc 
-addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
+addMarkPoint = zc 
+#addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
 
 
 #plotCsMaxMin = True
@@ -78,38 +78,29 @@ class Model(BaseModel):
 			#print("F=")
 			#print(F)
 			kc = abs(F[np.argmax(Y[1:])+1])
-			#kc *=intlen #alreday multiplied all array
-			#print("%E\t%E\t%E" % (cs,kc, cs*kc))   #!
-			#TODO ONLY if markPoints = True ??
-			if(markPoints):
-				from initcond_soundwave import getCs00
-				if mediumType == "homog":
-					cs = getCs00()
-					gradCs = 0
-				else:
-					cs = getCs00(self.maxPresZ)
-					#TODO argmax calculated twice (see before in this function)
-					gradientCs =  np.gradient(getCs00(self.z))
-					gradCs = gradientCs[np.argmax(self.pres)]
-					from sound_wave_packet_params import k0
-					#print("%E\t%E\t%E" % (cs,kc, kc / cos(k0 * self.maxPresZ - self.omega0 * time)))   #!
-					#print("%E\t%E\t%E" % (cs,kc, kc * self.maxPresZ))   #!
-					#print("%E\t%E\t%E" % (cs,kc, (dt * gradCs)/(cs * (self.oldKc - kc))   ))   #!
-					#print("%E\t%E\t%E" % (cs,kc, gradCs ))   #!
-					#if(abs(self.oldKc - kc)>1e-10):
-						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -kc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-						#print("%E\t%E\t%E\t%E\t%E\t%E" % (cs,kc, gradCs, (self.oldKc - kc)/dt,  -self.oldKc * gradCs , (self.oldKc - kc)/dt * (cs / gradCs)  ))   #!
-					from initcond_soundwave import csderAnal
-					print("numkc = %E\ttkc = %E" % (kc, k0 * np.mean(np.exp(-csderAnal(self.z)  * time) )) )   #!
-					if ('maxSpeed' in vars()) :
-						print("Max speed = %e" % maxSpeed)
-						#pass	
+			#use initial markpoint
+			if mediumType == "inhomog" and not addMarkPoint is None:
+#				from initcond_soundwave import kAnal
+#				k = kAnal(self.z, time)
+#				print("numKc = %e, mean anKc = %e, max anKc = %e" % (kc, np.mean(k), np.max(k)))
+				from initcond_soundwave import csderAnal, getX0Index
+				#from common import getZIndex
+				#indexMarkPoint = getZIndex(addMarkPoint)
+				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(addMarkPoint) * time)   #NO
+				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(self.addMarkPoint) * time) #NO
+				x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
+				print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
+				#cp = np.exp(-csderAnal(self.addMarkPoint) * time) 
+				cp = np.exp(-csderAnal(addMarkPoint) * time) 
+				print("numKc = %e, cp = %e, kc/cp = %e" % (kc, cp, kc / cp))
+				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
+				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
+				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))
+				from initcond_soundwave import kAnal
+				k = kAnal(self.z, time)
+				print("kanal mean = %e , kAn max = %e" % (np.mean(k), np.max(k)))			
 
-				#print("%E\t%E\t%E" % (cs,kc, cs + gradCs * kc))   #!
-			#from common import getDz
-			#from analyze_functions import getIndexRightAlmost0
-			#indR = getIndexRightAlmost0(abs(Y), getDz()*0.005, 1)
-			#print("width fourier pres = %E" % (2.0*kc))  #!
+	
 				
 		if(calcAmp):
 			print("pres amp = %E" % (np.max(self.pres) - np.min(self.pres)))
@@ -182,9 +173,9 @@ class Model(BaseModel):
 		if(plotPresFFT):
 			#if ('presFFT' in vars()):
 			if (hasattr(self, 'presFFT')):
-				print("Alreday calculated")
 				presFFT = self.presFFT
 			else:
+				print("Calculate presFFT ")
 				presFFT = self.getPresFFTVals(True)
 			self.notifier.updateValues("presFFT", presFFT[0])
 

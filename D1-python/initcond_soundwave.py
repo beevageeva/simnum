@@ -191,13 +191,33 @@ else:
 #			return 0.5 * (z[indexZ] + z[indexZ + 1])
 
 	#from eq F(x0) = F(x) -t  F = getXIntF
-	#but not used as I won't calculate FValues every time
+	#not used in wAnal as I won't calculate FValues every time
 	def getX0Index(z, t, zval):
+		from cache import getValue, putValue
+		FValues = getValue("FValues")
+		#print(FValues)
+		if(FValues is None):
+			from common import getPeriodicXArray, getPeriodicX
+			print("FValues not cached..")
+			FValues = getPeriodicXArray(getXIntF(z))
+			print("putting")
+			print(FValues)
+			putValue("FValues", FValues)
+
 		#TODO boundary conditions eleiminate common!
 		from common import getPeriodicXArray, getPeriodicX
 		val = getPeriodicX(getXIntF(zval) - t)
-		return np.searchsorted(getPeriodicXArray(getXIntF(z)), val)
-		
+
+		#TODO indices
+		#return np.searchsorted(FValues, val)
+		indices = []	
+		delta = 0.001
+		for index in range(FValues.shape[0]):
+			if(abs(FValues[index] - val)<delta):
+				indices.append(index)
+		print("indices")
+		print(indices)
+		return indices[len(indices)/2]
 		
 
 
@@ -222,6 +242,50 @@ else:
 		def a0Func(z):
 			return np.ones(z.shape)
 
+	def kAnal(z, t):
+		from cache import getValue, putValue
+		cs = getCs00(z)
+		res = np.zeros(len(z))
+
+	
+		#with searchval
+		from common import getPeriodicXArray, getPeriodicX
+		FValues = getValue("FValues")
+
+		#print(FValues)
+		if(FValues is None):
+			print("FValues not cached..")
+			FValues = getPeriodicXArray(getXIntF(z))
+			print("putting")
+			print(FValues)
+			putValue("FValues", FValues)
+		#endsearchval
+
+		#TODO use numpy operations on whole array
+		for index in range(len(z)):
+			zval = z[index]
+	
+			#with searchVal
+			FSearchVal = getPeriodicX(getXIntF(zval) -t)
+			x0Index = np.searchsorted(FValues, FSearchVal)
+
+			#HOMOG 
+#			from common import getZIndex
+#			x0Index = getZIndex(zval - t * cs[index])
+
+			#print("x0Index = %d" % x0Index)
+			#k0x0 = k0Func(z[x0Index])
+			k0x0 = k0
+			#csPrime = csderAnal(zval)
+			csPrime = csderAnal(z[x0Index])
+			#endsearchval
+			#with derivative BUT the following is not equiv
+#			k0x0 =  k0
+#			csPrime = csderAnal(zval) * cs[index]
+			#endderivative
+
+			res[index] = k0x0 * np.exp(-csPrime * t)
+		return res
 
 	def wAnal(z, t):
 		from cache import getValue, putValue
@@ -272,11 +336,20 @@ else:
 		putValue("timeWAnal", t)
 		return finalVals
 		
+	def wAnal2(z, t):
+		if functiontype == "wavepacket":
+			from math import pi
+			from sound_wave_packet_params import k0, zc, W, getSoundWaveGaussFunction
+			cs = getCs00(z)
+			omega = np.mean(cs) * 2.0 * pi * k0 / (zf - z0)
+			from sound_wave_params import A
+			return A*np.cos(2.0 * pi * k0 * (z-z0)/ (zf - z0) - omega * t ) * getSoundWaveGaussFunction(zc , W)(z - cs * t)
+		
 
 						
 	#analitycal values TO KEEP them like in homog case 
-	getRhoCurve = wAnal
-	getVelCurve = wAnal
+	getRhoCurve = wAnal2
+	getVelCurve = wAnal2
 	
 	def getPresCurve(z, t):
 		return gamma * getRhoCurve(z,t)	
