@@ -20,8 +20,8 @@ addMarkPoint = zc
 #addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
 
 
-#plotCsMaxMin = True
-plotCsMaxMin = False
+plotCsMaxMin = True
+#plotCsMaxMin = False
 
 #calcAmp = True
 calcAmp = False
@@ -88,17 +88,19 @@ class Model(BaseModel):
 				#indexMarkPoint = getZIndex(addMarkPoint)
 				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(addMarkPoint) * time)   #NO
 				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(self.addMarkPoint) * time) #NO
-				x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
-				print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
+				#show find
+#				x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
+#				print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
 				#cp = np.exp(-csderAnal(self.addMarkPoint) * time) 
-				cp = np.exp(-csderAnal(addMarkPoint) * time) 
-				print("numKc = %e, cp = %e, kc/cp = %e" % (kc, cp, kc / cp))
+				cp = np.exp(-csderAnal(self.addMarkPoint) * time)
+				cs = getCs00(self.addMarkPoint) 
+				print("kc = %e, cp = %e, kc/cp = %e, cs = %e, cs * cp = %e, kc /(cp * cs) = %e, kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))
-				from initcond_soundwave import kAnal
-				k = kAnal(self.z, time)
-				print("kanal mean = %e , kAn max = %e" % (np.mean(k), np.max(k)))			
+#				from initcond_soundwave import kAnal
+#				k = kAnal(self.z, time)
+#				print("kanal mean = %e , kAn max = %e" % (np.mean(k), np.max(k)))			
 
 	
 				
@@ -278,6 +280,13 @@ class Model(BaseModel):
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if(mediumType=="inhomog"):
 			self.notifier.plotAxisTwin(self.z, "vel",getCs00(self.z) , "cs00")
+			#VARLENGTH
+			from sound_wave_params import functiontype
+			if functiontype == "wavepacket":
+					from sound_wave_packet_params import k0
+					from sound_wave_params import getDensVarLength	
+					cl =	getDensVarLength(self.z)
+					print("wl = %e, cl = %e" % (1.0 /k0, cl))
 		if(plotCsMaxMin):
 			if(mediumType=="inhomog"):
 				from initcond_soundwave import  getInitialFunctionMaxMinZIndex, getCs00
@@ -291,14 +300,14 @@ class Model(BaseModel):
 				cs00 = getCs00(self.z)
 				for alpha in np.arange(-2.5, 2.5, 0.5):
 					vals = np.power(cs00, alpha)
-					self.notifier.plotAxis("pres", np.multiply(self.pres[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
-					self.notifier.plotAxis("pres", np.multiply(self.pres[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
-					self.notifier.plotAxis("vel", np.multiply(self.vel[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
-					self.notifier.plotAxis("vel", np.multiply(self.vel[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"pres",  np.multiply(self.pres[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"pres", np.multiply(self.pres[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"vel", np.multiply(self.vel[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"vel", np.multiply(self.vel[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
 					if(plotRhoCurve):
 						from initcond_soundwave import getRhoCurveNumeric
-						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[minZIndex] / vals[minZIndex],vals), self.z), "(min)%1.1f" % alpha)
-						self.notifier.plotAxis("rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[maxZIndex] / vals[maxZIndex],vals), self.z), "(max)%1.1f" % alpha)
+						self.notifier.plotAxis(self.z,"rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[minZIndex] / vals[minZIndex],vals), self.z), "(min)%1.1f" % alpha)
+						self.notifier.plotAxis(self.z,"rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[maxZIndex] / vals[maxZIndex],vals), self.z), "(max)%1.1f" % alpha)
 
 			else:
 				print("plotCsMin does not make sense with homogeneous medium")
