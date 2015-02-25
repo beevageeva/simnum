@@ -1,3 +1,3 @@
 notifierType = "visual"
-#nstepsPlot = 10 
-nstepsPlot = 1 
+nstepsPlot = 10 
+#nstepsPlot = 1 

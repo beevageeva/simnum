@@ -14,8 +14,8 @@ if(mediumType=="inhomog"):
 	if inhomogSubtype == 1:	
 		rho01 = 0.01
 		#ze = 0.5*(z0 + zf)   #start of change in rho
-		#ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
-		ze = z0 + 0.15*(zf - z0) #first exp of inhom new , even more 
+		ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
+		#ze = z0 + 0.15*(zf - z0) #first exp of inhom new , even more 
 	else:	
 		rho01 = 1.2#second exp of inhom
 		ze = z0 + 0.7*(zf - z0) #second exp of inhom
@@ -51,7 +51,9 @@ if(mediumType=="inhomog"):
 
 	def getDensVarLength(z):
 		d = densFunc(z)
-		return np.min(abs(d) / abs(np.gradient(d, z[1]-z[0])))
+		absGrad = abs(np.gradient(d, z[1]-z[0]))
+		indNotZero = (absGrad!=0)
+		return np.min(abs(d)[indNotZero] / absGrad[indNotZero])
 
 
 	#HOMOG
@@ -65,8 +67,8 @@ if(mediumType=="inhomog"):
 functiontype = 'wavepacket'
 #functiontype = 'defined'
 
-periodicType = "repeat" 
-#periodicType = "refl" 
+#periodicType = "repeat" 
+periodicType = "refl" 
 
 p00 = 1.0
 

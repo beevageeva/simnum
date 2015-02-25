@@ -22,6 +22,82 @@ def getWFunction():
 		sys.exit(0)
 
 
+if periodicType == "repeat":
+
+	def  lrBoundaryConditionsPresRho(array, skip=0):
+		n = array.shape[0] - 1
+		array = np.insert(array, 0,  array[n-skip])
+		array = np.insert(array, n+2,  array[1+skip])
+		return array
+
+	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
+
+	def getPeriodicX(xval, a=z0, b=zf):
+		p = float(b - a)
+		k = int((xval-a)/p)
+		res = xval - k * p
+		if(res < a):
+			res+=p
+		if(res > b):
+			res-=p
+		return res
+
+elif periodicType == "refl":
+
+		
+
+	def lrBoundaryConditionsPresRho(array, skip=0):
+		n = array.shape[0] - 1
+		array = np.insert(array, 0,  2 * array[0] - array[1])
+		array = np.insert(array, n+2, 2 * array[-1] - array[-2])
+		return array
+
+	def lrBoundaryConditionsVel(array, skip=0):
+		#I already know
+		#if(len(array)<1+skip):
+		#	return
+		n = array.shape[0] - 1
+		if(skip==0):
+			array = np.insert(array, 0,  -array[0])
+			array = np.insert(array, n+2,  -array[-1])
+		elif (skip==1):
+			array[0] = 0
+			array = np.insert(array, 0,  -array[2])
+			array[-1] = 0
+			array = np.insert(array, n+2,  -array[-2])
+		return array
+		
+
+	def getPeriodicX2(xval, a=z0, b=zf):
+		p = float(b - a)
+		k = int((xval-a)/p)
+		if k%2==1:
+			res = 2.0*b - xval + k*p
+		else:
+			res = xval - k * p
+		if(res < a):
+			res+=p
+		if(res > b):
+			res-=p
+		return res
+
+
+	def getPeriodicX(xval, a=z0, b=zf):
+		if xval > b:
+			return 2.0*b - xval
+		if xval < a:
+			return 2.0*a -xval
+		return xval
+
+
+#TODO eliminate common.py
+def getPeriodicXArray(xarray, a=z0, b=zf):
+	res = []	
+	for xval in xarray:
+		res.append(getPeriodicX(xval, a, b))
+	return np.array(res)
+		
+
 
 
 if mediumType == "homog":
@@ -197,7 +273,7 @@ else:
 		FValues = getValue("FValues")
 		#print(FValues)
 		if(FValues is None):
-			from common import getPeriodicXArray, getPeriodicX
+			#from common import getPeriodicXArray, getPeriodicX
 			print("FValues not cached..")
 			FValues = getPeriodicXArray(getXIntF(z))
 			print("putting")
@@ -205,8 +281,11 @@ else:
 			putValue("FValues", FValues)
 
 		#TODO boundary conditions eleiminate common!
-		from common import getPeriodicXArray, getPeriodicX
-		val = getPeriodicX(getXIntF(zval) - t)
+		#from common import getPeriodicXArray, getPeriodicX
+		znp =  getXIntF(zval) - t #ADDED z0 for per cond not working
+		#znp = z0 + getXIntF(zval) - t
+		val = getPeriodicX(znp)
+		print("not per = %e, per = %e" % (znp, val))
 
 		#TODO indices
 		#return np.searchsorted(FValues, val)
@@ -249,7 +328,7 @@ else:
 
 	
 		#with searchval
-		from common import getPeriodicXArray, getPeriodicX
+		#from common import getPeriodicXArray, getPeriodicX
 		FValues = getValue("FValues")
 
 		#print(FValues)
@@ -267,7 +346,17 @@ else:
 	
 			#with searchVal
 			FSearchVal = getPeriodicX(getXIntF(zval) -t)
-			x0Index = np.searchsorted(FValues, FSearchVal)
+			#x0Index = np.searchsorted(FValues, FSearchVal)
+			#TODO indices
+			indices = []	
+			delta = 0.01
+			for index in range(FValues.shape[0]):
+				if(abs(FValues[index] - FSearchVal)<delta):
+					indices.append(index)
+			#print("indices")
+			#print(indices)
+			x0Index = indices[len(indices)/2]
+			#end searchval
 
 			#HOMOG 
 #			from common import getZIndex
@@ -388,45 +477,4 @@ def getRhoCurveNumeric(rho,z):
 
 
 
-
-if periodicType == "repeat":
-
-	def  lrBoundaryConditionsPresRho(array, skip=0):
-		n = array.shape[0] - 1
-		array = np.insert(array, 0,  array[n-skip])
-		array = np.insert(array, n+2,  array[1+skip])
-		return array
-
-	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
-
-elif periodicType == "refl":
-
-		
-
-	def lrBoundaryConditionsPresRho(array, skip=0):
-		n = array.shape[0] - 1
-		array = np.insert(array, 0,  2 * array[0] - array[1])
-		array = np.insert(array, n+2, 2 * array[-1] - array[-2])
-		return array
-
-	def lrBoundaryConditionsVel(array, skip=0):
-		#I already know
-		#if(len(array)<1+skip):
-		#	return
-		n = array.shape[0] - 1
-		if(skip==0):
-			array = np.insert(array, 0,  -array[0])
-			array = np.insert(array, n+2,  -array[-1])
-		elif (skip==1):
-			array[0] = 0
-			array = np.insert(array, 0,  -array[2])
-			array[-1] = 0
-			array = np.insert(array, n+2,  -array[-2])
-		return array
-		
-
-
-
-
-		
 

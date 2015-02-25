@@ -17,11 +17,11 @@ calcKc = True
 #the following for the wave packet
 from sound_wave_packet_params import zc,W
 addMarkPoint = zc 
-#addMarkPoint = zc - W*1.4 #other point at the beginning of the packet
+#addMarkPoint = zc - W*2 #other point at the beginning of the packet
 
 
-plotCsMaxMin = True
-#plotCsMaxMin = False
+#plotCsMaxMin = True
+plotCsMaxMin = False
 
 #calcAmp = True
 calcAmp = False
@@ -68,7 +68,13 @@ class Model(BaseModel):
 				#print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
 				self.maxPresZ = newZ
 		if hasattr(self, "addMarkPoint"):
+			#TODO added unnecessary var mp
+			mp = self.addMarkPoint
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+			if mediumType == "inhomog":
+				print("markPoint num = %e, markPoint from cs = %e" % (self.addMarkPoint, mp + dt * getCs00(mp)  ))
+			
+
 		if(calcKc):
 			#print("upd")
 			self.presFFT = self.getPresFFTVals(False)
@@ -80,21 +86,26 @@ class Model(BaseModel):
 			kc = abs(F[np.argmax(Y[1:])+1])
 			#use initial markpoint
 			if mediumType == "inhomog" and not addMarkPoint is None:
-#				from initcond_soundwave import kAnal
-#				k = kAnal(self.z, time)
-#				print("numKc = %e, mean anKc = %e, max anKc = %e" % (kc, np.mean(k), np.max(k)))
+				from initcond_soundwave import kAnal
+				#k = kAnal(self.z, time)
+				#print("kc = %e, mean anKc = %e, max anKc = %e" % (kc, np.mean(k), np.max(k)))
 				from initcond_soundwave import csderAnal, getX0Index
 				#from common import getZIndex
 				#indexMarkPoint = getZIndex(addMarkPoint)
 				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(addMarkPoint) * time)   #NO
 				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(self.addMarkPoint) * time) #NO
+				#csd = csderAnal(self.z)
+				#csdIndMin = np.argmin(csd)
 				#show find
-#				x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
-#				print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
+				#k = 60.0 * np.exp(-csderAnal(self.z) * time)
+				#k = kAnal(self.z, time)
+				#print("kc = %e, mean anKc = %e, max anKc = %e" % (kc, np.mean(k), np.max(k)))
+				#x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
+				#print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
 				#cp = np.exp(-csderAnal(self.addMarkPoint) * time) 
 				cp = np.exp(-csderAnal(self.addMarkPoint) * time)
 				cs = getCs00(self.addMarkPoint) 
-				print("kc = %e, cp = %e, kc/cp = %e, cs = %e, cs * cp = %e, kc /(cp * cs) = %e, kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
+				print("kc=%e,cp=%e,kc/cp=%e,cs=%e,cs*cp=%e,kc/(cp*cs)=%e,kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))
@@ -161,6 +172,8 @@ class Model(BaseModel):
 			if(plotVelCurve):
 				velCurveNewVals = getVelCurveNumeric(self.vel)
 
+		
+
 		self.notifier.updateValues("rho", rhoNewVals)
 		self.notifier.updateValues("pres", presNewVals)
 		self.notifier.updateValues("vel", velNewVals)
@@ -186,6 +199,11 @@ class Model(BaseModel):
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if hasattr(self, "addMarkPoint"):
 			self.notifier.markPoint("pres", "addMarkPoint", self.addMarkPoint)
+#		from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
+#		delta = 0.1
+#		self.notifier.markPoint("pres", "LB",getFirstIndexDifferentLeft(self.pres, delta, zc))
+#		self.notifier.markPoint("pres", "RB",getFirstIndexDifferentRight(self.pres, delta, None))
+		
 
 	def getInitialValues(self):
 		if plotPresAn:
