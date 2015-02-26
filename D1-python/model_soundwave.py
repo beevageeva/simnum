@@ -83,6 +83,8 @@ class Model(BaseModel):
 			#first value is the mean
 			#print("F=")
 			#print(F)
+			i1 = np.argmax(Y[1:]) +1
+			print("Y[i1]=%e , Y[i1-1] = %e Y[i1+1] = %e" % (Y[i1], Y[i1-1], Y[i1+1]))	
 			kc = abs(F[np.argmax(Y[1:])+1])
 			#use initial markpoint
 			if mediumType == "inhomog" and not addMarkPoint is None:
@@ -103,9 +105,15 @@ class Model(BaseModel):
 				#x0AddMarkPoint =  getX0Index(self.z, time, self.addMarkPoint)
 				#print("%e == %e" % (addMarkPoint, self.z[x0AddMarkPoint]))
 				#cp = np.exp(-csderAnal(self.addMarkPoint) * time) 
-				cp = np.exp(-csderAnal(self.addMarkPoint) * time)
-				cs = getCs00(self.addMarkPoint) 
-				print("kc=%e,cp=%e,kc/cp=%e,cs=%e,cs*cp=%e,kc/(cp*cs)=%e,kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
+				#cp = np.exp(-csderAnal(self.addMarkPoint) * time)
+				#cs = getCs00(self.addMarkPoint) 
+				#print("kc=%e,cp=%e,kc/cp=%e,cs=%e,cs*cp=%e,kc/(cp*cs)=%e,kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
+				cs = getCs00(self.addMarkPoint)
+				from math import pi
+				from constants import z0, zf
+				k0 = 60 * 2 * pi / (zf - z0)
+				#k = kAnal(addMarkPoint, time, self.z)
+				print("kc*cs(zp(t))=%e" % (kc * cs))
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))

@@ -321,7 +321,7 @@ else:
 		def a0Func(z):
 			return np.ones(z.shape)
 
-	def kAnal(z, t):
+	def kAnal2(z, t):
 		from cache import getValue, putValue
 		cs = getCs00(z)
 		res = np.zeros(len(z))
@@ -375,6 +375,41 @@ else:
 
 			res[index] = k0x0 * np.exp(-csPrime * t)
 		return res
+
+
+
+	def kAnal(z0, t, z):
+		from cache import getValue, putValue
+		FValues = getValue("FValues")
+		#print(FValues)
+		if(FValues is None):
+			#from common import getPeriodicXArray, getPeriodicX
+			print("FValues not cached..")
+			FValues = getPeriodicXArray(getXIntF(z))
+			print("putting")
+			print(FValues)
+			putValue("FValues", FValues)
+		cs = getCs00(z)
+		csder = csderAnal(z)
+		def intT(t):
+			indices = []	
+			delta = 0.01
+			FSearchVal = t + F(z0)
+			for index in range(FValues.shape[0]):
+				if(abs(FValues[index] - FSearchVal)<delta):
+					indices.append(index)
+			#print("indices")
+			#print(indices)
+			x0Index = indices[len(indices)/2]
+			return cs[x0Index] + csder[x0Index]
+		from scipy import integrate
+		int1 = integrate.quad(intT, 0, t)
+		return np.exp(-int1[0])	
+		
+
+		
+
+
 
 	def wAnal(z, t):
 		from cache import getValue, putValue
