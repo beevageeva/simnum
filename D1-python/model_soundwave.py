@@ -27,6 +27,8 @@ plotCsMaxMin = False
 calcAmp = False
 
 
+calcNewZ = True
+
 class Model(BaseModel):
 	
 
@@ -37,11 +39,12 @@ class Model(BaseModel):
 			print("addMarkPoint = %E, plotting on pres axis" % self.addMarkPoint)
 
 
-	def getNewPoint(self, zval, dt):
+	def getNewPoint(self, zval, dt, zIndex = None):
 		from common import displacedPoint, getZIndex
 		from math import sqrt
 		from sound_wave_params import v00, p00, periodicType
-		zIndex = getZIndex(zval)	
+		if zIndex is None: 	
+			zIndex = getZIndex(zval)	
 		#from sound_wave_params import csSign 
 		#I should not import from here: this should be used for generating initial conditions only
 		# I have to calculate it from actual values
@@ -73,7 +76,19 @@ class Model(BaseModel):
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 			if mediumType == "inhomog":
 				print("markPoint num = %e, markPoint from cs = %e" % (self.addMarkPoint, mp + dt * getCs00(mp)  ))
+		
+		if calcNewZ:
+			if not hasattr(self, "newZ"):
+				self.newZ = np.zeros(self.z.shape)
+			for index in self.z.shape[0]:
+				zval = self.z[index]
+				self.newZ[index] = self.getNewPoint(zval, dt, index)
+
+		
 			
+
+		
+
 
 		if(calcKc):
 			#print("upd")
@@ -83,8 +98,6 @@ class Model(BaseModel):
 			#first value is the mean
 			#print("F=")
 			#print(F)
-			i1 = np.argmax(Y[1:]) +1
-			print("Y[i1]=%e , Y[i1-1] = %e Y[i1+1] = %e" % (Y[i1], Y[i1-1], Y[i1+1]))	
 			kc = abs(F[np.argmax(Y[1:])+1])
 			#use initial markpoint
 			if mediumType == "inhomog" and not addMarkPoint is None:
