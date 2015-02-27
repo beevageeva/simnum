@@ -62,27 +62,49 @@ class Model(BaseModel):
 	def updateValuesModel(self, dt, time):
 		#markPoints used to plot maximum and minumum for rho, pres and vel , in hom medium they travel at cs speed (phase vel), but in inhom at group speed
 		if(markPoints):
-			if mediumType == "homog":
-				self.maxPresZ = self.getNewPoint(self.maxPresZ,dt)
-				print("Homog medium : calculating max pres analytically(movind at cs speed) at z = %E" % self.maxPresZ)
-			else:
-				newZ = self.z[np.argmax(self.pres)]	
-				maxSpeed = (newZ - self.maxPresZ)/dt
-				#print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
-				self.maxPresZ = newZ
+
+			self.maxPresZ = self.getNewPoint(self.maxPresZ,dt)
+			graphPresMaxZ = self.z[np.argmax(self.pres)]
+			#print("pres max: %e==%e, dif=%e" % (self.maxPresZ, graphPresMaxZ, abs(self.maxPresZ - graphPresMaxZ)))
+
+
+#			if mediumType == "homog":
+#				self.maxPresZ = self.getNewPoint(self.maxPresZ,dt)
+#				print("Homog medium : calculating max pres analytically(movind at cs speed) at z = %E" % self.maxPresZ)
+#			else:
+#				newZ = self.z[np.argmax(self.pres)]	
+#				maxSpeed = (newZ - self.maxPresZ)/dt
+#				#print("Inhomog medium : getting max pres at z = %E, travelling at speed = %E" % (newZ, maxSpeed))
+#				self.maxPresZ = newZ
 		if hasattr(self, "addMarkPoint"):
-			#TODO added unnecessary var mp
-			mp = self.addMarkPoint
+#			mp = self.addMarkPoint
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
-			if mediumType == "inhomog":
-				print("markPoint num = %e, markPoint from cs = %e" % (self.addMarkPoint, mp + dt * getCs00(mp)  ))
+#			if mediumType == "inhomog":
+#				print("markPoint num = %e, markPoint from cs = %e" % (self.addMarkPoint, mp + dt * getCs00(mp)  ))
 		
+		#CALCNEWZ		
 		if calcNewZ:
-			if not hasattr(self, "newZ"):
-				self.newZ = np.zeros(self.z.shape)
-			for index in self.z.shape[0]:
+			from common import getZIndex
+			from initcond_soundwave import csderAnal
+			#TODO weave
+			#cs = getCs00(self.z)
+			#csder = csderAnal(self.z)
+			for index in range(self.z.shape[0]):
 				zval = self.z[index]
-				self.newZ[index] = self.getNewPoint(zval, dt, index)
+				
+				#newZ = self.getNewPoint(self.newZ[index], dt, index) WHY index??????
+				newZ = self.getNewPoint(self.newZ[index], dt)
+				newZIndex = getZIndex(newZ)
+				#print("CRAP %e" %  (self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt))
+				#self.K[index] = self.K[index] - self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
+				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
+				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index])  * dt
+				#self.K[index] +=(-np.exp(-csderAnal(self.newZ[index]) * getCs00(self.newZ[index])) + np.exp(-csderAnal(newZ) * getCs00(newZ)))*dt
+				self.K[index] *=np.exp((csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) - csderAnal(newZ) * getCs00(newZ))*dt)
+				self.newZ[index] = newZ
+				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * getCs00(zval) * dt
+				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * dt
+
 
 		
 			
@@ -122,11 +144,16 @@ class Model(BaseModel):
 				#cs = getCs00(self.addMarkPoint) 
 				#print("kc=%e,cp=%e,kc/cp=%e,cs=%e,cs*cp=%e,kc/(cp*cs)=%e,kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
 				cs = getCs00(self.addMarkPoint)
+				from common import getZIndex
 				from math import pi
 				from constants import z0, zf
 				k0 = 60 * 2 * pi / (zf - z0)
 				#k = kAnal(addMarkPoint, time, self.z)
-				print("kc*cs(zp(t))=%e" % (kc * cs))
+				kt = self.K[getZIndex(addMarkPoint)]
+				#kt = self.K[getZIndex(self.addMarkPoint)]
+				#kt1 = self.K[getZIndex(self.addMarkPoint)]
+				#print("kc=%e,kt=%e,kc/kt = %e,kt1=%e,kc/kt1=%e,kc*cs(zp(t))=%e" % (kc, kt, kc / kt, kt1, kc/kt1,kc * cs))
+				print("kc=%e,kt=%e,kc/kt = %e, kc*cs(zp(t))=%e" % (kc, kt, kc / kt, kc * cs))
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))
@@ -349,7 +376,11 @@ class Model(BaseModel):
 						self.notifier.plotAxis(self.z,"rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[maxZIndex] / vals[maxZIndex],vals), self.z), "(max)%1.1f" % alpha)
 
 			else:
-				print("plotCsMin does not make sense with homogeneous medium")
+				print("csmin max only inhom")
+		if calcNewZ and mediumType == "inhomog":
+			self.newZ = np.zeros(self.z.shape)
+			from sound_wave_packet_params import k0
+			self.K = np.ones(self.z.shape) * k0
 		
 
 

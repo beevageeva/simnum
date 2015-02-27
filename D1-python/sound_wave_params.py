@@ -17,8 +17,13 @@ if(mediumType=="inhomog"):
 		ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
 		#ze = z0 + 0.15*(zf - z0) #first exp of inhom new , even more 
 	else:	
-		rho01 = 1.2#second exp of inhom
-		ze = z0 + 0.7*(zf - z0) #second exp of inhom
+		#rho01 = 1.2#second exp of inhom
+		#inverse
+		rho01 = 1.0#second exp of inhom
+		rho00 = 0.01
+		#ze = z0 + 0.7*(zf - z0) #second exp of inhom
+		#ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
+		ze = 0.5*(zf + z0) #middle
 	#we = 0.4
 	we = 0.2
 	densFunc = lambda z: rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
