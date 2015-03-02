@@ -31,7 +31,8 @@ z = getZArray()
 
 #plt.plot(z, csder(z), markersize=3, linestyle="None", marker="o", color="r")
 #plt.plot(z, cs(z), markersize=3, linestyle="None", marker="o", color="r")
-plt.plot(z, np.gradient(cs(z)), markersize=3, linestyle="None", marker="o", color="r")
+#plt.plot(z, np.gradient(cs(z)), markersize=3, linestyle="None", marker="o", color="r")
+plt.plot(z, (cs(z)) ** (-0.5), markersize=3, linestyle="None", marker="o", color="r")
 
 
 

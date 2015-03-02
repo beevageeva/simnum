@@ -223,6 +223,8 @@ else:
 		rhoIni =  densFunc(z)
 		return np.sqrt(np.divide(gamma * p00,rhoIni))
 
+	def getRhoIni(z):
+		return densFunc(z)
 
 	def getInitialPresRhoVel(z):
 		#repeated def of cs00 in order not to calculate twice rhoIni
@@ -230,7 +232,8 @@ else:
 		cs00 =  np.sqrt(np.divide(gamma * p00,rhoIni))
 		w = getWFunction()
 		f = w(z)
-		return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rho00 *A* f , 'vel': v00 + cs00 * A* f }
+		#return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rho00 *A* f , 'vel': v00 + cs00 * A* f }
+		return {'pres': p00 + gamma * p00 * A* f  , 'rho': rhoIni + rhoIni *A* f , 'vel': v00 + cs00 * A* f }
 
 	def getInitialFunctionMaxMinZIndex(z):
 		w = getWFunction()(z)
@@ -470,6 +473,34 @@ else:
 			return A*np.cos(2.0 * pi * k0 * (z-z0)/ (zf - z0) - omega * t ) * getSoundWaveGaussFunction(zc , W)(z - cs * t)
 		
 
+
+	def parametricCurves(z0Param, zt, time):
+		csZ0 = getCs00(z0Param)
+		csZt = getCs00(zt)
+		from sound_wave_packet_params import getSoundWaveGaussFunction, zc, W, k0
+		from sound_wave_params import p00, A, densFunc, v00
+		#gamma * p00/densFunc(z(t)) = cs(z(t)) ** 2	
+		from constants import gamma, z0, zf
+		from math import pi	
+		ampIni = getSoundWaveGaussFunction(zc, W)(z0Param)
+		#presAmp = ampIni(self.z) * csZ0 ** (0.5) * csZt ** (-0.5) * (p00 * gamma * A)
+		#rhoAmp = presAmp * csZt**(-2)
+		#velAmp  = presAmp * (1.0 / (p00 * gamma)) * csZt
+		k = k0 * csZ0 / csZt
+		from common import getZIndex
+		curve = np.zeros(zt.shape)	
+		for index in range(zt.shape[0]):
+			curve[getZIndex(zt[index])] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi / (zf - z0) *(k[index] * zt[index] - k0 * csZ0[index] * time - k0 * z0))
+		
+		presAn =  p00 + p00 * gamma * curve
+		rhoIni = densFunc(z0) #= gamma * p00  cs(z(t))** (-2)
+		rhoAn =   rhoIni + rhoIni * curve
+		velAn =   v00 + csZ0 * curve 
+		return {'curve': curve, 'presAn': presAn, 'rhoAn': rhoAn, 'velAn': velAn}
+	
+			
+
+
 						
 	#analitycal values TO KEEP them like in homog case 
 	getRhoCurve = wAnal2
@@ -508,7 +539,7 @@ def getRhoCurveNumeric(rho,z):
 	else:
 		from sound_wave_params import densFunc
 		rhoIni=densFunc(z)
-	return np.divide(np.subtract(rho,rhoIni),rho00)
+	return np.divide(np.subtract(rho,rhoIni),rhoIni)
 
 
 

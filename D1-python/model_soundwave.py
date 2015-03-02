@@ -7,8 +7,8 @@ from initcond_soundwave import getCs00
 
 
 
-showErr = True
-#showErr = False
+#showErr = True
+showErr = False
 calcKc = True
 #calcKc = False
 
@@ -39,22 +39,29 @@ class Model(BaseModel):
 			print("addMarkPoint = %E, plotting on pres axis" % self.addMarkPoint)
 
 
-	def getNewPoint(self, zval, dt, zIndex = None):
+	#csNumerical = False won't work with superposition same point and time (wave packet is not in this case)
+	def getNewPoint(self, zval, dt, csNumerical = True):
 		from common import displacedPoint, getZIndex
 		from math import sqrt
 		from sound_wave_params import v00, p00, periodicType
-		if zIndex is None: 	
+		if(csNumerical):
 			zIndex = getZIndex(zval)	
-		#from sound_wave_params import csSign 
-		#I should not import from here: this should be used for generating initial conditions only
-		# I have to calculate it from actual values
-		#Imagine that it should work for a superposition of wave travelling right and left
-		if (self.pres[zIndex]< p00 and self.vel[zIndex] > v00 ) or (self.pres[zIndex]> p00 and self.vel[zIndex] < v00 ):
-			csSign = -1
+			#from sound_wave_params import csSign 
+			#I should not import from here: this should be used for generating initial conditions only
+			# I have to calculate it from actual values
+			#Imagine that it should work for a superposition of wave travelling right and left
+			if (self.pres[zIndex]< p00 and self.vel[zIndex] > v00 ) or (self.pres[zIndex]> p00 and self.vel[zIndex] < v00 ):
+				csSign = -1
+			else:
+				csSign = 1
+			cs = csSign * sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
 		else:
-			csSign = 1
-		cs = sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
-		v = v00 + csSign * cs	
+			from initcond_soundwave import getCs00
+			if(mediumType == "homog"):
+				cs = getCs00()
+			else:
+				cs = getCs00(zval)	
+		v = v00 +  cs	
 		newz = displacedPoint(zval, v, dt, periodicType)
 		return newz
 
@@ -83,28 +90,29 @@ class Model(BaseModel):
 #				print("markPoint num = %e, markPoint from cs = %e" % (self.addMarkPoint, mp + dt * getCs00(mp)  ))
 		
 		#CALCNEWZ		
-		if calcNewZ:
-			from common import getZIndex
-			from initcond_soundwave import csderAnal
-			#TODO weave
-			#cs = getCs00(self.z)
-			#csder = csderAnal(self.z)
-			for index in range(self.z.shape[0]):
-				zval = self.z[index]
-				
-				#newZ = self.getNewPoint(self.newZ[index], dt, index) WHY index??????
-				newZ = self.getNewPoint(self.newZ[index], dt)
-				newZIndex = getZIndex(newZ)
-				#print("CRAP %e" %  (self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt))
-				#self.K[index] = self.K[index] - self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
-				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
-				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index])  * dt
-				#self.K[index] +=(-np.exp(-csderAnal(self.newZ[index]) * getCs00(self.newZ[index])) + np.exp(-csderAnal(newZ) * getCs00(newZ)))*dt
-				self.K[index] *=np.exp((csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) - csderAnal(newZ) * getCs00(newZ))*dt)
-				self.newZ[index] = newZ
-				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * getCs00(zval) * dt
-				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * dt
-
+#		if calcNewZ:
+#			from common import getZIndex
+#			from initcond_soundwave import csderAnal
+#			#TODO weave
+#			#cs = getCs00(self.z)
+#			#csder = csderAnal(self.z)
+#			for index in range(self.z.shape[0]):
+#				#zval = self.z[index]
+#				
+#				#newZ = self.getNewPoint(self.newZ[index],dt)
+#				#newZIndex = getZIndex(newZ)
+#				#print("CRAP %e" %  (self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt))
+#				#self.K[index] = self.K[index] - self.K[newZIndex] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
+#				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) * dt
+#				#self.K[index] = self.K[index] - self.K[index] * csderAnal(self.newZ[index])  * dt
+#				#self.K[index] +=(-np.exp(-csderAnal(self.newZ[index]) * getCs00(self.newZ[index])) + np.exp(-csderAnal(newZ) * getCs00(newZ)))*dt
+#				#self.K[index] *=np.exp((csderAnal(self.newZ[index]) * getCs00(self.newZ[index]) - csderAnal(newZ) * getCs00(newZ))*dt)
+#				#print("%e" % (getCs00(newZ) / getCs00(self.newZ[index]) ))
+#				#self.K[index] = self.K[index] * getCs00(self.newZ[index]) / getCs00(newZ)
+#				self.newZ[index] = self.getNewPoint(self.newZ[index],dt)
+#				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * getCs00(zval) * dt
+#				#self.K[index] = self.K[index] - self.K[index] * csderAnal(zval) * dt
+#
 
 		
 			
@@ -114,19 +122,12 @@ class Model(BaseModel):
 
 		if(calcKc):
 			#print("upd")
-			self.presFFT = self.getPresFFTVals(False)
-			F = self.presFFT[1]
-			Y = self.presFFT[0]
-			#first value is the mean
-			#print("F=")
-			#print(F)
-			kc = abs(F[np.argmax(Y[1:])+1])
 			#use initial markpoint
 			if mediumType == "inhomog" and not addMarkPoint is None:
-				from initcond_soundwave import kAnal
+				#from initcond_soundwave import kAnal
 				#k = kAnal(self.z, time)
 				#print("kc = %e, mean anKc = %e, max anKc = %e" % (kc, np.mean(k), np.max(k)))
-				from initcond_soundwave import csderAnal, getX0Index
+				#from initcond_soundwave import csderAnal, getX0Index
 				#from common import getZIndex
 				#indexMarkPoint = getZIndex(addMarkPoint)
 				#cp = np.exp(-csderAnal(addMarkPoint) * getCs00(addMarkPoint) * time)   #NO
@@ -143,17 +144,36 @@ class Model(BaseModel):
 				#cp = np.exp(-csderAnal(self.addMarkPoint) * time)
 				#cs = getCs00(self.addMarkPoint) 
 				#print("kc=%e,cp=%e,kc/cp=%e,cs=%e,cs*cp=%e,kc/(cp*cs)=%e,kc*cs=%e" % (kc, cp, kc / cp, cs, cs*cp, kc/(cp * cs), cs*kc))
-				cs = getCs00(self.addMarkPoint)
-				from common import getZIndex
-				from math import pi
-				from constants import z0, zf
-				k0 = 60 * 2 * pi / (zf - z0)
-				#k = kAnal(addMarkPoint, time, self.z)
-				kt = self.K[getZIndex(addMarkPoint)]
-				#kt = self.K[getZIndex(self.addMarkPoint)]
-				#kt1 = self.K[getZIndex(self.addMarkPoint)]
-				#print("kc=%e,kt=%e,kc/kt = %e,kt1=%e,kc/kt1=%e,kc*cs(zp(t))=%e" % (kc, kt, kc / kt, kt1, kc/kt1,kc * cs))
-				print("kc=%e,kt=%e,kc/kt = %e, kc*cs(zp(t))=%e" % (kc, kt, kc / kt, kc * cs))
+				from common import getZIndex			
+				#np.set_printoptions(threshold='nan')
+				#print("self.newZIndex B")
+				#print(self.newZIndex)
+				#print("self.newZ B")
+				#print(self.newZ)
+
+				tempNewZ = np.zeros(self.z.shape)
+				tempNewZIndex = np.zeros(self.z.shape)
+				#going index forward same as cs : will overwrite the array TODO no temp vars
+				for index in range(self.z.shape[0]):
+					tempNewZ[index] = self.getNewPoint(self.newZ[index],dt, False)
+					#resolution!
+					tempNewZIndex[index] = getZIndex(self.getNewPoint(self.z[self.newZIndex[index]],dt, False))
+#					if (index > 1000 and index <1020):
+#						print("index=%d, firstz=%e, oldnewz=%e, newnewz=%e" % (index ,self.z[index], self.newZ[index],  tempNewZ[index] ))
+				self.newZ = tempNewZ
+				self.newZIndex = tempNewZIndex
+				print("first mp = %d, newz = %e, num=%e, ini index = %d , new z index of mark point newZIndex: %d, newz: %d , num: %d" % (addMarkPoint, self.newZ[getZIndex(addMarkPoint)], self.addMarkPoint, getZIndex(addMarkPoint), self.newZIndex[getZIndex(addMarkPoint)], getZIndex(self.newZ[getZIndex(addMarkPoint)]), getZIndex(self.addMarkPoint) ))
+
+				from initcond_soundwave import getCs00
+				from common import getDz
+				print("dz: %e, dt*minCs=%e" % (getDz(), dt * np.min(getCs00(self.z))))
+				
+				#print("zindex of addMarkPoint %e, zindex of new markpoint %e"   % (getZIndex(addMarkPoint), getZIndex(self.addMarkPoint)))
+
+				#print("self.newZ[addMarkpoint] %e == %e self.addMarkPoint " % (self.newZ[getZIndex(addMarkPoint)],self.addMarkPoint ))	
+				
+
+
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e == %e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint), csderAnal(self.addMarkPoint))) NO
 				#print("%e" % (csderAnal(addMarkPoint) * getCs00(self.addMarkPoint)/ csderAnal(self.addMarkPoint)))
@@ -170,6 +190,108 @@ class Model(BaseModel):
 
 
 	def updateValuesNotifier(self, dt, time):
+		if(mediumType == "inhomog" and (plotPresAn or plotRhoAn or plotVelAn)):
+			from initcond_soundwave import parametricCurves, csderAnal
+			csZ0 = getCs00(self.z)
+			csZt = getCs00(self.newZ)
+			#csZt2 = getCs00(self.z[self.newZIndex])
+			from sound_wave_packet_params import getSoundWaveGaussFunction, zc, W, k0
+			from sound_wave_params import p00, A, densFunc, v00
+			#gamma * p00/densFunc(z(t)) = cs(z(t)) ** 2	
+			from constants import gamma, z0, zf
+			from math import pi	
+			from common import getZIndex
+
+			def newZIndexInverse(zvalIndex):
+				for	index in range(self.z.shape[0]):
+					if self.newZIndex[index] == zvalIndex :
+						return index
+			
+			def reshiftInv(array):
+				res = np.zeros(array.shape)
+				for index in range(0, array.shape[0]):
+					res[newZIndexInverse(index)] = array[index]
+				return res
+			def reshift(array):
+				res = np.zeros(array.shape)
+				for index in range(0, array.shape[0]):
+					res[self.newZIndex[index]] = array[index]
+				return res
+			def reshift2(array):
+				res = np.zeros(array.shape)
+				for index in range(0, array.shape[0]):
+					res[getZIndex(self.newZ[index])] = array[index]
+				return res
+	
+			self.presFFT = self.getPresFFTVals(False)
+			F = self.presFFT[1]
+			Y = self.presFFT[0]
+			#first value is the mean
+			#print("F=")
+			#print(F)
+			kc = abs(F[np.argmax(Y[1:])+1])
+			ampIni = getSoundWaveGaussFunction(zc, W)(self.z)
+			shiftNow = True
+			#presAmp = ampIni(self.z) * csZ0 ** (0.5) * csZt ** (-0.5) * (p00 * gamma * A)
+			#rhoAmp = presAmp * csZt**(-2)
+			#velAmp  = presAmp * (1.0 / (p00 * gamma)) * csZt
+			#k = k0 * csZ0 / csZt
+			#k2 = k0 * csZ0 / csZt2
+			#kSh = reshift(k)
+			#kSh2 = reshift2(k)
+			#print("update not K mark point %e , ksh self add  markpoint = %e " % (k[getZIndex(addMarkPoint)],kSh[getZIndex(self.addMarkPoint)] ))
+			#print("update not2 K mark point %e , ksh self add  markpoint = %e " % (k2[getZIndex(addMarkPoint)],kSh2[getZIndex(self.addMarkPoint)] ))
+			#curve = np.zeros(self.z.shape) INTERP NEXT!
+			curve = np.full(self.z.shape, np.nan)
+			for index in range(self.z.shape[0]):
+				#curve[newZIndexInverse(index)] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi / (zf - z0) *(k[index] * self.z[self.newZIndex[index]] - k0 * csZ0[index] * time - k0 * z0))
+				#curve[self.newZIndex[index]] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi / (zf - z0) *(k[index] * self.z[self.newZIndex[index]] - k0 * csZ0[index] * time - k0 * z0))
+				#curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt2[index] ** (-0.5) *  A * np.cos( 2 * pi / (zf - z0) *(k2[index] * self.newZ[index] - k0 * csZ0[index] * time - k0 * z0))
+				if shiftNow:
+					cIndex = getZIndex(self.newZ[index])
+					if(np.isnan(curve[cIndex])):
+						curve[cIndex] = 0
+					curve[cIndex] += ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( self.newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				else:
+					curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( self.newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+			
+			#argSort = np.argsort(self.newZ)	
+			#curve = curve[argSort]
+
+			if shiftNow:
+				#interpolate nan values!
+				nans, x= np.isnan(curve), lambda z: z.nonzero()[0]
+				curve[nans]= np.interp(x(nans), x(~nans), curve[~nans])
+
+				rhoIni = densFunc(self.z) #= gamma * p00  cs(z(t))** (-2)  no shift
+				velAn =   v00 + csZ0 * curve 
+				newZ = None
+			else:
+				rhoIni = densFunc(self.newZ) #= gamma * p00  cs(z(t))** (-2) shift afterwards
+				velAn =   v00 + csZt * curve 
+				newZ = [self.z, self.newZ]
+			presAn =  p00 + p00 * gamma * curve
+			rhoAn =   rhoIni + rhoIni * curve
+
+			#anCurves = parametricCurves(self.z, self.newZ, time)
+
+			#print("MP num, a a2 %e == %e == %e" % (self.addMarkPoint, self.newZ[getZIndex(addMarkPoint)], self.z[self.newZIndex[getZIndex(addMarkPoint)]] ))	
+			cszp0 = getCs00(addMarkPoint)
+			cszp = 	getCs00(self.addMarkPoint)
+			kt = 60.0 *  cszp0/cszp
+			ktnew =  k0 * (csZ0[getZIndex(addMarkPoint)]/csZt[getZIndex(addMarkPoint)]) 
+			#ampMaxPres =p00 + p00* A*ampIni(addMarkPoint) * cszp ** (-0.5) * cszp0 ** 0.5
+			#print("maxPres=%e, ampPres=%e, az0/cszp=%e" % (np.max(self.pres) , ampMaxPres, ampIni(addMarkPoint)/cszp**(-0.5)))
+			#kt = self.K[getZIndex(self.addMarkPoint)]
+			#kt1 = self.K[getZIndex(self.addMarkPoint)]
+			#print("kc=%e,kt=%e,kc/kt = %e,kt1=%e,kc/kt1=%e,kc*cs(zp(t))=%e" % (kc, kt, kc / kt, kt1, kc/kt1,kc * cs))
+			print("kc=%e,kt=%e,ktnew=%e,ktExp=%e,kc/kt = %e, kc*cs(zp(t))=%e,kt*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew, k0 * np.exp(-csderAnal(self.addMarkPoint) * time),kc / kt, kc * cszp, kt*cszp, k0*cszp0))
+			print("MP num, a  %e == %e " % (self.addMarkPoint, self.newZ[getZIndex(addMarkPoint)]))	
+
+			print("pres mark point %e == %e" % (self.pres[getZIndex(self.addMarkPoint)], presAn[getZIndex(self.addMarkPoint)] ))
+			#curve = anCurves['curve']	
+	
+
 		#TODO simpl
 		if(plotPresCurve):
 			from initcond_soundwave import getPresCurveNumeric
@@ -178,9 +300,13 @@ class Model(BaseModel):
 		if(plotRhoCurve):
 			from initcond_soundwave import getRhoCurveNumeric
 		if(plotPresAn):
-			from initcond_soundwave import getPresCurve,getPresAn
-			presc = getPresCurve(self.z, time)
-			anPres =  getPresAn(self.z, time, presc)
+			if(mediumType == "homog"):
+				from initcond_soundwave import getPresCurve,getPresAn
+				presc = getPresCurve(self.z, time)
+				anPres =  getPresAn(self.z, time, presc)
+			else:
+				presc = curve
+				anPres = presAn
 			presNewVals = [self.pres, anPres]
 			if(showErr):
 				err = np.max(np.absolute(np.subtract(self.pres, anPres)))
@@ -192,9 +318,13 @@ class Model(BaseModel):
 			if(plotPresCurve):
 				presCurveNewVals = getPresCurveNumeric(self.pres)
 		if(plotRhoAn):
-			from initcond_soundwave import getRhoCurve,getRhoAn
-			rhoc = getRhoCurve(self.z, time)
-			anRho =  getRhoAn(self.z, time, rhoc)
+			if(mediumType == "homog"):	
+				from initcond_soundwave import getRhoCurve,getRhoAn
+				rhoc = getRhoCurve(self.z, time)
+				anRho =  getRhoAn(self.z, time, rhoc)
+			else:
+				rhoc = curve
+				anRho = rhoAn
 			rhoNewVals = [self.rho, anRho]
 			if(showErr):
 				err = np.max(np.absolute(np.subtract(self.rho, anRho)))
@@ -206,9 +336,13 @@ class Model(BaseModel):
 			if(plotRhoCurve):
 				rhoCurveNewVals = getRhoCurveNumeric(self.rho, self.z)
 		if(plotVelAn):
-			from initcond_soundwave import getVelCurve,getVelAn
-			velc = getVelCurve(self.z, time)
-			anVel =  getVelAn(self.z, time, velc)
+			if(mediumType == "homog"):
+				from initcond_soundwave import getVelCurve,getVelAn
+				velc = getVelCurve(self.z, time)
+				anVel =  getVelAn(self.z, time, velc)
+			else:
+				velc = curve
+				anVel = velAn
 			velNewVals = [self.vel, anVel]
 			if(showErr):
 				err = np.max(np.absolute(np.subtract(self.vel, anVel)))
@@ -220,11 +354,19 @@ class Model(BaseModel):
 			if(plotVelCurve):
 				velCurveNewVals = getVelCurveNumeric(self.vel)
 
+		if(mediumType == "homog"):
+			newRhoZ = None
+			newPresZ = None
+			newVelZ = None
+		else:	
+			newRhoZ = newZ
+			newPresZ = newZ
+			newVelZ = newZ
 		
 
-		self.notifier.updateValues("rho", rhoNewVals)
-		self.notifier.updateValues("pres", presNewVals)
-		self.notifier.updateValues("vel", velNewVals)
+		self.notifier.updateValues("rho", rhoNewVals, newRhoZ)
+		self.notifier.updateValues("pres", presNewVals, newPresZ)
+		self.notifier.updateValues("vel", velNewVals, newVelZ)
 		if(plotPresCurve):
 			self.notifier.updateValues("presCurve", presCurveNewVals)
 		if(plotVelCurve):
@@ -356,6 +498,7 @@ class Model(BaseModel):
 		if(plotCsMaxMin):
 			if(mediumType=="inhomog"):
 				from initcond_soundwave import  getInitialFunctionMaxMinZIndex, getCs00
+				from sound_wave_params  import  p00, densFunc
 				r = getInitialFunctionMaxMinZIndex(self.z)
 				minZIndex = r[0]
 				maxZIndex = r[1]
@@ -364,23 +507,26 @@ class Model(BaseModel):
 				#print("maxZIndex")
 				#print(maxZIndex)
 				cs00 = getCs00(self.z)
-				for alpha in np.arange(-2.5, 2.5, 0.5):
+				#for alpha in np.arange(-2.5, 2.5, 0.5):
+				for alpha in [-0.5]:
 					vals = np.power(cs00, alpha)
-					self.notifier.plotAxis(self.z,"pres",  np.multiply(self.pres[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
-					self.notifier.plotAxis(self.z,"pres", np.multiply(self.pres[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"pres",  p00 + ((self.pres[minZIndex] - p00)/ vals[minZIndex]) * vals, "(min)%1.1f" % alpha)
+					self.notifier.plotAxis(self.z,"pres",  p00 + ((self.pres[maxZIndex] - p00)/ vals[maxZIndex]) * vals, "(max)%1.1f" % alpha)
+				for alpha in [ 0.5]:
+					vals = np.power(cs00, alpha)
 					self.notifier.plotAxis(self.z,"vel", np.multiply(self.vel[minZIndex] / vals[minZIndex],vals), "(min)%1.1f" % alpha)
 					self.notifier.plotAxis(self.z,"vel", np.multiply(self.vel[maxZIndex] / vals[maxZIndex],vals), "(max)%1.1f" % alpha)
 					if(plotRhoCurve):
-						from initcond_soundwave import getRhoCurveNumeric
-						self.notifier.plotAxis(self.z,"rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[minZIndex] / vals[minZIndex],vals), self.z), "(min)%1.1f" % alpha)
-						self.notifier.plotAxis(self.z,"rhoCurve", getRhoCurveNumeric(np.multiply(self.rho[maxZIndex] / vals[maxZIndex],vals), self.z), "(max)%1.1f" % alpha)
+						for alpha in [-0.5]:
+							vals = np.power(cs00, alpha)
+							self.notifier.plotAxis(self.z,"rhoCurve", ((self.rho[minZIndex] - densFunc(self.z[minZIndex])) / (vals[minZIndex] * densFunc(self.z[minZIndex])))* vals , "(min)%1.1f" % alpha)
+							self.notifier.plotAxis(self.z,"rhoCurve", ((self.rho[maxZIndex] - densFunc(self.z[maxZIndex])) / (vals[maxZIndex] * densFunc(self.z[maxZIndex])))* vals , "(max)%1.1f" % alpha)
 
 			else:
 				print("csmin max only inhom")
 		if calcNewZ and mediumType == "inhomog":
-			self.newZ = np.zeros(self.z.shape)
-			from sound_wave_packet_params import k0
-			self.K = np.ones(self.z.shape) * k0
+			self.newZIndex = np.arange(self.z.shape[0])
+			self.newZ = np.array(self.z)
 		
 
 

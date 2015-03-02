@@ -47,7 +47,8 @@ def getPeriodicX2(xval, a=z0, b=zf):
 	return xval
 
 def getZIndex(z):
-	return int( float(nint)*(z - z0)/(zf - z0) )
+	#return int(float(nint)*(z - z0)/(zf - z0) ) I should take in account that real z0 = z0 - dz*0.5!
+	return int(float(nint)*(z - z0)/(zf - z0) + 0.5 )
 
 #assumes periodic function
 def displacedPoint(z, c, t, periodicType="repeat"):

@@ -7,8 +7,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-saveImages = False
-#saveImages = True
+#saveImages = False
+saveImages = True
 
 def getXLimits(title):
 	if(title == "velFFT" or title == "presFFT"):
@@ -166,9 +166,15 @@ class VisualPlot:
 			self.lines[title] = []
 			for i in range(0, shape[0]):
 				if(linestyle == '-'):
-					l, = ax.plot(z, vals[i], lw=2, color=getRandomColor(),  label="%d" % i)
+					if(len(z.shape) == 2):
+						l, = ax.plot(z[i], vals[i], lw=2, color=getRandomColor(),  label="%d" % i)
+					else:
+						l, = ax.plot(z, vals[i], lw=2, color=getRandomColor(),  label="%d" % i)
 				else:
-					l, = ax.plot(z, vals[i], color=getRandomColor(),  markersize=3, linestyle="None", marker="o",  label="%d" % i)
+					if(len(z.shape) == 2):
+						l, = ax.plot(z[i], vals[i], color=getRandomColor(),  markersize=3, linestyle="None", marker="o",  label="%d" % i)
+					else:
+						l, = ax.plot(z, vals[i], color=getRandomColor(),  markersize=3, linestyle="None", marker="o",  label="%d" % i)
 				plotLegend = True
 				#l, = ax.plot(z, vals[i], lw=2, color=getRandomColor(), markersize=5, linestyle="-", marker="o", label="%d" % i)
 				self.lines[title].append(l)
@@ -243,19 +249,44 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
-	def updateValues(self, title, newValues):
+	def updateValues(self, title, newValues, newZ = None, sortValues = False):
+		if not newZ is None:
+			sortValues = True
 		#print("updateValues %s" % title)
 		shape = np.shape(newValues)
 		#we can plot multiple graphs on the same axis : example numerical and analytical: see addAxis before!!
 		if(len(shape)==1):
+			if not newZ is None:
+				if sortValues:
+					argSort = np.argsort(newZ)
+					newZP = newZ[argSort]	
+				else:
+					newZP = newZ
+				self.lines[title].set_xdata(newZP)
+			if sortValues:
+				newValuesP = newValues[argSort]
+			else:
+				newValuesP = newValues	
 			self.lines[title].set_ydata(newValues)
+
 			#print(" ".join(map(str, newValues)))
 		elif(len(shape)==2):
 			#print(" ".join(map(str, newValues[0])))
 			nlines = shape[0]
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
-					self.lines[title][i].set_ydata(newValues[i])
+					if not newZ is None:
+						if sortValues:
+							argSort = np.argsort(newZ[i])
+							newZi = newZ[i][argSort]	
+						else:
+							newZi = newZ[i]
+						self.lines[title][i].set_xdata(newZi)
+					if sortValues:
+						newValuesi = newValues[i][argSort]
+					else:
+						newValuesi = newValues[i]
+					self.lines[title][i].set_ydata(newValuesi)
 		relimAxis(self.axes[title], title)	
 		
 		
