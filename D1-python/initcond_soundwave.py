@@ -30,6 +30,11 @@ def fromCurvesToVals(pEq, rhoEq, vEq, presPert, rhoPert, velPert):
 
 def fromValsToCurvePres(p):
 	from soundwave_medium_params import p00
+	np.set_printoptions(threshold='nan')
+	print("numeric pres curve")	
+	curve = np.divide(np.subtract(p,p00),p00)
+	print("MAX CURVE = %e , IND MAX CURVE =%d, min CURVE = %e , ind MIN curve = %d" % (np.max(curve), np.argmax(curve), np.min(curve), np.argmin(curve) ) )
+	#print(np.divide(np.subtract(p,p00),p00))	
 	return np.divide(np.subtract(p,p00),p00)
 
 def getInitialPresRhoVel(z):

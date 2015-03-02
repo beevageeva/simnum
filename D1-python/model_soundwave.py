@@ -55,7 +55,7 @@ class Model(BaseModel):
 				csSign = 1
 			cs = csSign * sqrt(gamma * self.pres[zIndex] / self.rho[zIndex])
 		else:
-			from soundwave_medium_type import cs00
+			from soundwave_medium_params import cs00
 			if(mediumType == "homog"):
 				cs = cs00
 			else:
@@ -92,7 +92,7 @@ class Model(BaseModel):
 					cszp = 	cs00(self.addMarkPoint)
 					kt = k0 *  cszp0/cszp
 					ktnew =  k0 * np.exp(-csderAnal(self.addMarkPoint) * time)
-					print("kc=%e,kt=%e,ktnew=%e,kc/kt = %e, kc*cs(zp(t))=%e,kt*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew,kc / kt, kc * cszp, kt*cszp, k0*cszp0))
+					print("kc=%e,kt=%e,ktnew=%e,kc/kt = %e, kc*cs(zp(t))=%e,ktnew*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew,kc / kt, kc * cszp, ktnew*cszp, k0*cszp0))
 
 				
 
@@ -123,7 +123,7 @@ class Model(BaseModel):
 		else:
 			presNewVals = self.pres
 			if(plotPresCurve):
-				presCurveNewVals = getPresCurveNumeric(self.pres)
+				presCurveNewVals = fromValsToCurvePres(self.pres)
 		if(plotRhoAn):
 			rhoc = curves["rho"]
 			anRho =  anVals["rho"]
@@ -154,13 +154,13 @@ class Model(BaseModel):
 		newRhoZ = None
 		newPresZ = None
 		newVelZ = None
-		if(mediumType == "inhomog"):
-			from analytic_solution import shiftNow
-			if not shiftNow:
-				from analytic_solution import newZ
-				newRhoZ = newZ
-				newPresZ = newZ
-				newVelZ = newZ
+#		if(mediumType == "inhomog"):
+#			from analytic_solution import shiftNow
+#			if not shiftNow:
+#				from analytic_solution import newZ
+#				newRhoZ = newZ
+#				newPresZ = newZ
+#				newVelZ = newZ
 		
 
 		self.notifier.updateValues("rho", rhoNewVals, newRhoZ)
@@ -257,7 +257,7 @@ class Model(BaseModel):
 		#plot Curves of pression , vel, density
 		if(plotPresCurve):
 			from initcond_soundwave import fromValsToCurvePres
-			prescvals = fromValsToCurveVel(self.pres)
+			prescvals = fromValsToCurvePres(self.pres)
 			self.notifier.addGraph(self.z, "presCurve",[prescvals, prescvals] if plotPresAn else prescvals)
 		if(plotVelCurve):
 			from initcond_soundwave import fromValsToCurveVel

@@ -3,7 +3,7 @@ from soundwave_medium_params import mediumType
 from initcond_soundwave import getWFunction, fromCurvesToVals
 from soundwave_boundary_conditions import getPeriodicXArray
 
-def getValsCurvesNotShifted(z, curves):
+def getVals(z, curves):
 	from soundwave_medium_params import p00, v00
 	if mediumType == "homog":
 		from soundwave_medium_params import rho00
@@ -23,56 +23,66 @@ if mediumType == "homog":
 		newZ = getPeriodicXArray(z - csSign * cs00 * t)
 		return getWFunction(functiontype)(newZ)
 
-	getVals = getValsCurvesNotShifted
 
 elif mediumType == "inhomog":
 	from common import getZArray	
-	firstZ = getZArray()
 	newZ = getZArray()
 
-	shiftNow = False
-	print("creating newZ for analytic sol and  shiftNow is %s" % (str(shiftNow)))
+	print("creating newZ for analytic sol and  " )
 
-	def getWFunctionVals(functiontype, csSign, z, t):
+	
+	def getZ0Index(zval):
+		delta = 0.0001
+		for index in range(newZ.shape[0]):
+			if (abs(newZ[index] - zval)<delta):
+				return index
+
+
+	def getWFunctionVals(functiontype, csSign, z, time):
 		if(functiontype != "wavepacket"):
 			print("analytical method not implemented")
 			import sys
 			sys.exit(0)
-		
+		from constants import z0, zf
+		indexZ0 = np.zeros(newZ.shape)		
+		for index in range(newZ.shape[0]):
+			indexZ0[index] = getZ0Index(z[index])
+			#print(indexZ0[index])
+		nans, x= np.isnan(indexZ0), lambda z: z.nonzero()[0]
+		indexZ0[nans]= np.interp(x(nans), x(~nans), indexZ0[~nans])
+		indexZ0 = indexZ0.astype(int)
+		np.set_printoptions(threshold='nan')	
+		print(indexZ0)
+		firstZ = z[indexZ0]
+		from soundwave_medium_params import cs00
+		from soundwave_perturbation_params import A	
 		csZ0 = cs00(firstZ)
-		csZt = cs00(newZ)
-		
+		csZt = cs00(z)
+		from sound_wave_packet_params import getSoundWaveGaussFunction, zc, W, k0
 		ampIni = getSoundWaveGaussFunction(zc, W)(firstZ)
-		curve = np.full(firstZ.shape, np.nan)
+		#print("AMP INI")
+		#print(ampIni)
+		curve = np.zeros(firstZ.shape)
+		from math import pi
 		for index in range(firstZ.shape[0]):
-			if shiftNow:
-				cIndex = getZIndex(newZ[index])
-				if(np.isnan(curve[cIndex])):
-					curve[cIndex] = 0
-				curve[cIndex] += ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
-			else:
-				curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+			curve[index] =  ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  A * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( z[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
 	
-		if shiftNow:
-			#interpolate nan values!
-			nans, x= np.isnan(curve), lambda z: z.nonzero()[0]
-			curve[nans]= np.interp(x(nans), x(~nans), curve[~nans])
-		return {'pres': curve,'rho': curve,'vel': curve}
+		print("curve")
 
-	if shiftNow:
-		getVals = getValsCurvesNotShifted
-	else:	
-		def getVals(z, curves):
-			rhoIni = densFunc(newZ) #= gamma * p00  cs(z(t))** (-2) shift afterwards
-			velAn =   v00 + csZt * curves['vel'] 
-			presAn =  p00 + p00 * gamma * curves['pres']
-			rhoAn =   rhoIni + rhoIni * curves['rho']
-			return {'pres' : presAn, 'rho' : rhoAn, 'vel': velAn}
+		#print(curve)
+		print("MAX CURVE = %e , IND MAX CURVE =%d, min CURVE = %e , ind MIN curve = %d" % (np.max(curve), np.argmax(curve), np.min(curve), np.argmin(curve) ) )
+		
+		
+
+		return curve
 	
 
 	def updateNewZ(modelObj, dt, csNumerical):
 		for index in range(newZ.shape[0]):
 			newZ[index] = modelObj.getNewPoint(newZ[index],dt, False)
+
+
+
 
 
 def getCurves(z, t):

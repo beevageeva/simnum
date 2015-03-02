@@ -14,6 +14,8 @@ def getZArray():
 def getZIndex(z):
 	#return int(float(nint)*(z - z0)/(zf - z0) ) I should take in account that real z0 = z0 - dz*0.5!
 	return int(float(nint)*(z - z0)/(zf - z0) + 0.5 )
+	#dz = getDz()
+	#return int((z - z0 + 0.5*dz)/dz )
 
 
 #creates an output directory called out_0, out_1, ... the first that does not exists
