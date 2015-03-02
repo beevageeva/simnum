@@ -114,6 +114,7 @@ class Model(BaseModel):
 		if(plotPresAn):
 			presc = curves['pres']
 			anPres =  anVals['pres']
+			print("in update vgals notif max pres an ind = %d  max = %e" % (np.argmax(anPres),np.max(anPres) ))
 			presNewVals = [self.pres, anPres]
 			if(showErr):
 				err = np.max(np.absolute(np.subtract(self.pres, anPres)))
@@ -189,10 +190,6 @@ class Model(BaseModel):
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if hasattr(self, "addMarkPoint"):
 			self.notifier.markPoint("pres", "addMarkPoint", self.addMarkPoint)
-#		from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
-#		delta = 0.1
-#		self.notifier.markPoint("pres", "LB",getFirstIndexDifferentLeft(self.pres, delta, zc))
-#		self.notifier.markPoint("pres", "RB",getFirstIndexDifferentRight(self.pres, delta, None))
 		
 
 	def getInitialValues(self):
