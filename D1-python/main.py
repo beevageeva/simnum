@@ -1,11 +1,9 @@
 import getopt,sys
 from constants import problemType
 if problemType == "soundwave":
-	from initcond_soundwave import getInitialPresRhoVel
 	from model_soundwave import Model
 elif problemType == "riemann":
 	from model_riemann import Model
-	from initcond_riemann import getInitialPresRhoVel
 else:
 	print("problemtype %s not implemented" % problemType)
 	sys.exit(0)

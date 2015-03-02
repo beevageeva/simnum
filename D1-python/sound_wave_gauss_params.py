@@ -1,5 +1,6 @@
 import numpy as np
 
+from constants import z0, zf
 
 R = 0.05
 def getSoundWaveFunction(R):

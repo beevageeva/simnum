@@ -7,8 +7,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-#saveImages = False
-saveImages = True
+saveImages = False
+#saveImages = True
 
 def getXLimits(title):
 	if(title == "velFFT" or title == "presFFT"):
@@ -17,11 +17,11 @@ def getXLimits(title):
 	return {"minX" : z0, "maxX" : zf}
 
 def getYLimits(title):
-	from sound_wave_params import mediumType
+	from soundwave_medium_params import mediumType
 	if mediumType == "homog":
 		medType = "homog"
 	else:	
-		from sound_wave_params import inhomogSubtype
+		from soundwave_medium_params import inhomogSubtype
 		if inhomogSubtype == 1:
 			medType = "inhomog1"
 		else:
@@ -250,6 +250,7 @@ class VisualPlot:
 		plt.show(block=False)
 
 	def updateValues(self, title, newValues, newZ = None, sortValues = False):
+		#TODO newZ as tuple
 		if not newZ is None:
 			sortValues = True
 		#print("updateValues %s" % title)
@@ -260,14 +261,16 @@ class VisualPlot:
 				if sortValues:
 					argSort = np.argsort(newZ)
 					newZP = newZ[argSort]	
+					newValuesP = newValues[argSort]
 				else:
 					newZP = newZ
+					newValuesP = newValues	
 				self.lines[title].set_xdata(newZP)
-			if sortValues:
-				newValuesP = newValues[argSort]
 			else:
-				newValuesP = newValues	
-			self.lines[title].set_ydata(newValues)
+				newValuesP = newValues
+
+
+			self.lines[title].set_ydata(newValuesP)
 
 			#print(" ".join(map(str, newValues)))
 		elif(len(shape)==2):

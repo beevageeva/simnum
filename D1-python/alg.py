@@ -3,10 +3,10 @@ import numpy as np
 
 from constants import problemType
 if problemType == "riemann":
-	from initcond_riemann import lrBoundaryConditions as lrBoundaryConditionsPresRho
+	from riemann_boundary_conditions import lrBoundaryConditions as lrBoundaryConditionsPresRho
 	lrBoundaryConditionsVel = lrBoundaryConditionsPresRho
 elif problemType == "soundwave":
-	from initcond_soundwave import lrBoundaryConditionsPresRho, lrBoundaryConditionsVel
+	from soundwave_boundary_conditions import lrBoundaryConditionsPresRho, lrBoundaryConditionsVel
 
 #I have to define it global I think in python 3 it works defining the variable in a block
 lrBoundaryConditions = None
