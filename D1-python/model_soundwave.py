@@ -80,10 +80,14 @@ class Model(BaseModel):
 					from analytic_solution import updateNewZ
 					updateNewZ(self, dt, False)
 				if(calcKc and not addMarkPoint is None):
-					from sound_wave_packet_params import k0
+					from sound_wave_packet_params import k0, getSoundWaveGaussFunction, zc, W
+					from common import getDz, getZIndex
+					from constants import z0, zf
+					from math import pi
+					from initcond_soundwave import fromValsToCurvePres
+					from soundwave_perturbation_params import A	
 					from soundwave_medium_params import cs00, csderAnal
-					from common import getDz
-					print("dz: %e, dt*minCs=%e" % (getDz(), dt * np.min(cs00(self.z))))
+					#print("dz: %e, dt*minCs=%e" % (getDz(), dt * np.min(cs00(self.z))))
 					self.presFFT = self.getPresFFTVals(False)
 					F = self.presFFT[1]
 					Y = self.presFFT[0]
@@ -93,7 +97,19 @@ class Model(BaseModel):
 					kt = k0 *  cszp0/cszp
 					ktnew =  k0 * np.exp(-csderAnal(self.addMarkPoint) * time)
 					print("kc=%e,kt=%e,ktnew=%e,kc/kt = %e, kc*cs(zp(t))=%e,ktnew*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew,kc / kt, kc * cszp, ktnew*cszp, k0*cszp0))
-
+					import os
+					os.system("echo %e %e >> %s" % (time, kc * cszp, "kc.txt"))					
+	
+					gaussFunc = getSoundWaveGaussFunction( zc, W)
+					#gaussFunc = getSoundWaveFunction(k0, zc, W)
+					ampzp0 = A * gaussFunc(addMarkPoint)
+					#phaseZp =  2 * pi * kc / (zf - z0) * (self.addMarkPoint - cszp * time) - 2 * pi * k0 * z0 / (zf - z0) 
+					phaseZp =  2 * pi * k0 / (zf - z0) * cszp0 * (self.addMarkPoint/cszp - time) - 2 * pi * k0 * z0 / (zf - z0) 
+					#ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)]) / np.cos(phaseZp) 
+					ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)])  
+					#print("ampz0**2*csz0 = %e == %e = ampzp**2*cszp" % (ampzp0**2*cszp0,  ampzp**2*cszp))
+					print("ampz0*csz0 = %e == %e = ampzp*cszp" % (ampzp0*cszp0,  ampzp*cszp))
+					os.system("echo %e %e >> %s" % (time, ampzp**2*cszp, "amp.txt"))					
 				
 
 
@@ -108,8 +124,18 @@ class Model(BaseModel):
 		if(plotPresAn or plotVelAn or plotRhoAn):
 			from analytic_solution import getCurves, getVals
 			#TODO
+			newZNA = None
 			curves = getCurves(self.z, time)
-			anVals = getVals(self.z, curves)
+			anValuesCalc = False
+			if(mediumType == "inhomog"):
+				from analytic_solution import method
+				if method==3:
+					from analytic_solution import newZ
+					newZNA = ((self.z, False),(newZ, True))
+					anVals = getVals(newZ, curves)
+					anValuesCalc = True
+			if not anValuesCalc:
+				anVals = getVals(self.z, curves)
 		
 		if(plotPresAn):
 			presc = curves['pres']
@@ -152,27 +178,17 @@ class Model(BaseModel):
 			if(plotVelCurve):
 				velCurveNewVals = fromValsToCurveVel(self.vel)
 
-		newRhoZ = None
-		newPresZ = None
-		newVelZ = None
-#		if(mediumType == "inhomog"):
-#			from analytic_solution import shiftNow
-#			if not shiftNow:
-#				from analytic_solution import newZ
-#				newRhoZ = newZ
-#				newPresZ = newZ
-#				newVelZ = newZ
 		
 
-		self.notifier.updateValues("rho", rhoNewVals, newRhoZ)
-		self.notifier.updateValues("pres", presNewVals, newPresZ)
-		self.notifier.updateValues("vel", velNewVals, newVelZ)
+		self.notifier.updateValues("rho", rhoNewVals, newZNA)
+		self.notifier.updateValues("pres", presNewVals, newZNA)
+		self.notifier.updateValues("vel", velNewVals, newZNA)
 		if(plotPresCurve):
-			self.notifier.updateValues("presCurve", presCurveNewVals)
+			self.notifier.updateValues("presCurve", presCurveNewVals, newZNA)
 		if(plotVelCurve):
-			self.notifier.updateValues("velCurve", velCurveNewVals)
+			self.notifier.updateValues("velCurve", velCurveNewVals, newZNA)
 		if(plotRhoCurve):
-			self.notifier.updateValues("rhoCurve", rhoCurveNewVals)
+			self.notifier.updateValues("rhoCurve", rhoCurveNewVals, newZNA)
 		if(plotVelFFT):
 			self.notifier.updateValues("velFFT", self.getVelFFTVals(True)[0:-1])
 		if(plotPresFFT):

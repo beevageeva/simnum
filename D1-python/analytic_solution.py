@@ -31,6 +31,9 @@ elif mediumType == "inhomog":
 	print("creating newZ for analytic sol and  " )
 
 	
+	#method = 1
+	#method = 2
+	method = 3
 
 
 	def getWFunctionVals(functiontype, csSign, z, time):
@@ -40,15 +43,14 @@ elif mediumType == "inhomog":
 			sys.exit(0)
 		from constants import z0, zf
 		from soundwave_medium_params import cs00
-		from sound_wave_packet_params import getSoundWaveGaussFunction, zc, W, k0
+		from sound_wave_packet_params import getSoundWaveGaussFunction, getSoundWaveFunction, zc, W, k0
 		from math import pi
-		method = 1
-		#method = 2
 
 		if method == 1:
 			curve = np.zeros(z.shape)
 			def getZ0Index(zval):
-				delta = 0.0001
+				from common import getDz
+				delta = getDz()
 				for index in range(newZ.shape[0]):
 					if (abs(newZ[index] - zval)<delta):
 						return index
@@ -62,24 +64,39 @@ elif mediumType == "inhomog":
 			firstZ = z[indexZ0]
 			csZ0 = cs00(firstZ)
 			csZt = cs00(z)
-			ampIni = getSoundWaveGaussFunction(zc, W)(firstZ)
+			#ampIni = getSoundWaveGaussFunction(zc, W)(firstZ)
+			ampIni = getSoundWaveFunction(k0, zc, W)(firstZ)
 			#print("AMP INI")
 			#print(ampIni)
 			for index in range(firstZ.shape[0]):
-				curve[index] =  ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( z[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				#curve[index] =  ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) * np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( z[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				curve[index] =  ampIni[index] * (csZ0[index] / csZt[index]) ** (0.5)
 	
 		elif method == 2:
 			from common import getZIndex
 			curve = np.full(z.shape, np.nan)
 			csZ0 = cs00(z)
 			csZt = cs00(newZ)
-			ampIni = getSoundWaveGaussFunction(zc, W)(z)
+			#ampIni = getSoundWaveGaussFunction(zc, W)(z)
+			ampIni = getSoundWaveFunction(k0,zc, W)(z)
 			for index in range(z.shape[0]):
-				curve[getZIndex(newZ[index])] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
-			print("curve before interp")
-			print(curve)
+				#curve[getZIndex(newZ[index])] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				curve[getZIndex(newZ[index])] = ampIni[index] * (csZ0[index]  * csZt[index] )** (0.5)
+			#print("curve before interp")
+			#print(curve)
 			nans, x= np.isnan(curve), lambda z: z.nonzero()[0]
 			curve[nans]= np.interp(x(nans), x(~nans), curve[~nans])
+
+		elif method == 3:
+			from common import getZIndex
+			curve = np.full(z.shape, np.nan)
+			csZ0 = cs00(z)
+			csZt = cs00(newZ)
+			#ampIni = getSoundWaveGaussFunction(zc, W)(z)
+			ampIni = getSoundWaveFunction(k0, zc, W)(z)
+			for index in range(z.shape[0]):
+				#curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				curve[index] = ampIni[index] * (csZ0[index] / csZt[index]) ** (0.5) 
 
 		print("curve")
 

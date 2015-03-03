@@ -11,6 +11,10 @@ if perturbationType == "one":
 	functiontype = 'wavepacket'
 	#functiontype = 'defined'
 
+	#travelling right
+	csSign = 1
+	#travelling left
+	#csSign = -1
 
 elif perturbationType == "superposition":
 	A = 3.0 * 10.0 ** (-4)
