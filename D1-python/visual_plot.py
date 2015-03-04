@@ -7,8 +7,8 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-saveImages = False
-#saveImages = True
+#saveImages = False
+saveImages = True
 
 def getXLimits(title):
 	if(title == "velFFT" or title == "presFFT"):
