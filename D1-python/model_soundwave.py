@@ -11,6 +11,14 @@ from soundwave_medium_params import mediumType, cs00
 showErr = False
 calcKc = True
 #calcKc = False
+from soundwave_perturbation_params import perturbationType
+if(perturbationType != "one"):
+	calcKc = False
+else:		
+	from soundwave_perturbation_params import functiontype
+	if(functiontype != "wavepacket" or mediumType != "inhomog"):
+		calcKc = False
+
 
 #addMarkPoint = None
 #uncomment this to add a new mark point
@@ -25,7 +33,6 @@ plotCsMaxMin = True
 
 
 
-calcNewZ = True
 
 class Model(BaseModel):
 	
@@ -70,8 +77,18 @@ class Model(BaseModel):
 		if(markPoints):
 			self.maxPresZ = self.getNewPoint(self.maxPresZ,dt)
 			graphPresMaxZ = self.z[np.argmax(self.pres)]
+		if(calcKc):
+			self.presFFT = self.getPresFFTVals(False)
+			F = self.presFFT[1]
+			Y = self.presFFT[0]
+			kc = abs(F[np.argmax(Y[1:])+1])
+
 		if hasattr(self, "addMarkPoint"):
-			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+			if calcKc:
+				newMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+				self.phaseMarkPoint += kc * (newMarkPoint - self.addMarkPoint)	
+			else:
+				self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 		from soundwave_perturbation_params import perturbationType
 		if(perturbationType == "one"):
 			from soundwave_perturbation_params import functiontype
@@ -88,10 +105,6 @@ class Model(BaseModel):
 					from soundwave_perturbation_params import A	
 					from soundwave_medium_params import cs00, csderAnal
 					#print("dz: %e, dt*minCs=%e" % (getDz(), dt * np.min(cs00(self.z))))
-					self.presFFT = self.getPresFFTVals(False)
-					F = self.presFFT[1]
-					Y = self.presFFT[0]
-					kc = abs(F[np.argmax(Y[1:])+1])
 					cszp0 = cs00(addMarkPoint)
 					cszp = 	cs00(self.addMarkPoint)
 					kt = k0 *  cszp0/cszp
@@ -110,6 +123,8 @@ class Model(BaseModel):
 					#print("ampz0**2*csz0 = %e == %e = ampzp**2*cszp" % (ampzp0**2*cszp0,  ampzp**2*cszp))
 					print("ampz0*csz0 = %e == %e = ampzp*cszp" % (ampzp0*cszp0,  ampzp*cszp))
 					os.system("echo %e %e >> %s" % (time, ampzp**2*cszp, "amp.txt"))					
+					os.system("echo %e %e >> %s" % (time, kc *self.addMarkPoint, "kz.txt"))					
+					os.system("echo %e %e >> %s" % (time, self.phaseMarkPoint, "phase.txt"))					
 				
 
 
@@ -332,9 +347,11 @@ class Model(BaseModel):
 
 			else:
 				print("csmin max only inhom")
-		if calcNewZ and mediumType == "inhomog":
-			self.newZIndex = np.arange(self.z.shape[0])
-			self.newZ = np.array(self.z)
+		if calcKc and not addMarkPoint is None:
+			from sound_wave_packet_params import k0
+			from constants import z0, zf
+			from math import pi
+			self.phaseMarkPoint = 2.0 * pi * k0 * (addMarkPoint - z0)/ (zf - z0) 	
 		
 
 
