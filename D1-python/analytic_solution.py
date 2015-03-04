@@ -33,7 +33,8 @@ elif mediumType == "inhomog":
 	
 	#method = 1
 	#method = 2
-	method = 3
+	#method = 3
+	method = 4
 
 
 	def getWFunctionVals(functiontype, csSign, z, time):
@@ -97,6 +98,20 @@ elif mediumType == "inhomog":
 			for index in range(z.shape[0]):
 				#curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
 				curve[index] = ampIni[index] * (csZ0[index] / csZt[index]) ** (0.5) 
+		elif method == 4:
+			from common import getZIndex
+			curve = np.full(z.shape, np.nan)
+			csZ0 = cs00(z)
+			csZt = cs00(newZ)
+			ampIni = getSoundWaveGaussFunction(zc, W)(z)
+			#ampIni = getSoundWaveFunction(k0,zc, W)(z)
+			for index in range(z.shape[0]):
+				curve[getZIndex(newZ[index])] = ampIni[index] * (csZt[index] / csZ0[index] )** (0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+				#curve[getZIndex(newZ[index])] = ampIni[index] * (csZ0[index]  * csZt[index] )** (0.5)
+			#print("curve before interp")
+			#print(curve)
+			nans, x= np.isnan(curve), lambda z: z.nonzero()[0]
+			curve[nans]= np.interp(x(nans), x(~nans), curve[~nans])
 
 		print("curve")
 
