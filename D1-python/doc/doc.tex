@@ -1,0 +1,162 @@
+%% AMS-LaTeX Created by Wolfram Mathematica 9.0 : www.wolfram.com
+
+\documentclass{article}
+\usepackage{amsmath, amssymb, graphics, setspace}
+\usepackage{graphicx}
+
+\usepackage[utf8]{inputenc}
+\usepackage{spverbatim}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ left=15mm,
+ right=10mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+
+
+\newcommand{\mathsym}[1]{{}}
+\newcommand{\unicode}[1]{{}}
+
+\newcounter{mathematicapage}
+\begin{document}
+
+
+\section{Sound waves}
+
+\subsection{sound equation in inhomogeneous}
+
+$\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x)} \frac{\partial p}{\partial t}\big) = \nabla^{2} p    $
+
+\paragraph{Eikonal solution approx}
+
+
+$p(x,t) = a(x,t) e^{i \phi(x,t)}$
+
+Notations:
+
+$\omega(x,t) = -\frac{\partial \phi}{\partial t}$
+
+$k(x,t) = -\nabla \phi$
+
+
+Reemplazano p en la ecuación:
+
+$\omega^{2} = c_s^{2} k$
+
+
+$\frac{\partial a}{\partial t} + c_g \dot \nabla a   \frac{a}{2 \omega} + \frac{\partial \omega}{\partial t} 
++ \frac{a c_s^{2}}{2 \omega} \frac{\partial c_s ^{-2}}{\partial t} + \frac{a}{2 \omega} c_s^2 \nabla \dot k = 0
+$
+
+$\implies $
+
+
+$\frac{\partial k}{\partial t} + c_g \dot \nabla k = -c_s $
+
+$\frac{\partial \omega}{\partial t} + c_g \dot \nabla \omega = 0 $
+
+$\frac{\partial k}{\partial t} + c_g \dot \nabla k = -c_s $
+
+$\frac{\partial}{\partial t} \frac{a}{c_s} + c_g \dot \nabla \frac{a}{c_s} = -\frac{1}{2} \frac{a}{c_s} \dot \nabla c_g$
+
+
+1D ($c_s = c_g$):
+
+$\frac{\partial k}{\partial t} + c_s \frac{partial k}{\partial x} = -c_s $
+
+$\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0 $
+
+$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -c_s $
+
+$\frac{\partial}{\partial t} \frac{a}{c_s} + c_s \frac{\partial}{\partial x} \frac{a}{c_s} = -\frac{1}{2} \frac{a}{c_s} \frac{\partial c_s}{\partial x}$
+
+
+
+\section{Transf fourier}
+
+Salida de mathematica de la integral de la transf fourier:
+
+\begin{spverbatim}
+
+$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
+Print[FullSimplify[Integrate[Exp[- (z-zc)^2 / W^2] Cos[2 Pi  k0 (z - z0)/ (zf - z0)] Exp[- 2 Pi I m z / (zf - z0)],  {z, -Infinity, Infinity} ]]]
+
+\end{spverbatim}
+
+$
+f1(m)=F( \frac{2\pi m}{z_f - z_0} ) = \int_{- \infty}^{\infty}{e^{-\frac{(z-z_c)^2}{W^2}} cos(\frac{2 \pi k_0 (z-z_0)}{z_f - z_0}) e^{-\frac{2 \pi i m z }{z_f - z_0}} dz } = $
+
+$\frac{1}{2} e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2+m \left(m \pi  W^2-2 i \text{$z_c$} (\text{$z_0$}-\text{$z_f$})\right)+2 \text{$k_0$} \left(m \pi  W^2+i
+(\text{$z_0$}+\text{$z_c$}) (\text{$z_0$}+\text{$z_f$})\right)\right)}{(\text{$z_0$}-\text{$z_f$})^2}} \left(e^{\frac{4 i \text{$k_0$} \pi  \text{$z_0$} (\text{$z_c$}+\text{$z_f$})}{(\text{$z_0$}-\text{$z_f$})^2}}+e^{\frac{4
+\text{$k_0$} \pi  \left(m \pi  W^2+i \left(\text{$z_0$}^2+\text{$z_c$} \text{$z_f$}\right)\right)}{(\text{$z_0$}-\text{$z_f$})^2}}\right) \sqrt{\pi } W$
+
+
+Salida de FourierTransform mathematica con FourierParameters 0, -2$\pi$ 
+
+\begin{verbatim}
+
+$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
+h[z_, k0_, z0_, zf_, zc_, W_]:= Exp[-(z-zc)^2/W^2] Cos[2 Pi k0 (z - z0) / (zf - z0) ]
+Print[FullSimplify[FourierTransform[h[z, k0, z0, zf, zc, W], z, k, FourierParameters->{0,-2 Pi}]] ]
+
+\end{verbatim}
+$f2(k)=$
+
+$\frac{1}{2} \left(e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2-2 \text{$k_0$} \left(k \pi  W^2-i \text{$z_0$}+i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})+k
+\left(k \pi  W^2+2 i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})^2\right)}{(\text{$z_0$}-\text{$z_f$})^2}}+ \\
+e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2+2 \text{$k_0$}
+\left(k \pi  W^2-i \text{$z_0$}+i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})+k \left(k \pi  W^2+2 i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})^2\right)}{(\text{$z_0$}-\text{$z_f$})^2}}\right)
+\sqrt{\pi } W$
+
+En esta reemplazo k = k / (zf - z0) y los graficos salen iguales ($f1(k) = f2(\frac{k}{z_f - z0})$)
+
+
+Ademas la salida de:
+\begin{spverbatim}
+$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
+
+f1[m_]:=((E^(((4*I)*k0*Pi*z0*(zc + zf))/(z0 - zf)^2) + E^((4*k0*Pi*(m*Pi*W^2 + I*(z0^2 + zc*zf)))/(z0 - zf)^2))*Sqrt[Pi]*W)/
+  (2*E^((Pi*(k0^2*Pi*W^2 + m*(m*Pi*W^2 - (2*I)*zc*(z0 - zf)) + 2*k0*(m*Pi*W^2 + I*(z0 + zc)*(z0 + zf))))/(z0 - zf)^2))
+f2[k_]:=((E^(-((Pi*(k0^2*Pi*W^2 - 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)) +
+      E^(-((Pi*(k0^2*Pi*W^2 + 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)))*Sqrt[Pi]*W)/2
+
+Print[FullSimplify[f1[k]-f2[k/(zf-z0)]]]
+
+\end{spverbatim}
+
+es 0
+
+
+Elijo f2 forma para simplificar (después de hacer los gráficos de los modulos de los valores de la función , tal como imaginaba la primera exponencial corresponde a la gaussiana de las frecuancias negativas y la segunda de las frequencias positivas):
+
+
+$f1(k) = f2(\frac{k}{(z_f - z_0)}) = $
+
+$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi (k_0^2 \pi  W^2 + 2 k_0 k \pi W^2 + 2 k_0 i  (z_c - z_0) (z_f-z_0)+k^2 \pi W^2 +
+2 i k z_c (z_f - z_0))}{(z_0-z_f)^2}}+e^{-\frac{\pi  (k_0^2 \pi  W^2 - 2 k_0 k \pi  W^2 - 2 k_0 i (z_c - z_0) (z_f-z_0)+k^2 \pi  W^2+2 i k z_c (z_f - z_0))}{(z_0-z_f)^2}}) =
+$
+
+$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi \big[ \pi  W^2 (k + k_0)^2   + 2 k_0 i z_c(z_f - z_0)   - 2 k_0 i z_0 (z_f-z_0) +
+2 i k z_c (z_f - z_0)\big]}{(z_0-z_f)^2}}+e^{-\frac{\pi \big[\pi  W^2 (k - k_0)^2  -2 k_0 i z_c(z_f - z_0)  + 2 k_0 i z_0 (z_f-z_0)+2 i k z_c (z_f - z_0)\big]}{z_0-z_f)^2}}) =
+$
+
+$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi \big[ \pi  W^2 (k + k_0)^2   + 2  i z_c(z_f - z_0)(k_0 + k)   - 2 k_0 i z_0 (z_f-z_0) \big]}{(z_0-z_f)^2}}+e^{-\frac{\pi \big[\pi  W^2 (k - k_0)^2  +2 i z_c(z_f - z_0)(k - k_0)  + 2 k_0 i z_0 (z_f-z_0)\big]}{(z_0-z_f)^2}}) =
+$
+
+Considerando $z_c$ = 0 
+las exponenciales son  gaussianas  con w = $\frac{z_f - z_0}{\pi W}$ la primera centrada en $-k_0$ y la segunda en $k_0$
+y cuando calculamos el modulo las constantes $ abs(exp( - 2 k_0 i z_0 (z_f-z_0))) = abs(exp( 2 k_0 i z_0 (z_f-z_0)))  = 1$
+y la amplitud queda $\frac{W \sqrt{\pi}}{2}$ igual que se ve en el gráfico (con valores :  z0=3.100, zf = 7.400, k0 = 60, zc = 3.745, W = 0.050) : con rojo había hecho el plot de la función entera y con verde y azul de las 2 partes al principio para estar segura que correspondían a las 2 partes
+
+\begin{figure}[!ht] 
+ \centering 
+ \includegraphics[scale=0.5]{gauss.png} 
+\end{figure} 
+ 
+
+\end{document}
+
+

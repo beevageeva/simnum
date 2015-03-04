@@ -256,15 +256,22 @@ class VisualPlot:
 		#print("updateValues %s" % title)
 		shape = np.shape(newValues)
 		#we can plot multiple graphs on the same axis : example numerical and analytical: see addAxis before!!
+
+		def getXYSort(x,y,sortValues):
+			if sortValues:
+				argSort = np.argsort(x)
+				resx = x[argSort]	
+				resy = y[argSort]
+			else:
+				resx = x
+				resy = y
+			return (resx,resy)
+		
+
 		if(len(shape)==1):
 			if not newZ is None:
-				if sortValues:
-					argSort = np.argsort(newZ)
-					newZP = newZ[argSort]	
-					newValuesP = newValues[argSort]
-				else:
-					newZP = newZ
-					newValuesP = newValues	
+				#I know newz will be in form [(zararray,sortBool)] no test
+				newZP, newValuesP = getXYSort(newZ[0], newValues, newZ[1])
 				self.lines[title].set_xdata(newZP)
 			else:
 				newValuesP = newValues
@@ -279,17 +286,12 @@ class VisualPlot:
 			if(hasattr(self.lines[title], "__len__") and len(self.lines[title])==nlines):
 				for i in range(0, nlines):
 					if not newZ is None:
-						if sortValues:
-							argSort = np.argsort(newZ[i])
-							newZi = newZ[i][argSort]	
-						else:
-							newZi = newZ[i]
-						self.lines[title][i].set_xdata(newZi)
-					if sortValues:
-						newValuesi = newValues[i][argSort]
+					#I know newz will be in form [(zararray,sortBool)] with length equal to y length no test
+						newZP, newValuesP = getXYSort(newZ[i][0], newValues[i], newZ[i][1])
+						self.lines[title][i].set_xdata(newZP)
 					else:
-						newValuesi = newValues[i]
-					self.lines[title][i].set_ydata(newValuesi)
+						newValuesP = newValues[i]
+					self.lines[title][i].set_ydata(newValuesP)
 		relimAxis(self.axes[title], title)	
 		
 		
