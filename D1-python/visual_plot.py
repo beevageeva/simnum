@@ -32,14 +32,14 @@ def getYLimits(title):
 		elif medType == "inhomog1":
 			return { "maxY": 1.0006, "minY": 0.9995} #inhomog1
 		elif medType == "inhomog2":
-			return {  "maxY": 1.0008, "minY": 0.9992} #inhomog2
+			return {  "maxY": 1.002, "minY": 0.998} #inhomog2
 	elif(title == "vel"):
 		if medType == "homog":
 			return	{ "maxY": 0.00035, "minY": -0.00035} 
 		elif medType == "inhomog1":
 			return	{ "maxY": 0.0015, "minY": -0.0015} 
 		elif medType == "inhomog2":
-			return	 { "maxY": 0.0015, "minY": -0.0015}
+			return	 { "maxY": 0.0035, "minY": -0.004}
 	elif(title == "rho"):
 		if medType == "homog":
 			return { "maxY": 1.0004, "minY": 0.9996} 
@@ -58,6 +58,8 @@ def getYLimits(title):
 	#there is no need for vel fft beacuse mean vel = 0
 	elif(title == "presFFT"):
 		if medType == "inhomog1":
+			return	{ "maxY": 0.00015, "minY": 0}
+		if medType == "inhomog2":
 			return	{ "maxY": 0.00015, "minY": 0}
 		elif medType == "homog":
 			return	{ "maxY": 0.000025, "minY": 0}

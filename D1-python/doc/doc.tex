@@ -26,9 +26,52 @@
 
 \section{Sound waves}
 
+\paragraph{sound eq}
+
+initial
+$v_0 = 0, \rho_0 , p_0$
+
+
+
+
+perturbations ($p\prime, \rho\prime, v$)
+
+$ p = p_0 + p\prime $
+
+$ \rho = \rho_0 + \rho\prime $
+
+Cont eq lin:
+
+$ \frac{\partial \rho\prime}{\partial t} + \rho_0 \nabla \cdot v = 0 $
+
+Euler lin:
+
+$ \frac{\partial v}{\partial t} + \frac{1}{\rho_0} \nabla p\prime = 0 $
+
+
+def: 
+
+$c_s = \big( \frac{\partial p}{\partial \rho}\big)_s$
+
+
+
+energy eq: adiabatic process:
+
+
+$p\prime = c_s^{2} \rho\prime$
+
+$\implies$
+
+
+
+
 \subsection{sound equation in inhomogeneous}
 
-$\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x)} \frac{\partial p}{\partial t}\big) = \nabla^{2} p    $
+$\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial p}{\partial t}\big) = \nabla^{2} p    $
+
+Time independent:
+
+$\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p}{\partial t^{2}} = \nabla^{2} p    $
 
 \paragraph{Eikonal solution approx}
 
@@ -46,21 +89,23 @@ Reemplazano p en la ecuación y definiendo $c_g = \frac{\partial \omega}{\partia
 
 $\omega^{2} = c_s^{2} k^2$
 
-Energy conservation:
-
-$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
+$\frac{\partial a}{\partial t} + c_g \cdot \nabla a = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2} \cdot \nabla k) $
 
 
 $\implies $
 
 
-$\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \ $
 
 $\frac{\partial \omega}{\partial t} + c_g \cdot \nabla \omega = 0 $
 
 $\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \cdot \nabla c_g $
 
+Energy conservation:
 
+$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
+
+
+$E(x,t) = \frac{|a|^{2}}{\rho_0 c_s^{2}} $
 
 1D ($c_s = c_g$):
 
@@ -71,6 +116,80 @@ $\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0
 $\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -k \frac{\partial c_s}{\partial x} $
 
 $\frac{\partial E}{\partial t} + c_s \frac{\partial E}{\partial x} = -E \frac{\partial  c_s}{\partial x} $
+
+
+
+
+rays characterictics method:
+
+para un rayo (trayectoria):
+
+solución de la la ecuación 
+
+$\frac{dx}{dt} = c_s $
+
+$ x_p(t) , x_p(0) = x_p $
+
+def
+
+$\omega_p(t) = \omega(x_p(t), t)$
+
+$k_p(t) = k(x_p(t), t)$
+
+$a_p(t) = a(x_p(t), t)$
+
+
+
+
+$\frac{d\omega_p}{dt} = 0$
+
+$\frac{dk_p}{dt} = -k_p \frac{\partial c_s}{\partial x} (x_p(t))$
+
+
+
+
+
+$\frac{dc_s}{dt}  =  \frac{\partial c_s}{\partial x}(x_p(t)) c_s$
+
+$\implies $
+
+$\frac{dk_p}{dt} = -k_p  \frac{1}{c_s} \frac{dc_s}{dt}$
+
+$\implies $
+
+$\frac{dln(k_p)}{dt} = - \frac{dln(c_s)}{dt}$
+
+$\implies $
+
+$ k(x_p(t), t)  cs(x_p(t)) = constant $
+
+$ E(x_p(t), t)  cs(x_p(t)) = constant $ 
+
+$ \omega(x_p(t), t)  = constant $
+
+
+v, p solutions in WKB approx (con amplitudes V y P)
+(
+$v = V e^{i\phi} $
+$p = P e^{i\phi} $
+)
+
+introducimos
+
+$\rho\prime \frac{\partial v}{\partial t} = - \nabla p\prime$
+
+
+
+
+$\frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
+
+
+$\implies$
+
+$E = \frac{|A|^{2}}{\rho_0 c_s^2} $
+
+
+
 
 
 

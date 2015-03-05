@@ -3,8 +3,8 @@ nstepsPlot = 10
 #nstepsPlot = 1
 
 #The following are used for the notifier(taken from notifier_params as they were wavesound specific)
-#plotPresCurve = False
-plotPresCurve = True
+plotPresCurve = False
+#plotPresCurve = True
 #plotRhoCurve = False
 plotRhoCurve = True
 plotVelCurve = False

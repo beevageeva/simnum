@@ -33,8 +33,8 @@ elif mediumType == "inhomog":
 	
 	#method = 1
 	#method = 2
-	#method = 3
-	method = 4
+	method = 3
+	#method = 4
 
 
 	def getWFunctionVals(functiontype, csSign, z, time):
