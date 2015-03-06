@@ -24,175 +24,158 @@
 \begin{document}
 
 
-\section{Sound waves}
+\section{Ondas de sonido}
+Una perturbación de pequeña amplitud en un fluido va a crear zonas de compresión y rarefacción que alternan en el tiempo y espacio en la dirección de propagación(el movimiento oscilatorio de las particulas se propaga como una onda y son ondas logitudinales:  las particulas se mueven en la misma dirección que la dirección de propagación)
+
+\paragraph{Condiciones iniciales}
+Consideramos un fluido ideal con las variables en el estado de equilibrio $v_0 = 0, \rho_0 , p_0$ y hacemos unos cambios en estas variables que  son muy pequeños de forma que se pueden omitir los términos de segundo orden (o mayores) en las ecuaciones de los fluidos
+Definimos $c_s = \big( \frac{\partial p}{\partial \rho}\big)_s = \sqrt{\gamma \frac{p_0}{\rho_0}}$
+Las variables de cuales queremos estudiar la evolución devienen:
+
+\begin{description}  
+\item v
+\item $\rho = \rho_0 + \rho_0\prime$
+\item $p = p_0 + p\prime$
 
-\paragraph{sound eq}
+ 
+\end{description}  
 
-initial
-$v_0 = 0, \rho_0 , p_0$
-
-
-
-
-perturbations ($p\prime, \rho\prime, v$)
-
-$ p = p_0 + p\prime $
-
-$ \rho = \rho_0 + \rho\prime $
-
-Cont eq lin:
-
-$ \frac{\partial \rho\prime}{\partial t} + \rho_0 \nabla \cdot v = 0 $
-
-Euler lin:
-
-$ \frac{\partial v}{\partial t} + \frac{1}{\rho_0} \nabla p\prime = 0 $
-
-
-def: 
-
-$c_s = \big( \frac{\partial p}{\partial \rho}\big)_s$
-
-
-
-energy eq: adiabatic process:
-
-
-$p\prime = c_s^{2} \rho\prime$
-
-$\implies$
-
-
-
-
-\subsection{sound equation in inhomogeneous}
-
-$\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial p}{\partial t}\big) = \nabla^{2} p    $
-
-Time independent:
-
-$\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p}{\partial t^{2}} = \nabla^{2} p    $
-
-\paragraph{Eikonal solution approx}
-
-
-$p(x,t) = a(x,t) e^{i \phi(x,t)}$
-
-Notations:
-
-$\omega(x,t) = -\frac{\partial \phi}{\partial t}$
-
-$k(x,t) = -\nabla \phi$
-
-
-Reemplazano p en la ecuación y definiendo $c_g = \frac{\partial \omega}{\partial k}$ :
-
-$\omega^{2} = c_s^{2} k^2$
-
-$\frac{\partial a}{\partial t} + c_g \cdot \nabla a = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2} \cdot \nabla k) $
-
-
-$\implies $
-
-
-
-$\frac{\partial \omega}{\partial t} + c_g \cdot \nabla \omega = 0 $
-
-$\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \cdot \nabla c_g $
-
-Energy conservation:
-
-$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
-
-
-$E(x,t) = \frac{|a|^{2}}{\rho_0 c_s^{2}} $
-
-1D ($c_s = c_g$):
-
-$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -c_s $
-
-$\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0 $
-
-$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -k \frac{\partial c_s}{\partial x} $
-
-$\frac{\partial E}{\partial t} + c_s \frac{\partial E}{\partial x} = -E \frac{\partial  c_s}{\partial x} $
-
-
-
-
-rays characterictics method:
-
-para un rayo (trayectoria):
-
-solución de la la ecuación 
-
-$\frac{dx}{dt} = c_s $
-
-$ x_p(t) , x_p(0) = x_p $
-
-def
-
-$\omega_p(t) = \omega(x_p(t), t)$
-
-$k_p(t) = k(x_p(t), t)$
-
-$a_p(t) = a(x_p(t), t)$
-
-
-
-
-$\frac{d\omega_p}{dt} = 0$
-
-$\frac{dk_p}{dt} = -k_p \frac{\partial c_s}{\partial x} (x_p(t))$
-
-
-
-
-
-$\frac{dc_s}{dt}  =  \frac{\partial c_s}{\partial x}(x_p(t)) c_s$
-
-$\implies $
-
-$\frac{dk_p}{dt} = -k_p  \frac{1}{c_s} \frac{dc_s}{dt}$
-
-$\implies $
-
-$\frac{dln(k_p)}{dt} = - \frac{dln(c_s)}{dt}$
-
-$\implies $
-
-$ k(x_p(t), t)  cs(x_p(t)) = constant $
-
-$ E(x_p(t), t)  cs(x_p(t)) = constant $ 
-
-$ \omega(x_p(t), t)  = constant $
-
-
-v, p solutions in WKB approx (con amplitudes V y P)
-(
-$v = V e^{i\phi} $
-$p = P e^{i\phi} $
-)
-
-introducimos
-
-$\rho\prime \frac{\partial v}{\partial t} = - \nabla p\prime$
-
-
-
-
-$\frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
-
-
-$\implies$
-
-$E = \frac{|A|^{2}}{\rho_0 c_s^2} $
-
-
-
-
-
-
+con $|v|<<c_s, p\prime<<p , \rho\prime << \rho_0$ 
+
+Las ecuaciones de los fluidos despues de linearlizar devienen:
+\begin{description}  
+\item continuidad: $ \frac{\partial \rho\prime}{\partial t} + \rho_0 \nabla \cdot v = 0 $
+\item Euler: $ \frac{\partial v}{\partial t} + \frac{1}{\rho_0} \nabla p\prime = 0 $
+
+\end{description}  
+
+\begin{description}  
+\item El proceso es adiabático: $p\prime = c_s^{2} \rho\prime$
+
+\item Después de hacer los cálculos (y suponiendo el caso general inhomogeneo en tiempo y espacio : $\rho_0 = \rho_0(x,t) \implies c_s = c_s(x,t)$ con la densidad de equilibrio variando bastante lentamente en el espacio y tiempo de tal forma que se pueden omitir terminos de segundo orden o mas en multiplicaciones de derivadas temporales o espaciales de estas y las perturbaciones) las perturbaciones de las variables verifican las ecuaciones: 
+
+\item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial p\prime}{\partial t}\big) = \nabla^{2} p\prime    $
+\item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial \rho\prime}{\partial t}\big) = \nabla^{2} \rho\prime    $
+\item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial \Phi}{\partial t}\big) = \nabla^{2} \Phi $ donde definimos  $v = \nabla \Phi$ considerando el fluido irrotacional
+\item Si la densidad de equilibrio no varia en el tiempo($\rho_0 = \rho_0(x)$):
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} \rho\prime}{\partial t^{2}} = \nabla^{2} \rho\prime    $
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} \Phi}{\partial t^{2}} = \nabla^{2} \Phi    $
+\end{description}  
+
+\paragraph{Medio homogeneo}
+
+\begin{description}  
+\item Si la densidad de equilibrio es constante en tiempo($\rho_0, c_s constantes$) y espacio las soluciones generales son superposiciones de ondas planas de forma:
+\item $ \sum_{i} A_{\rho\prime_i} cos (x - c_s t) $
+\item $ \sum_{i} A_{p\prime_i} cos (x - c_s t) $
+\item $ \sum_{i} csSign_i A_{v_i} cos (x - csSign_i c_s t) $ donde $csSign_i = 1 $ si la onda viaja a la derecha y -1 si va a la izquierda
+\item con las amplitudes números reales verificando las ecuaciones:
+$A_{p\prime_i} = c_s^{2} A_{\rho\prime_i}$
+$A_{v_i} = \frac{1}{c_s \rho_0} A_{p_i}$
+\end{description}  
+
+
+\paragraph{Medio inhomogeneo} $\rho_0 = \rho_0(x)$
+La solución no se puyede expresar mas como superposición de ondas planas (porque $c_s$ no es más constante ), pero análogo a esta solución intentamos  buscar soluciones de forma $a(x,t) e^{i\phi(x,t)}$ (aproximación WKB):
+ donde definimos 
+\begin{description}  
+\item $\omega(x,t) = -\frac{\partial \phi}{\partial t}$
+\item $k(x,t) = -\nabla \phi$
+\end{description}
+porque análogo al caso homogeneo (considerando sin perder la generlaidad solo una onda y no una superposición) donde $\phi(x,t) = kx-\omega t$ con $\omega, k$ constantes verificando la relación de dispersión $\omega^{2} = c_s^2 k^2  $  
+
+\textbf{Relación entre las amplitudes}
+
+\begin{description}  
+\item Suponiendo que estas soluciones existen:
+\item $p\prime = P e^{i\phi}$
+\item $\rho\prime = R e^{i\phi}$
+\item $v = V e^{i\phi}$
+\item P,R,V  complejos
+\end{description}
+
+igual que en caso homogeneo :
+
+\begin{description}  
+\item de la relación de adiabaticidad: $|P(x,t)| = c_s^{2}(x) |R(x,t)|$
+\item de la ecuación de movimiento: 
+\item $\rho_0 \frac{\partial v}{\partial t} = -\nabla \rho\prime \implies -i \rho_0 \omega V e^{i\phi} = i k P e^{i\phi}$
+\item despues de simplificar,  multiplicar cada lado con su conjugado(hay que expresar las amplitudes locales con el módulo porque pueden ser complejas):
+\item  $|V|^2 = \frac{|P|^2}{\rho_0^{2} c_s^2}$ ($|V(x,t)|= \frac{1}{c_s \rho_0} |P(x,t)| = \frac{c_s(x)}{p_0 \gamma} |P(x,t)|$) 
+
+
+\end{description}
+
+\paragraph{Resolver la ecuación genérica}
+\begin{description}  
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
+\item Reemplazando la solución WKB approx. $p(x,t) = a(x,t) e^{i \phi(x,t)}$ en la ecuación y con las definiciones de $\omega$ y k de arriba despues de hacer los cálculos 
+\item $\omega^{2}(x,t) = c_s^{2}(x) k^2(x,t)$
+\item definiendo $c_g = \frac{\partial \omega}{\partial k}$ :
+\item $\frac{\partial a}{\partial t} + c_g \cdot \nabla a = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2} \cdot \nabla k) $
+
+\item $\implies $ 
+\item$\frac{\partial \omega}{\partial t} + c_g \cdot \nabla \omega = 0 $
+\item$\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \cdot \nabla c_g $
+
+\item Usamos directamente la ecuación de conservación de energía para determinar la amplitud:
+\item$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
+
+\end{description}
+
+
+\textbf{1D} ($c_s = c_g$):
+\begin{description}  
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
+\item$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -c_s $
+\item$\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0 $
+\item$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -k \frac{\partial c_s}{\partial x} $
+\item$\frac{\partial E}{\partial t} + c_s \frac{\partial E}{\partial x} = -E \frac{\partial  c_s}{\partial x} $
+
+
+\end{description}
+
+Al largo de un rayo definido por:
+
+\begin{description}  
+\item$\frac{dx}{dt} = c_s $
+\item$ x_p(t) , x_p(0) = x_p $
+\end{description}
+
+las funciones:
+\begin{description}  
+\item $\omega_p(t) = \omega(x_p(t), t)$
+\item$k_p(t) = k(x_p(t), t)$
+\item$a_p(t) = a(x_p(t), t)$
+\end{description}
+
+verifican las ecuaciones
+\begin{description}  
+\item $\frac{d\omega_p}{dt} = 0$
+\item $\frac{dk_p}{dt} = -k_p \frac{\partial c_s}{\partial x} (x_p(t))$
+\item $\frac{dc_s}{dt}  =  \frac{\partial c_s}{\partial x}(x_p(t)) c_s$
+\end{description}
+
+\begin{description}  
+\item $\frac{dk_p}{dt} = -k_p  \frac{1}{c_s} \frac{dc_s}{dt} \implies$
+\item $\frac{dln(k_p)}{dt} = - \frac{dln(c_s)}{dt} \implies $
+\item $ k(x_p(t), t)  c_s(x_p(t)) = constant $
+\item de forma similar $ E(x_p(t), t)  c_s(x_p(t)) = constant $ 
+\item $ \omega(x_p(t), t)  = constant $
+\end{description}
+
+Ecuación de la energía:
+\begin{description}  
+
+\item $\frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
+\item $E = \frac{|P|^{2}}{\rho_0 c_s^2} $ (la suma de las 2)
+
+\end{description}
+
+\begin{description}  
+\item $|P(x_p(t),t)| c_s^{\frac{1}{2}} = constant $
+\end{description}
 
 
 
