@@ -1,7 +1,7 @@
 #empiric determination of rwPoint and shPoint
 
 
-def getFirstIndexDifferentLeft(y, delta, default):
+def getFirstIndexDifferentLeft(y, delta, default=None):
 	#I know they have it
 	#if not hasattr(y, '__len__') or len(y) == 0:
 	#	return None
@@ -19,6 +19,7 @@ def getFirstIndexDifferentRight(y, delta, default=None):
 	#	return None
 	rightVal = y[len(y) - 1]
 	for i in range(len(y) - 1, -1, -1):
+		#print("abs dif RIGH %e rightVal = %e , delta * rightVal = %e"  % (abs(rightVal - y[i]), rightVal, delta * rightVal ))	
 		if abs(rightVal - y[i])>delta * rightVal:
 			return i
 	return len(y) - 1 if default is None else default

@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+from math import pi
 from constants import gamma
 from base_model import BaseModel
 from notifier_params import plotPresCurve, plotVelCurve, plotRhoCurve, markPoints, plotPresAn, plotRhoAn, plotVelAn, plotVelFFT, plotVelFFTAnal,  plotPresFFT
@@ -7,6 +8,8 @@ from soundwave_medium_params import mediumType, cs00
 
 
 
+calcWidth = True
+#calcWidth = False
 #showErr = True
 showErr = False
 calcKc = True
@@ -82,13 +85,20 @@ class Model(BaseModel):
 			F = self.presFFT[1]
 			Y = self.presFFT[0]
 			kc = abs(F[np.argmax(Y[1:])+1])
+			if(calcWidth):
+				#TODO test wavepcket
+				maxAmp = np.max(Y[1:])
+				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
+				delta = 0.00005
+				widthFunc2 = maxAmp * 2 / pi
+				widthFourier =  F[getFirstIndexDifferentRight(Y[1:len(Y)/2], delta)] - F[getFirstIndexDifferentLeft(Y[1:len(Y)/2], delta)]
+				delta = 0.00005
+				widthFunction =  self.z[getFirstIndexDifferentRight(self.pres, delta)] -  self.z[getFirstIndexDifferentLeft(self.pres, delta)]
+				print("widthFunction = %e == %e?, widthFourier = %e, w1*w2 = %e" % (widthFunction, widthFunc2, widthFourier,widthFourier * widthFunc2 ))
+	
 
 		if hasattr(self, "addMarkPoint"):
-			if calcKc:
-				newMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
-				self.phaseMarkPoint += kc * (newMarkPoint - self.addMarkPoint)	
-			else:
-				self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
 		from soundwave_perturbation_params import perturbationType
 		if(perturbationType == "one"):
 			from soundwave_perturbation_params import functiontype
@@ -100,7 +110,6 @@ class Model(BaseModel):
 					from sound_wave_packet_params import k0, getSoundWaveGaussFunction, zc, W
 					from common import getDz, getZIndex
 					from constants import z0, zf
-					from math import pi
 					from initcond_soundwave import fromValsToCurvePres
 					from soundwave_perturbation_params import A	
 					from soundwave_medium_params import cs00, csderAnal
@@ -111,20 +120,22 @@ class Model(BaseModel):
 					ktnew =  k0 * np.exp(-csderAnal(self.addMarkPoint) * time)
 					print("kc=%e,kt=%e,ktnew=%e,kc/kt = %e, kc*cs(zp(t))=%e,ktnew*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew,kc / kt, kc * cszp, ktnew*cszp, k0*cszp0))
 					import os
-					os.system("echo %e %e >> %s" % (time, kc * cszp, "kc.txt"))					
+					os.system("echo %e %e >> %s" % (time, kc * cszp, "kc.txt"))				
+
+						
 	
-					gaussFunc = getSoundWaveGaussFunction( zc, W)
-					#gaussFunc = getSoundWaveFunction(k0, zc, W)
-					ampzp0 = A * gaussFunc(addMarkPoint)
-					#phaseZp =  2 * pi * kc / (zf - z0) * (self.addMarkPoint - cszp * time) - 2 * pi * k0 * z0 / (zf - z0) 
-					phaseZp =  2 * pi * k0 / (zf - z0) * cszp0 * (self.addMarkPoint/cszp - time) - 2 * pi * k0 * z0 / (zf - z0) 
-					#ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)]) / np.cos(phaseZp) 
-					ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)])  
-					#print("ampz0**2*csz0 = %e == %e = ampzp**2*cszp" % (ampzp0**2*cszp0,  ampzp**2*cszp))
-					print("ampz0*csz0 = %e == %e = ampzp*cszp" % (ampzp0*cszp0,  ampzp*cszp))
-					os.system("echo %e %e >> %s" % (time, ampzp**2*cszp, "amp.txt"))					
-					os.system("echo %e %e >> %s" % (time, kc *self.addMarkPoint, "kz.txt"))					
-					os.system("echo %e %e >> %s" % (time, self.phaseMarkPoint, "phase.txt"))					
+	
+#					gaussFunc = getSoundWaveGaussFunction( zc, W)
+#					#gaussFunc = getSoundWaveFunction(k0, zc, W)
+#					ampzp0 = A * gaussFunc(addMarkPoint)
+#					#phaseZp =  2 * pi * kc / (zf - z0) * (self.addMarkPoint - cszp * time) - 2 * pi * k0 * z0 / (zf - z0) 
+#					phaseZp =  2 * pi * k0 / (zf - z0) * cszp0 * (self.addMarkPoint/cszp - time) - 2 * pi * k0 * z0 / (zf - z0) 
+#					#ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)]) / np.cos(phaseZp) 
+#					ampzp = fromValsToCurvePres(self.pres[getZIndex(self.addMarkPoint)])  
+#					#print("ampz0**2*csz0 = %e == %e = ampzp**2*cszp" % (ampzp0**2*cszp0,  ampzp**2*cszp))
+#					print("ampz0*csz0 = %e == %e = ampzp*cszp" % (ampzp0*cszp0,  ampzp*cszp))
+#					os.system("echo %e %e >> %s" % (time, ampzp**2*cszp, "amp.txt"))					
+#					os.system("echo %e %e >> %s" % (time, kc *self.addMarkPoint, "kz.txt"))					
 				
 
 
@@ -213,15 +224,35 @@ class Model(BaseModel):
 			else:
 				print("Calculate presFFT ")
 				presFFT = self.getPresFFTVals(False)
-
-			self.notifier.updateValues("presFFT", presFFT[0])
+			self.notifier.updateValues("presFFT", self.presFFT[0])
+			if(calcWidth):
+				Y = self.presFFT[0]
+				F = self.presFFT[1]
+				delta1 = 1
+				delta2 = 10**10
+				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
+				print("***************************************************************************")
+				self.notifier.markPoint("presFFT", "presFFTLeft", F[getFirstIndexDifferentLeft(Y[1:len(Y)/2 - 1], delta1)]   )
+				self.notifier.markPoint("presFFT", "presFFTRight", F[getFirstIndexDifferentRight(Y[1:len(Y)/2 - 1], delta2)]   )
+				print("positive ferquencies")
+				print(F[1:len(Y)/2-1])
+				print("coef of pos freq")
+				print(Y[1:len(Y)/2-1])
+				print(np.max(Y[1:len(Y)/2-1]))	
+				print("RF = %e , LF = %e" % ( F[getFirstIndexDifferentRight(Y[1:len(Y)/2 - 1], delta2)],  F[getFirstIndexDifferentLeft(Y[1:len(Y)/2-1], delta1)] ))		
+				
 
 		if(markPoints):
 			#only for pres	
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if hasattr(self, "addMarkPoint"):
 			self.notifier.markPoint("pres", "addMarkPoint", self.addMarkPoint)
-		
+		if(calcWidth):
+			from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
+			delta = 0.00005
+			self.notifier.markPoint("pres", "presLeft", self.z[getFirstIndexDifferentLeft(self.pres, delta)])
+			self.notifier.markPoint("pres", "presRight", self.z[getFirstIndexDifferentRight(self.pres, delta)]) 
+			print("LZ = %e , RZ = %e" % (self.z[getFirstIndexDifferentLeft(self.pres, delta)], self.z[getFirstIndexDifferentRight(self.pres, delta)]))		
 
 	def getInitialValues(self):
 		if plotPresAn:
@@ -347,11 +378,6 @@ class Model(BaseModel):
 
 			else:
 				print("csmin max only inhom")
-		if calcKc and not addMarkPoint is None:
-			from sound_wave_packet_params import k0
-			from constants import z0, zf
-			from math import pi
-			self.phaseMarkPoint = 2.0 * pi * k0 * (addMarkPoint - z0)/ (zf - z0) 	
 		
 
 

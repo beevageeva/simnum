@@ -102,7 +102,7 @@ igual que en caso homogeneo :
 \item de la ecuación de movimiento: 
 \item $\rho_0 \frac{\partial v}{\partial t} = -\nabla \rho\prime \implies -i \rho_0 \omega V e^{i\phi} = i k P e^{i\phi}$
 \item despues de simplificar,  multiplicar cada lado con su conjugado(hay que expresar las amplitudes locales con el módulo porque pueden ser complejas):
-\item  $|V|^2 = \frac{|P|^2}{\rho_0^{2} c_s^2}$ ($|V(x,t)|= \frac{1}{c_s \rho_0} |P(x,t)| = \frac{c_s(x)}{p_0 \gamma} |P(x,t)|$) 
+\item  $|V|^2 = \frac{|P|^2}{\rho_0^{2} c_s^2}$ ($|V|= \frac{1}{c_s \rho_0} |P| = \frac{c_s}{p_0 \gamma} |P|$) 
 
 
 \end{description}
@@ -170,11 +170,45 @@ Ecuación de la energía:
 
 \item $\frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
 \item $E = \frac{|P|^{2}}{\rho_0 c_s^2} $ (la suma de las 2)
-
+\item $\implies |P(x_p(t),t)| c_s^{\frac{1}{2}}(x_p(t),t) = constant $
 \end{description}
 
 \begin{description}  
-\item $|P(x_p(t),t)| c_s^{\frac{1}{2}} = constant $
+\item Suponemos que podemos escribir :
+\item $|P| = c_s^{k} \rho_0^{l} p_0^{m} C_{P}$
+\item $|R| = c_s^{k} \rho_0^{l_1} p_0^{m_1} C_{R}$
+\item $|V| = c_s^{k} \rho_0^{l_2} p_0^{m_2} C_{V}$
+\item con $C_{P}, C_{R} y C_{V}$ constantes. Estas relaciones serían válidas aunque $p_0$ no es constante? (TODO: variando de tal forma que se cumplan las condiciones de las aproximaciones : $\rho_0, p_0, c_s$ monotonas variando lentamente)
+\item de las relaciones entre las amplitudes de arriba 
+\item $\frac{|P|}{|R|} = c_s^2 = \rho_0^{l-l_1} p_0^{m-m_1} \frac{C_{P}}{C_{R}}$
+\item Escribimos $c_s^2 = \gamma p_0 \rho_0^{-1}$ y la relación de arriba se tiene que cumplir $\forall x$ (porque consideramos $c_s, \rho_0 y p_0 $ dependiendo de x)
+\item $\implies m - m_1 = 1$, $l-l_1 = -1$ y $\frac{C_P}{C_R} = \gamma$
+\item $\frac{|P|}{|V|} = c_s \rho_0 = \gamma^{-\frac{1}{2}} p_0^{\frac{1}{2}} \rho_0^{\frac{1}{2}} = \rho_0^{l-l_2} p_0^{m-m_2} \frac{C_P}{C_V}$
+\item $\implies  \frac{C_P}{C_V} =  \gamma^{-\frac{1}{2}}, l-l_2=\frac{1}{2}. m-m_2 = \frac{1}{2} $
+\item Para determinar la relación entre m,l,k introducimos en la ecuación de la energia la expresion de $|P|$
+\item $ c_s^{2k} \rho_0^{2l} p_0^{2m} \rho_0^{-1} c_s^{-2} c_s  $ tiene que ser constante al largo del rayo
+\item Reemplazano $c_s$ : $ \gamma^{k + \frac{1}{2}} p_0^{k-\frac{1}{2}+2m} \rho_0^{-k + 2l -\frac{1}{2}} $ tiene que ser constante al largo del rayo (eligiendo un punto inicial y $\forall t$)
+\item $\implies k = 2l - \frac{1}{2} = \frac{1}{2} - 2m$ y $2m + 2l = 1$
+\item elegimos $k = l = \frac{1}{2}$ , $m = 0$ (TODO eso porque en realidad se puede dejar un parámetro ya que $\gamma = const = c_s^{2} \rho_0^{-1} p_0^{-1} $ y multiplicando las ecuaciones con $\gamma^{p}$ el parámtro $m\rightarrow m+p$ ? o hay que elegir porque todas las amplitudes tienen que cumplir la ecuación diferencial de la amplitud?)
+\item $\implies m_1=-1, l_1 = \frac{3}{2}, l_2 = 0, m_2 = -\frac{1}{2}$
+ 
+\item $|P| = c_s^{\frac{1}{2}} \rho_0^{\frac{1}{2}}  C_{P}$
+\item $|R| = c_s^{\frac{1}{2}} \rho_0^{\frac{3}{2}} p_0^{-1} \gamma^{-1} C_{P}$
+\item $|V| = c_s^{\frac{1}{2}}  p_0^{-\frac{1}{2}} \gamma^{\frac{1}{2}} C_{P}$
+
+\item Las amplitudes se calculan al largo del rayo (en la curva determinada por $\frac{dx}{dt} = c_g, x(0) = x_p$): $C_P$ es una constante que depende de los valores en el punto inicial del rayo ($x_p$): $C_P = c_s^{-\frac{1}{2}}(x_p) , \rho_0^{\frac{1}{2}}(x_p)$
+
+\item En el caso de la práctica (con $p_0$ constante ) queremos representar las amplitudes como $const * cs^{\alpha} $ reemplazamos $\rho_0$
+y calculanido al largo del rayo  $\frac{dx}{dt} = c_g, x(0) = x_p$:
+\item $|P(x_p(t),t)| = c_s^{-\frac{1}{2}}(x_p(t)) c_s^{\frac{1}{2}}(x_p) P(x_p,0)  $ (sé en cada momento en cada punto que punto incial en el rayo le corresponde)
+\item las amplitudes de las demás perturbaciones se calculan reemplazando directamente en las relaciones entre las amplitudes (cuando se representa la solución analítica), 
+\item Para ver si el paquete se adapta a la relación representamos las curvas:
+\item para la presión: $ c_s^{-\frac{1}{2}}(x) c_s^{\frac{1}{2}}(x) P(x_0,0) $
+\item densidad: $ c_s^{-\frac{3}{2}}(x) c_s^{\frac{3}{2}}(x_0) R(x_0,0)  $ 
+\item velocidad: $ c_s^{\frac{1}{2}}(x) c_s^{-\frac{1}{2}}(x_0) V(x_0,0)  $ 
+\item eligiendo $x_0$ los 2 puntos donde  los valores de las amplitudes de las perturbación en el momento inicial tienen el mínimo y máximo de 
+
+
 \end{description}
 
 
