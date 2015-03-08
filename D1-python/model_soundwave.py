@@ -10,8 +10,8 @@ from soundwave_medium_params import mediumType, cs00
 
 #calcWidth = True
 calcWidth = True
-plotWidthOnGraph = False
-#plotWidthOnGraph = True
+#plotWidthOnGraph = False
+plotWidthOnGraph = True
 #showErr = True
 showErr = False
 calcKc = True
@@ -29,8 +29,7 @@ else:
 #uncomment this to add a new mark point
 #the following for the wave packet
 from sound_wave_packet_params import zc,W
-addMarkPoint = zc 
-#addMarkPoint = zc - W*2 #other point at the beginning of the packet
+addMarkPoints = {'zc':zc, 'left':zc-1.666*W, 'right':zc+1.666*W} 
 
 
 plotCsMaxMin = True
@@ -44,9 +43,8 @@ class Model(BaseModel):
 
 	def __init__(self):
 		BaseModel.__init__(self)
-		if addMarkPoint:
-			self.addMarkPoint = addMarkPoint
-			print("addMarkPoint = %E, plotting on pres axis" % self.addMarkPoint)
+		if addMarkPoints:
+			self.addMarkPoints = addMarkPoints
 
 
 	#csNumerical = False won't work with superposition same point and time (wave packet is not in this case)
@@ -88,29 +86,32 @@ class Model(BaseModel):
 			Y = self.presFFT[0]
 			indCenter = np.argmax(Y[1:])+1
 			kc = abs(F[indCenter])
-			if(calcWidth):
+			if(calcWidth and addMarkPoints is not None and addMarkPoints.has_key("left") and addMarkPoints.has_key("right")):
 				#TODO test wavepcket
-				maxAmp = Y[indCenter]
-				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
-				delta = 0.005
-				widthFunc2 = maxAmp * 2 / pi
-				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
-				#leftIndex = 2 * indCenter - rightIndex
-				leftIndex = 0
-				widthFourier =  F[rightIndex] - F[leftIndex]
-				delta = 0.00005
-				widthFunction =  self.z[getFirstIndexDifferentRight(self.pres, delta)] -  self.z[getFirstIndexDifferentLeft(self.pres, delta)]
-				#print("widthFunction = %e == %e?, widthFourier = %e, w1*w2 = %e, w1*w2gr=%e" % (widthFunction, widthFunc2, widthFourier,widthFourier * widthFunc2, widthFourier * widthFunction ))
 				import os	
-				os.system("echo %e %e >> %s" % (time, widthFourier * widthFunction , "ww.txt"))				
-				os.system("echo %e %e >> %s" % (time, widthFourier * widthFunc2, "ww2.txt"))				
+				maxAmp = Y[indCenter]
+#				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
+#				delta = 0.005
+#				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
+#				#leftIndex = 2 * indCenter - rightIndex
+#				leftIndex = 0
+#				widthFourier =  F[rightIndex] - F[leftIndex]
+#				delta = 0.00005
+#				widthFunction =  self.z[getFirstIndexDifferentRight(self.pres, delta)] -  self.z[getFirstIndexDifferentLeft(self.pres, delta)]
+#				#print("widthFunction = %e == %e?, widthFourier = %e, w1*w2 = %e, w1*w2gr=%e" % (widthFunction, widthFunc2, widthFourier,widthFourier * widthFunc2, widthFourier * widthFunction ))
+#				os.system("echo %e %e >> %s" % (time, widthFourier * widthFunction , "ww.txt"))				
+#				os.system("echo %e %e >> %s" % (time, maxAmp/widthFunction, "adW.txt"))			
+				widthFunction = self.addMarkPoints["right"] - self.addMarkPoints["left"]	
 				#VARLENGTH
+				os.system("echo %e %e >> %s" % (time, maxAmp/widthFunction, "ww.txt"))				
 				from soundwave_medium_params import getDensVarLength	
 				cl =	getDensVarLength(self.z)
-				print("1/kc= %e, wp = %e, cl = %e" % (1.0/kc, widthFunction, cl))
+				os.system("echo %e %e >> %s" % (time, widthFunction/cl , "wdcl.txt"))				
+				#print("1/kc= %e, wp = %e, cl = %e" % (1.0/kc, widthFunction, cl))
 
-		if hasattr(self, "addMarkPoint"):
-			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
+		if hasattr(self, "addMarkPoints"):
+			for k in self.addMarkPoints:
+				self.addMarkPoints[k] = self.getNewPoint(self.addMarkPoints[k],dt)
 		from soundwave_perturbation_params import perturbationType
 		if(perturbationType == "one"):
 			from soundwave_perturbation_params import functiontype
@@ -118,7 +119,8 @@ class Model(BaseModel):
 				if(plotPresAn or plotVelAn or plotRhoAn):
 					from analytic_solution import updateNewZ
 					updateNewZ(self, dt, False)
-				if(calcKc and not addMarkPoint is None):
+				if(calcKc and not addMarkPoints is None):
+					localMarkPoint = self.addMarkPoints[addMarkPoints.keys()[0]] 
 					from sound_wave_packet_params import k0, getSoundWaveGaussFunction, zc, W
 					from common import getDz, getZIndex
 					from constants import z0, zf
@@ -126,10 +128,10 @@ class Model(BaseModel):
 					from soundwave_perturbation_params import A	
 					from soundwave_medium_params import cs00, csderAnal
 					#print("dz: %e, dt*minCs=%e" % (getDz(), dt * np.min(cs00(self.z))))
-					cszp0 = cs00(addMarkPoint)
-					cszp = 	cs00(self.addMarkPoint)
+					cszp0 = cs00(localMarkPoint)
+					cszp = 	cs00(localMarkPoint)
 					kt = k0 *  cszp0/cszp
-					ktnew =  k0 * np.exp(-csderAnal(self.addMarkPoint) * time)
+					ktnew =  k0 * np.exp(-csderAnal(localMarkPoint) * time)
 					print("kc=%e,kt=%e,ktnew=%e,kc/kt = %e, kc*cs(zp(t))=%e,ktnew*cszp=%e,k0*csz0=%e" % (kc, kt,ktnew,kc / kt, kc * cszp, ktnew*cszp, k0*cszp0))
 					import os
 					os.system("echo %e %e >> %s" % (time, kc * cszp, "kc.txt"))				
@@ -237,30 +239,31 @@ class Model(BaseModel):
 				print("Calculate presFFT ")
 				presFFT = self.getPresFFTVals(False)
 			self.notifier.updateValues("presFFT", presFFT[0], time)
-			if(calcWidth and plotWidthOnGraph):
-				Y = presFFT[0]
-				F = presFFT[1]
-				indCenter = np.argmax(Y[1:])+1
-				delta = 0.005
-				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
-				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
-				#leftIndex = 2 * indCenter - rightIndex
-				leftIndex = 0
-				widthFourier =  F[rightIndex] - F[leftIndex]
-				self.notifier.markPoint("presFFT", "presFFTLeft", F[leftIndex])
-				self.notifier.markPoint("presFFT", "presFFTRight", F[rightIndex])
+#			if(calcWidth and plotWidthOnGraph):
+#				Y = presFFT[0]
+#				F = presFFT[1]
+#				indCenter = np.argmax(Y[1:])+1
+#				delta = 0.005
+#				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
+#				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
+#				#leftIndex = 2 * indCenter - rightIndex
+#				leftIndex = 0
+#				widthFourier =  F[rightIndex] - F[leftIndex]
+#				self.notifier.markPoint("presFFT", "presFFTLeft", F[leftIndex])
+#				self.notifier.markPoint("presFFT", "presFFTRight", F[rightIndex])
 
 		if(markPoints):
 			#only for pres	
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
-		if hasattr(self, "addMarkPoint"):
-			self.notifier.markPoint("pres", "addMarkPoint", self.addMarkPoint)
-		if(calcWidth and plotWidthOnGraph):
-			from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
-			delta = 0.00005
-			self.notifier.markPoint("pres", "presLeft", self.z[getFirstIndexDifferentLeft(self.pres, delta)])
-			self.notifier.markPoint("pres", "presRight", self.z[getFirstIndexDifferentRight(self.pres, delta)]) 
-			#print("LZ = %e , RZ = %e" % (self.z[getFirstIndexDifferentLeft(self.pres, delta)], self.z[getFirstIndexDifferentRight(self.pres, delta)]))		
+		if hasattr(self, "addMarkPoints"):
+			for k in self.addMarkPoints:
+				self.notifier.markPoint("pres", "mark_%s" % k, self.addMarkPoints[k])
+#		if(calcWidth and plotWidthOnGraph):
+#			from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
+#			delta = 0.00005
+#			self.notifier.markPoint("pres", "presLeft", self.z[getFirstIndexDifferentLeft(self.pres, delta)])
+#			self.notifier.markPoint("pres", "presRight", self.z[getFirstIndexDifferentRight(self.pres, delta)]) 
+#			#print("LZ = %e , RZ = %e" % (self.z[getFirstIndexDifferentLeft(self.pres, delta)], self.z[getFirstIndexDifferentRight(self.pres, delta)]))		
 
 	def getInitialValues(self):
 		if plotPresAn:
@@ -340,13 +343,14 @@ class Model(BaseModel):
 		if(plotPresFFT):
 			#use the same boolean parameter as in update	
 			vals = self.getPresFFTVals(False)
-			print("PRES FFT")
-			print(vals)
 			self.notifier.addGraph(vals[-1], "presFFT", vals[0] , "k", 'None')
 	
 		if(markPoints):
 			self.maxPresZ = self.z[np.argmax(self.pres)]	
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
+		if(addMarkPoints):
+			for k in addMarkPoints:
+				self.notifier.markPoint("pres", "mark_%s" % k, addMarkPoints[k])
 		if(mediumType=="inhomog"):
 			from soundwave_medium_params import cs00
 			self.notifier.plotAxisTwin(self.z, "vel",cs00(self.z) , "cs00")

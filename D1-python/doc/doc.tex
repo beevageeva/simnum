@@ -3,7 +3,7 @@
 \documentclass{article}
 \usepackage{amsmath, amssymb, graphics, setspace}
 \usepackage{graphicx}
-
+\usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage{spverbatim}
 \usepackage{geometry}
@@ -32,7 +32,7 @@ Consideramos un fluido ideal con las variables velocidad, densidad y presión(de
 $v_{00} = 0, \rho_0 , p_0$ ($p_0, \rho_0$ constantes en el caso homogeneo, variando lentamente en espacio y/o tiempo en el caso inhomogeneo)
  y hacemos unos cambios en estas variables añadiendo unas perturbaciones:
 $ v, \rho\prime, p\prime $ 
-que  son muy pequeños de forma que se pueden omitir los términos de segundo orden (o mayores) en las ecuaciones de los fluidos.
+que  son muy pequeñas de forma que se pueden omitir los términos de segundo orden (o mayores) en las ecuaciones de los fluidos.
 Definimos 
 \begin{description}  
  \item $c_s = \sqrt{\gamma \frac{p_0}{\rho_0}}$
@@ -324,9 +324,9 @@ es el valor de la amplitud de la perturbación de la presión en el momento t = 
 \item $A = 3e-4$
 \item Como las 3 variables: $p\prime, \rho\prime, v$  cumplen las mismas ecuaciones diferenciales consideramos $h_2(x,t)$ solución de la ecuación genérica:   
  $\frac{1}{c_s^{2}} \frac{\partial^{2} h_2}{\partial t^{2}} = \frac{ \partial^{2} h_2}{\partial x^2}   $ con $c_s$ constante  y condición inicial $h_2(x,0) = h(x)$
-y luego la solución de las 3 variables es multiplcar esta con las amplitudes correspondientes
+y luego la solución de las 3 variables es multiplcar esta con los valores correspondientes para que cumplan las relaciones entre las amplitudes de arriba
 
-\item La solución analítica (y que está implemntada) es
+\item La solución analítica  es
 $h_2(x,t) = h(x - c_s t)$
 \item el gráfico de la  funcion inicial (en este caso el paquete de ondas gaussian) no cambia de forma solo se traslada a la derecha con la velocidad $c_s$
 
@@ -361,11 +361,11 @@ $f_1(k) = f_2(\frac{k}{x_f - x_0})$
 \item De la teoria sé que si defino los coeficientes: $c(k) = \frac{1}{x_f - x_0} f_1(k) $
 \item  puedo escribir $f(x) = \sum_{k=-\infty}^{\infty} c_k e^{2 \pi i k \frac{x-x_0}{x_f - x_0}}$
 
-\item quiero representar de forma analítica y numeríca $c(k) * (x_f-x_0)$
-\item de forma analítica: calculo en mathematica $f_1(k)$ o obtengo $f2(k)$ y represento  $f_2(\frac{k}{x_f - x_0})$
+\item \textbf{quiero representar de forma analítica y numeríca} $c(k) * (x_f-x_0)$
+\item \textbf{de forma analítica}: calculo en mathematica $f_1(k)$ o obtengo $f2(k)$ y represento  $f_2(\frac{k}{x_f - x_0})$
 
 \item observo que en python los coeficientes calculados (de forma numérica) con scipy.fft son $cp(k) = f_1(\frac{k}{x_f-x_0})$ asi que 
-\item de forma numérica: calculo en python con scipy.fft cp(k) y  represento $cp(k* (x_f - x_0))* (x_f - x_0)$  
+\item \textbf{de forma numérica}: calculo en python con scipy.fft cp(k) y  represento $cp(k* (x_f - x_0))* (x_f - x_0)$  
 \end{description}
 
 \textbf{Resultado}:
@@ -389,8 +389,9 @@ $f_1(k) = f_2(\frac{k}{x_f - x_0})$
 \textbf{Evolución de $f_1(k)$ en el tiempo}  $c_k * (x_f - x_0)$
 \begin{description}
 \item Si escribimos   $h_2(x,0) = h(x) = \sum_{k=-\infty}^{\infty}c_k e^{2 \pi i k \frac{x-x_0}{x_f-x_0}}$ 
-\item $h_2(x,t) = h(x) = \sum_{k=-\infty}^{\infty}c_k e^{2 \pi i k \frac{x-c_s t-x_0}{x_f-x_0}}$ 
-\item $c_s$ constante $\implies $ los coeficientes quedan los mismos 
+\item $h_2(x,t) = h(x-c_s t) = \sum_{k=-\infty}^{\infty}c_k e^{2 \pi i k \frac{x-c_s t-x_0}{x_f-x_0}}$ 
+\item $h_2(x,t)  = \sum_{k=-\infty}^{\infty}c\prime_k e^{2 \pi i k \frac{x-x_0}{x_f-x_0}}$
+\item $c_s$ constante $\implies c_k = c\prime_k$  
 
 \item \begin{figure}[!ht]
  \centering
@@ -398,7 +399,7 @@ $f_1(k) = f_2(\frac{k}{x_f - x_0})$
  \caption{\emph{evolución de f1(k)}}
 \end{figure}
 \item Igual que se ve en el gráfico $f_1(k) $ casi no varía en el tiempo (se representó tambien la solución analítica para hacer la comparación).
-La pequeña variación se debe a la resolución (la solución numérica decrece un poco)
+La pequeña variación se debe a la resolución (nint = 2048) (la solución numérica decrece un poco)
 
 
 \end{description}
@@ -413,7 +414,7 @@ La pequeña variación se debe a la resolución (la solución numérica decrece 
  \includegraphics[scale=0.2]{reflhom.png}
  \caption{\emph{Evolución en el tiempo de las variables boundary conditions: refl }}
 \end{figure}
-\item TODO: la solución analítica con periodicType="refl" no está todavía implemnetada
+\item TODO: la solución analítica con periodicType="refl" no está todavía implementada
 \end{description}
 
 \subsection{Medio inhomogéneo}
@@ -437,20 +438,28 @@ los demás parámetros del caso inhomogéneo: $z_e, w_e, \rho_{01}$ })
 \item \begin{figure}[!ht]
  \centering
  \includegraphics[scale=0.2]{maininhom1.png}
- \caption{\emph{presion, densidad, velocidad}}
+ \caption{\emph{presion, densidad, velocidad - sol num y analitica}}
 \end{figure}
+
+\newpage 
 
 \item \begin{figure}[!ht]
  \centering
  \includegraphics[scale=0.2]{rhocinhom1.png}
- \caption{\emph{rhoCurve}}
+ \caption{\emph{rhoCurve - sol num y analitica}}
 \end{figure}
 
 \item Las amplitudes de las perturbaciones de presión , densidad y velocidad  no son mas constantes al largo de los rayos como en el caso homogeneo igual que se ve en el gráfico de arriba, la amplitud de la presion y rhoCurve decrece y la de la velocidad crece (las time derivative  no son mas 0 como en el caso homogeneo)
 \item En el caso homogeneo la solución para $\frac{1}{c_s^{2}} \frac{\partial^{2} h_2}{\partial t^{2}} = \frac{ \partial^{2} h_2}{\partial x^2}   $ con $c_s$ constante  y condición inicial $h_2(x,0) = h(x)$ en terminos de rayos se puede escribir:
-\item al largo del rayo $x_p(t)$ (solución de $\frac{dx}{dt} = c_s, x_p(0) = x_p$) $\frac{dh_2}{dt} = 0$ (time derivative)
-equivalente a $h_2(x_p(t), t) = const = h(x_p)$  
 
+\begin{description}
+\item al largo del rayo $x_p(t)$ (solución de $\frac{dx}{dt} = c_s, x_p(0) = x_p$) 
+\item $\frac{dh_2}{dt} = 0$ (time derivative)
+\item equivalente a $h_2(x_p(t), t) = const = h(x_p)$  
+
+\end{description}
+
+\item De la ecuación de estado del gas perfecto: $T_0 = \frac{p_0} {\rho_0} \frac{\mu}{R}$, donde $\mu$ es masa molecular y R la constante de los gases
 \end{description}
 
 \newpage
@@ -460,16 +469,16 @@ equivalente a $h_2(x_p(t), t) = const = h(x_p)$
 \begin{description}
 \item Marcamos en el los gráficos un punto $x_p = x_c$(el centro del paquete) y miramos la evolución en el tiempo desplazandolo en cada paso de tiepo con $c_s dt$. el punto se queda en el centro del paquete. Eso esperabamos porque los rayos son soluciones 
 $x_p(t)$ de $\frac{dx}{dt} = c_g, x_p(0) = x_p$ y las amplitudes de las perturbaciones de presion, densidad y velocidad varian lentamente al largo de ellos  
-\item De las relaciones de  la evolucion teoretica de las amplitudes: en el caso cuando $ p_0$ constante $\implies$  
-\item $|P(x_p(t),t)| c_s^{\frac{1}{2}}(x_p(t),t) = constant $ al largo del rayo $x_p(t)$
-\item y las otras 2 se calculan de las relaciones : $\frac{|P|}{|V|} = c_s \rho_0 , \frac{|P|}{|V|} = c_s^2$
 \item en 1D $c_s=c_g$
 \item la ecuacion de la variación de las amplitudes al largo de los rayos es válida para cualquier $x_p$
 
-\item Sabemos de la teoria que al largo del rayo $x_p(t)$ $k(x_p(t),t) * c_s(x_p(t)) = const$ 
-\item Comprobamos la solución numérica: calculamos $k_c$ el k para cual el valor de los coeficientes fourier $c(k)$ calculados con python 
-de forma numerica con scipy.fft para el valor de la presión en el momento t
-\item miramos la evolución en el tiempo de $k_c * c_s(x_p(t)) $ que debería ser constante = $k_0 c_s(x_p)$
+\item Sabemos de la teoria que al largo del rayo $x_p(t)$:
+\item $k(x_p(t),t)  c_s(x_p(t)) = const$ 
+\item Comprobamos la solución numérica: 
+\item miramos la evolución en el tiempo de $k_c * c_s(x_p(t)) $ que debería ser constante = $k_0 c_s(x_p)$ 
+\item  $k_c$ es el k para cual el valor de los coeficientes fourier $c(k)$ calculados con python 
+de forma numerica con scipy.fft para el valor de la presión en el momento t es máximo 
+\item pero tiene algunas variaciones como se ve en el gráfico:
 
 
 \item \begin{figure}[!ht]
@@ -478,51 +487,152 @@ de forma numerica con scipy.fft para el valor de la presión en el momento t
  \caption{\emph{kc * cs(xp(t))}}
 \end{figure}
 
+
+\item $k_c$ no tiene orque ser igual al $k(x_p(t))$ ero si el paquete es bastante estrecho se considera que todos los k estan alrededor de $k_c$  y no pueden variar mucho. Para que esta condición se cumpla $\lambda << varLength$ donde 
+$varLength =  min_{x}\big(|\frac{\rho_0}{\nabla \rho_0}|\big)(x) $
+y $\lambda$ (wavelength of modulated wave) = widthPacket
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.3]{wdcl.png}
+ \caption{\emph{widthPacket/ varLength}}
+\end{figure}
+\item la condicion $widthPacket < varLength$ se cumple solo al principio cuando el paquete era más estrecho
+
+
+\newpage
+
+
+ 
 \item \begin{figure}[!ht]
  \centering
  \includegraphics[scale=0.2]{pfourinhom1.png}
  \caption{\emph{f1(k) para la presion}}
 \end{figure}
-\item Deberia ser constante, pero las 
+
+
+\item En este caso como se ve en gráfico de arriba width(packet) crece y width(fourier) decrece.
+\item La forma gauss del paquete inicial varia muy lentamente(el paquete sigue teniendo una forma (envelope) casi una función gauss se alarga un poco a la derecha si 
+la densidad $\rho_0$ decrece y se estrecha  cuando $\rho_0$ crece) 
+pero con W más grande y $f_1(k)$ una gauss con w mas pequeño cuando $\rho_0$ decrece y al reves cuando crece
+\item De la expresión de la transformación fourier 
+esperabamos tener una relación de proporcionalidad inversa entre width(packet) y width(fourier)
+\item para no usar funciones que calculan de forma empirica la anchura del paquete  y de  $f_1(k)$ 
+\begin{description}
+\item determino la anchura del paquete siguiendo la evolución de 2 puntos (para la presión) que al principio están el el borde izquierdo y derecho (los meto con keys "left", "right"  en addMarkPoints en model\_soundwave.py, pero estos puntos los determino de forma empírica : los defino como $z_c$ - W*1.6,  $z_c$ + W * 1.6, W siendo el parámetro de la funcion gauss - definido en sound\_wave\_packet\_params.py) 
+\item se que la anchura y el valor maximo de una función gauss son proporcionales 
+\item mirando la evolución de $max(f_1(k))/widthFunction$ donde widthFunction es la anchura del paquete
+no parece tan constante(hay que tener en cuenta la evolución lenta de la función gauss  que describe la forma del paquete? el periodo de tiempo representado es cuando el paquete pasa por la zona donde la variación de la densidad es mayor y la función se aproxima menos a la gauss):
+
+\end{description}
 
 \item \begin{figure}[!ht]
  \centering
- \includegraphics[scale=0.2]{wwinhom1.png}
- \caption{\emph{ww}}
+ \includegraphics[scale=0.3]{wwinhom1.png}
+ \caption{\emph{max(fk)/ width packet}}
 \end{figure}
 
-\item Deberia ser constante, pero las 
+
+
 \end{description}
 
+\paragraph{Amplitudes}
 \begin{description}
+\item De las relaciones de  la evolucion teoretica de las amplitudes: en el caso cuando $ p_0$ constante $\implies$  
+\item $|P(x_p(t),t)| c_s^{\frac{1}{2}}(x_p(t),t) = constant $ al largo del rayo $x_p(t)$
+\item y las otras 2 se calculan de las relaciones : $\frac{|P|}{|V|} = c_s \rho_0 , \frac{|P|}{|V|} = c_s^2$
+\item Las amplitudes se calculan al largo del rayo  $x_p(t)$ (la curva solución para  $\frac{dx}{dt} = c_s, x(0) = x_p$): $C_P$ es una constante que depende de los valores en el punto inicial del rayo ($x_p$): $C_P = c_s^{-\frac{1}{2}}(x_p) \rho_0^{\frac{1}{2}}(x_p)$
 
-\item Las amplitudes se calculan al largo del rayo  $x_p(t)$ (la curva solución para  $\frac{dx}{dt} = c_s, x(0) = x_p$): $C_P$ es una constante que depende de los valores en el punto inicial del rayo ($x_p$): $C_P = c_s^{-\frac{1}{2}}(x_p) , \rho_0^{\frac{1}{2}}(x_p)$
-
-\item En la práctica he calculado la solución analítica(los valores de las amplitudes $|P|, |R|, |V|$ ) al largo del rayo $x_p(t)$:
+\item En la práctica he calculado la solución analítica de $|P|$ al largo del rayo $x_p(t)$:
 \item $|P(x_p(t),t)| = c_s^{-\frac{1}{2}}(x_p(t)) c_s^{\frac{1}{2}}(x_p) P(x_p,0)  $
-\item las amplitudes de las demás perturbaciones se calculan reemplazando directamente en las relaciones entre las amplitudes (cuando se representa la solución analítica), 
-\item En el caso de la práctica queremos representar las amplitudes como $const * cs^{\alpha} $ reemplazamos $\rho_0$
-\item Para ver si el paquete se adapta a la relación representamos las curvas:
-\item para la presión: $ c_s^{-\frac{1}{2}}(x) c_s^{\frac{1}{2}}(x) P(x_0,0) $
+\item Para ver de forma empirica si paquete se adapta  a las curvas de forma  $const * cs^{\alpha} $representamos las curvas:
+\item para la presión: $ c_s^{-\frac{1}{2}}(x) c_s^{\frac{1}{2}}(x_0) P(x_0,0) $
 \item densidad: $ c_s^{-\frac{3}{2}}(x) c_s^{\frac{3}{2}}(x_0) R(x_0,0)  $ 
 \item velocidad: $ c_s^{\frac{1}{2}}(x) c_s^{-\frac{1}{2}}(x_0) V(x_0,0)  $ 
 \item eligiendo $x_0$ los 2 puntos donde  los valores de las amplitudes de las perturbación en el momento inicial tienen el mínimo y máximo 
-
-
-\begin{figure}[!ht]
- \centering
- \includegraphics[scale=0.2]{mainInhom1.png}
- \caption{\emph{Perfil radial de las estrellas de referencia para la alineación}}
-\end{figure}
-
-\begin{figure}[!ht]
- \centering
- \includegraphics[scale=0.2]{rhocInhom1.png}
- \caption{\emph{Perfil radial de las estrellas de referencia para la alineación}}
-\end{figure}
- 
+\item ya sabia que $\alpha = -\frac{1}{2}$ para la presión, $\alpha = -\frac{3}{2}$ (para la densidad, $-\frac{1}{2}$ para rhoCurve), $\alpha = \frac{1}{2}$ para la velocidad (pero se puede variar tambien en el grafico: ver model\_soundwave.py)
 \end{description}
 
+\textbf{Conclusiones}:
+\begin{description}
+\item Por la forma que tienen las ecuaciones diferenciales de las variables de cuales queremos estudiar la evolución:
+\item $\frac{\partial p}{\partial t} + c_s \frac{\partial f}{\partial x} = g(x,t)$
+\item la solución se puede expresar usando el termino de rayo(creo que se llama de otra forma?)
+\item definimos el rayo $x_p(t)$ la solución de la ecuación $\frac{dx}{dt} = cs, x_p(0) = x_p$
+\item la PDE de arriba se transforma en DE al largo del rayo $x_p(t)$:
+\item $\frac{dp}{dt} = g(x_p(t), t)$
+\item $k,\omega, \phi, E, a$ tienen relaciones que se pueden expresar como diferenciales de tiempo al largo de los rayos. 
+\item la dependencia de x se transforma en dendencia de tiempo y de $x_p$ el punto inicial del rayo (al momento t=0)
+\item $\frac{d\phi}{dt} = 0 \implies $ el paquete no cambia de forma pero su anchura crece(k decrece) cuando $ c_s$ crece y se estrecha cuando $c_s$ 
+decrece de forma proporcional a k (por la relación: $\frac{dk}{dt} = -k \frac{dc_s}{dx}$)
+\item de la ecuacion diferencial de  la amplitud al largo del rayo (o de la energía) se obtiene una relación genérica de dependencia de la amplitud  de $c_s$ , $\rho_0$ , $p_0$ que tiene  que cumplir las 3 variables : perturbacion de densidad, presión, velocidad
+\item pero de la ecuación de movimiento de los fluidos y de la condicón de adiabaticidad se obtienen otras 2 relaciones entre las amplitudes de cada una
+\end{description}
+
+
+\paragraph{$rho_0$ crece} ($rho_{00} < rho_{01}$)
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{maininhom2.png}
+ \caption{\emph{presion, densidad, velocidad - sol num y analitica}}
+\end{figure}
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{rhocinhom2.png}
+ \caption{\emph{rhoCurve - sol num y analitica}}
+\end{figure}
+ 
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{fourinhom2.png}
+ \caption{\emph{f1(k) para la presion}}
+\end{figure}
+
+\subsection{Documenatción usada}
+\begin{description}
+\item \href{http://www.awi.de/fileadmin/user\_upload/Research/Research\_Divisions/Climate\_Sciences/Projekt/1\_to\_3\_\_WO\_waves.pdf}{http://www.awi.de/fileadmin/user\_upload/Research/Research\_Divisions/Climate\_Sciences/Projekt/1\_to\_3\_\_WO\_waves.pdf}
+\item \href{https://classes.soe.ucsc.edu/ams227/Fall13/lecturenotes/Chapter2-part2.pdf}{https://classes.soe.ucsc.edu/ams227/Fall13/lecturenotes/Chapter2-part2.pdf}
+\end{description}
+\subsection{Codigo}
+\begin{description}
+\item  Todo el código está en el repositorio git:
+
+\href{https://github.com/beevageeva/simnum/}{https://github.com/beevageeva/simnum/}
+
+en la carpeta D1-python
+\item Si no quiere usar git también hay un archivo comprimido de los ficheros *.py en:
+\href{https://github.com/beevageeva/simnum/blob/master/D1-python.tar.gz}{https://github.com/beevageeva/simnum/blob/master/D1-python.tar.gz}
+
+\item Para ejecutar (timeEnd por defecto = timeEnd definido en constants.py):
+\begin{verbatim}
+	python main.py --timeEnd=5
+\end{verbatim}
+
+\item Los parametros de configuración están en:
+\begin{description}
+\item soundwave\_boundary\_conditions.py 
+\begin{description}
+	\item periodicType = "repeat" | "refl"
+\end{description}
+
+\item soundwave\_medium\_params.py los parámetros relacionados con el medio : mediumType("homog" o "inhomog") ,$p_{00}$, $v_{00}$, $rho_{00}$ y  en el caso del medio inomogeneo: la funcion de densidad inicial
+\item soundwave\_perturbation\_params.py los parámetros relacionados a las condiciones iniciales (la perturbación): el tipo de la función y para cada tipo definido aqui hay un fichero distinto donde se configuran los parámetros de cada uno: en el caso del wave packet este fichero es sound\_wave\_packet\_params.py , la amplitud. También se pueden definir superposisiones de funciones. 
+\item constants.py: 
+\begin{description}
+\item  gamma = 5.0/3, z0, zf, nint,timeEnd, schemeType = "lf" (lax-fr) | "fg" (first generation), fcfl, loopType="python" | "weave"
+\item loopType = "weave" $\implies$ los calculos de las derivadas en alg.py se hacen en C. Tambien para calcular la solución analítica en
+analytic\_solution.py 
+\item en el caso de schemeType="fg" se especifica el paso cuando se aplican las condiciones de contorno: en el paso final bcStep = "final" o en el paso intermedio bcStep = "interm"
+\end{description}
+\item en notifier\_params.py están los parametros relcionados con los gráficos: nStepsPlot = 10 (solo repinta los gráficos cada 10 iteraciones)
+y si pintar algunos gráficos o no como por ejemplo rhoCurve o fft fourier o fft fourier sol analítica o la sokución analítica
+\item la solución analítica no está implementada para cond contorno reflexión
+\item hay mas parámetros que se pueden cambiar que estan la principio de los ficheros python: en visual\_plot.py donde están las funciones relacionadas con los gráficos se definen los xlim, ylim, saveImages = True (guarda una imagen en la carpeta outImages\_*) y en model\_soundwave.py como addMarkPoints que es un hash de los puntos de cuales queremos ver la evolución (en cada iteración los dezplazamos con $c_{s}$ * dt) $c_s$ calculado numérico de los valores de la presión y densidad (funciona con superposiciones) . 
+\item Para calcular la anchura del paquete hay que añadir a addMarkPoints los puntos que inicial están a los bordes del paquete con los keys: "left"  y "right" porque la anchura la calculo siguiendo estos 2 puntos (mejor que con funciones que determinan la anchura de forma empirica: determinando los z cuando la funcion  empieza a ser diferente de la derecha y izquierda)
+  
+
+\end{description}
+\end{description}
 \end{document}
 
 

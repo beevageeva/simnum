@@ -22,8 +22,8 @@ if mediumType == "homog":
 	cs00 = sqrt(gamma * p00 / rho00)
 
 elif(mediumType=="inhomog"):
-	#inhomogSubtype = 1	
-	inhomogSubtype = 2	
+	inhomogSubtype = 1	
+	#inhomogSubtype = 2	
 	from constants import z0, zf
 	if inhomogSubtype == 1:	
 		rho00 = 1.0
