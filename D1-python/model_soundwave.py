@@ -8,8 +8,10 @@ from soundwave_medium_params import mediumType, cs00
 
 
 
+#calcWidth = True
 calcWidth = True
-#calcWidth = False
+plotWidthOnGraph = False
+#plotWidthOnGraph = True
 #showErr = True
 showErr = False
 calcKc = True
@@ -84,18 +86,28 @@ class Model(BaseModel):
 			self.presFFT = self.getPresFFTVals(False)
 			F = self.presFFT[1]
 			Y = self.presFFT[0]
-			kc = abs(F[np.argmax(Y[1:])+1])
+			indCenter = np.argmax(Y[1:])+1
+			kc = abs(F[indCenter])
 			if(calcWidth):
 				#TODO test wavepcket
-				maxAmp = np.max(Y[1:])
-				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
-				delta = 0.00005
+				maxAmp = Y[indCenter]
+				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
+				delta = 0.005
 				widthFunc2 = maxAmp * 2 / pi
-				widthFourier =  F[getFirstIndexDifferentRight(Y[1:len(Y)/2], delta)] - F[getFirstIndexDifferentLeft(Y[1:len(Y)/2], delta)]
+				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
+				#leftIndex = 2 * indCenter - rightIndex
+				leftIndex = 0
+				widthFourier =  F[rightIndex] - F[leftIndex]
 				delta = 0.00005
 				widthFunction =  self.z[getFirstIndexDifferentRight(self.pres, delta)] -  self.z[getFirstIndexDifferentLeft(self.pres, delta)]
-				print("widthFunction = %e == %e?, widthFourier = %e, w1*w2 = %e" % (widthFunction, widthFunc2, widthFourier,widthFourier * widthFunc2 ))
-	
+				#print("widthFunction = %e == %e?, widthFourier = %e, w1*w2 = %e, w1*w2gr=%e" % (widthFunction, widthFunc2, widthFourier,widthFourier * widthFunc2, widthFourier * widthFunction ))
+				import os	
+				os.system("echo %e %e >> %s" % (time, widthFourier * widthFunction , "ww.txt"))				
+				os.system("echo %e %e >> %s" % (time, widthFourier * widthFunc2, "ww2.txt"))				
+				#VARLENGTH
+				from soundwave_medium_params import getDensVarLength	
+				cl =	getDensVarLength(self.z)
+				print("1/kc= %e, wp = %e, cl = %e" % (1.0/kc, widthFunction, cl))
 
 		if hasattr(self, "addMarkPoint"):
 			self.addMarkPoint = self.getNewPoint(self.addMarkPoint,dt)
@@ -147,10 +159,10 @@ class Model(BaseModel):
 			from initcond_soundwave import fromValsToCurveVel
 		if(plotRhoCurve):
 			from initcond_soundwave import fromValsToCurveRho
+		#TODO
+		newZNA = None
 		if(plotPresAn or plotVelAn or plotRhoAn):
 			from analytic_solution import getCurves, getVals
-			#TODO
-			newZNA = None
 			curves = getCurves(self.z, time)
 			anValuesCalc = False
 			if(mediumType == "inhomog"):
@@ -206,17 +218,17 @@ class Model(BaseModel):
 
 		
 
-		self.notifier.updateValues("rho", rhoNewVals, newZNA)
-		self.notifier.updateValues("pres", presNewVals, newZNA)
-		self.notifier.updateValues("vel", velNewVals, newZNA)
+		self.notifier.updateValues("rho", rhoNewVals, time, newZNA)
+		self.notifier.updateValues("pres", presNewVals, time, newZNA)
+		self.notifier.updateValues("vel", velNewVals,  time, newZNA)
 		if(plotPresCurve):
-			self.notifier.updateValues("presCurve", presCurveNewVals, newZNA)
+			self.notifier.updateValues("presCurve", presCurveNewVals, time, newZNA)
 		if(plotVelCurve):
-			self.notifier.updateValues("velCurve", velCurveNewVals, newZNA)
+			self.notifier.updateValues("velCurve", velCurveNewVals,  time, newZNA)
 		if(plotRhoCurve):
-			self.notifier.updateValues("rhoCurve", rhoCurveNewVals, newZNA)
+			self.notifier.updateValues("rhoCurve", rhoCurveNewVals, time, newZNA)
 		if(plotVelFFT):
-			self.notifier.updateValues("velFFT", self.getVelFFTVals(True)[0:-1])
+			self.notifier.updateValues("velFFT", self.getVelFFTVals(True)[0:-1], time)
 		if(plotPresFFT):
 			#if ('presFFT' in vars()):
 			if (hasattr(self, 'presFFT')):
@@ -224,35 +236,31 @@ class Model(BaseModel):
 			else:
 				print("Calculate presFFT ")
 				presFFT = self.getPresFFTVals(False)
-			self.notifier.updateValues("presFFT", self.presFFT[0])
-			if(calcWidth):
-				Y = self.presFFT[0]
-				F = self.presFFT[1]
-				delta1 = 1
-				delta2 = 10**10
-				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight
-				print("***************************************************************************")
-				self.notifier.markPoint("presFFT", "presFFTLeft", F[getFirstIndexDifferentLeft(Y[1:len(Y)/2 - 1], delta1)]   )
-				self.notifier.markPoint("presFFT", "presFFTRight", F[getFirstIndexDifferentRight(Y[1:len(Y)/2 - 1], delta2)]   )
-				print("positive ferquencies")
-				print(F[1:len(Y)/2-1])
-				print("coef of pos freq")
-				print(Y[1:len(Y)/2-1])
-				print(np.max(Y[1:len(Y)/2-1]))	
-				print("RF = %e , LF = %e" % ( F[getFirstIndexDifferentRight(Y[1:len(Y)/2 - 1], delta2)],  F[getFirstIndexDifferentLeft(Y[1:len(Y)/2-1], delta1)] ))		
-				
+			self.notifier.updateValues("presFFT", presFFT[0], time)
+			if(calcWidth and plotWidthOnGraph):
+				Y = presFFT[0]
+				F = presFFT[1]
+				indCenter = np.argmax(Y[1:])+1
+				delta = 0.005
+				from analyze_functions import getFirstIndexDifferentLeft,getFirstIndexDifferentRight, getGaussianLimitRight
+				rightIndex = getGaussianLimitRight(Y, indCenter, delta)
+				#leftIndex = 2 * indCenter - rightIndex
+				leftIndex = 0
+				widthFourier =  F[rightIndex] - F[leftIndex]
+				self.notifier.markPoint("presFFT", "presFFTLeft", F[leftIndex])
+				self.notifier.markPoint("presFFT", "presFFTRight", F[rightIndex])
 
 		if(markPoints):
 			#only for pres	
 			self.notifier.markPoint("pres", "maxPresZ", self.maxPresZ)
 		if hasattr(self, "addMarkPoint"):
 			self.notifier.markPoint("pres", "addMarkPoint", self.addMarkPoint)
-		if(calcWidth):
+		if(calcWidth and plotWidthOnGraph):
 			from analyze_functions import getFirstIndexDifferentLeft, getFirstIndexDifferentRight
 			delta = 0.00005
 			self.notifier.markPoint("pres", "presLeft", self.z[getFirstIndexDifferentLeft(self.pres, delta)])
 			self.notifier.markPoint("pres", "presRight", self.z[getFirstIndexDifferentRight(self.pres, delta)]) 
-			print("LZ = %e , RZ = %e" % (self.z[getFirstIndexDifferentLeft(self.pres, delta)], self.z[getFirstIndexDifferentRight(self.pres, delta)]))		
+			#print("LZ = %e , RZ = %e" % (self.z[getFirstIndexDifferentLeft(self.pres, delta)], self.z[getFirstIndexDifferentRight(self.pres, delta)]))		
 
 	def getInitialValues(self):
 		if plotPresAn:
@@ -342,15 +350,6 @@ class Model(BaseModel):
 		if(mediumType=="inhomog"):
 			from soundwave_medium_params import cs00
 			self.notifier.plotAxisTwin(self.z, "vel",cs00(self.z) , "cs00")
-			#VARLENGTH
-			from soundwave_perturbation_params import perturbationType
-			if perturbationType == "one":
-				from soundwave_perturbation_params import functiontype
-				if functiontype == "wavepacket":
-					from sound_wave_packet_params import k0
-					from soundwave_medium_params import getDensVarLength	
-					cl =	getDensVarLength(self.z)
-					print("wl = %e, cl = %e" % (1.0 /k0, cl))
 		if(plotCsMaxMin):
 			if(mediumType=="inhomog"):
 

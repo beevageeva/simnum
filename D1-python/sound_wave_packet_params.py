@@ -2,15 +2,21 @@ import numpy as np
 from constants import z0, zf
 from math import pi,sqrt
 
+k0 = 60.0
+zc = z0 + 0.2 * (zf - z0)
+W = 0.05
 
-#k0 = 60.0
-k0 = 15.0#second exp of inhom
-#zc = z0 + 0.2 * (zf - z0) homog
-zc = z0 + 0.3 * (zf - z0)
-#zc = z0 + (3.0/20.0)*(zf - z0)#second exp of inhom and first new
-#W = 0.01
-#W = 0.05
-W = 0.25 #second exp of inhom
+from soundwave_medium_params import mediumType
+if mediumType == "inhomog":
+	from soundwave_medium_params import inhomogSubtype
+	if inhomogSubtype == 2:
+		#change 	
+		k0 = 15.0#second exp of inhom
+		#zc = z0 + 0.2 * (zf - z0) homog
+		#zc = z0 + 0.3 * (zf - z0)
+		zc = z0 + (3.0/20.0)*(zf - z0)#second exp of inhom and first new
+		#W = 0.01
+		W = 0.25 #second exp of inhom
 
 def getSoundWaveGaussFunction(zc, W):
 	def gaussFunction(z):

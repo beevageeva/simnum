@@ -31,16 +31,19 @@ elif(mediumType=="inhomog"):
 		#ze = 0.5*(z0 + zf)   #start of change in rho
 		ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
 		#ze = z0 + 0.15*(zf - z0) #first exp of inhom new , even more 
+		we = 0.4
 	else:	
-		#rho01 = 1.2#second exp of inhom
+		rho01 = 1.2#second exp of inhom
+		rho00 = 0.3
 		#inverse
-		rho01 = 1.0#second exp of inhom
-		rho00 = 0.01
+		#rho01 = 1.0#second exp of inhom
+		#rho00 = 0.01
 		#ze = z0 + 0.7*(zf - z0) #second exp of inhom
 		#ze = z0 + 0.2*(zf - z0) #first exp of inhom new , more at the beginning
 		ze = 0.5*(zf + z0) #middle
+		we = 0.5
 	#we = 0.4
-	we = 0.2
+	#we = 0.2
 	def densFunc(z):
 		return rho00 + 0.5 * (rho01-rho00) * (1 + np.tanh((z-ze)/we))
 	#desympy

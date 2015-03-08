@@ -15,7 +15,7 @@
  bottom=20mm,
  }
 
-
+\DeclareMathSizes{10}{10}{10}{10}
 
 \newcommand{\mathsym}[1]{{}}
 \newcommand{\unicode}[1]{{}}
@@ -28,62 +28,222 @@
 Una perturbación de pequeña amplitud en un fluido va a crear zonas de compresión y rarefacción que alternan en el tiempo y espacio en la dirección de propagación(el movimiento oscilatorio de las particulas se propaga como una onda y son ondas logitudinales:  las particulas se mueven en la misma dirección que la dirección de propagación)
 
 \paragraph{Condiciones iniciales}
-Consideramos un fluido ideal con las variables en el estado de equilibrio $v_0 = 0, \rho_0 , p_0$ y hacemos unos cambios en estas variables que  son muy pequeños de forma que se pueden omitir los términos de segundo orden (o mayores) en las ecuaciones de los fluidos
-Definimos $c_s = \big( \frac{\partial p}{\partial \rho}\big)_s = \sqrt{\gamma \frac{p_0}{\rho_0}}$
-Las variables de cuales queremos estudiar la evolución devienen:
+Consideramos un fluido ideal con las variables velocidad, densidad y presión(dependen de x y t) en el estado de equilibrio 
+$v_{00} = 0, \rho_0 , p_0$ ($p_0, \rho_0$ constantes en el caso homogeneo, variando lentamente en espacio y/o tiempo en el caso inhomogeneo)
+ y hacemos unos cambios en estas variables añadiendo unas perturbaciones:
+$ v, \rho\prime, p\prime $ 
+que  son muy pequeños de forma que se pueden omitir los términos de segundo orden (o mayores) en las ecuaciones de los fluidos.
+Definimos 
+\begin{description}  
+ \item $c_s = \sqrt{\gamma \frac{p_0}{\rho_0}}$
+
+ \item $c_s  =\big( \frac{\partial p}{\partial \rho}\big)_s  $
+
+\end{description}  
+
+Las variables de las equaciones de los fluidos devienen:
 
 \begin{description}  
 \item v
-\item $\rho = \rho_0 + \rho_0\prime$
+\item $\rho = \rho_0 + \rho\prime$
 \item $p = p_0 + p\prime$
 
  
 \end{description}  
 
-con $|v|<<c_s, p\prime<<p , \rho\prime << \rho_0$ 
+con $|v|<<c_s, p\prime<<p_0 , \rho\prime << \rho_0$ 
 
-Las ecuaciones de los fluidos despues de linearlizar devienen:
+\paragraph{Evolución}
+Queremos estudiar la evolución en el tiempo de las perturbaciones: $p\prime, \rho\prime, v$
+Las ecuaciones de los fluidos despues de linearizar devienen:
 \begin{description}  
 \item continuidad: $ \frac{\partial \rho\prime}{\partial t} + \rho_0 \nabla \cdot v = 0 $
-\item Euler: $ \frac{\partial v}{\partial t} + \frac{1}{\rho_0} \nabla p\prime = 0 $
+\item movimiento: $ \frac{\partial v}{\partial t} + \frac{1}{\rho_0} \nabla p\prime = 0 $
+\item energia:(El proceso es adiabático) $p\prime = c_s^{2} \rho\prime$
+
+\end{description} 
+Notaciones
+\begin{description}  
+\item N numero de dimensiones, $(x_i)_i$ vector $\in \mathbb{R}^N $, $f(x)=\big(f_i(x)\big)_i$ vector $\in \mathbb{R}^N $(como la velocidad), g(x) scalar $\in \mathbb{R}$
+como la densidad, $p(x) = p(x)_{i,j}$ matriz $\in \mathbb{R}^N \times \mathbb{R}^N $ como $f_c$ de abajo
+\item $\nabla \cdot f(x) = div(f) = \sum_i\frac{\partial f_i}{\partial x_i}$
+\item $\nabla \cdot g(x) = div(g) = \sum_i\frac{\partial g}{\partial x_i}$
+\item $\nabla f(x) = \big(\frac{\partial f_i}{\partial x_i}\big)_i$
+\item $\nabla g(x) = \big(\frac{\partial g}{\partial x_i}\big)_i$
+\item $\nabla \cdot p(x) = \big(\sum_j\frac{\partial p_{i,j}}{\partial x_j}\big)_i$
+\item $x \cdot y = \sum_{i} x_i y_i$ para $\big(x_i\big)_i , \big(y_i\big)_i$ vectores
+\end{description} 
+ 
+\textbf{ De forma numérica} las ecuaciones de los fluidos linearizadas  de arriba se expresan: 
+\begin{description}  
+\item en el momento incial definimos:
+\item $u_m = \rho$
+\item $u_c = \rho v$
+\item $u_e = \frac{p}{\gamma - 1} + \frac{1}{2}  \rho  |v|^2 $
+\item En cada paso de tiempo
+\begin{enumerate}  
+\item se calculan los flujos definidos:
+\begin{description}
+\item $f_m = \rho v$
+\item $f_c = (\rho v_i v_j)_{i,j} + p I_{N}$ 
+\item matriz de dimension (N,N) N = numero de dimensiones del espacio y $I_N$ la matriz identidad
+\item $f_e = u_e p v$
+\end{description}  
+\item y se recalculan $u_m u_e, u_c$ (aqui se pueden usar esquemas diferentes que se configuran en constants.py: lax-fr("lf") o first generation("fg")). 
+Tambien en este paso se aplican las condiciones de contorno el tipo se condfigura en soundwave\_boundary\_conditions.py 
+y se han implementado "repeat"y "refl" (en el caso se la esquema "fg" estas se pueden aplicar también en el paso 
+intermedio dependiendo del parámetro bcStep de constants.py ("interm" o "final"))
+
+\begin{description}
+\item $\frac{du_m}{dt} = -\nabla \cdot f_m$
+\item $\frac{du_e}{dt} = -\nabla \cdot f_e$
+\item $\frac{du_c}{dt} = -\nabla \cdot f_c$
+\end{description}  
+
+\item y las variables v,p,$\rho$:
+\begin{description}
+\item $v = \frac{1}{\rho} u_c$
+\item $p = (\gamma-1) (u_e - \frac{1}{\rho^2}{|u_c|^2})$
+\item $\rho = u_m$
+\end{description}  
+\end{enumerate}  
+\item dt depende de los valores de las variables en el momento que se calcula $\rho, p, v$, resolución (nint), y el tipo de esquema numérico usado (depende del parametro fcfl que es diferente para las esquema lax-fr y first generation (que se implemnetaron en la práctica))
+ 
+
 
 \end{description}  
 
-\begin{description}  
-\item El proceso es adiabático: $p\prime = c_s^{2} \rho\prime$
+\textbf{de forma analítica}:
 
-\item Después de hacer los cálculos (y suponiendo el caso general inhomogeneo en tiempo y espacio : $\rho_0 = \rho_0(x,t) \implies c_s = c_s(x,t)$ con la densidad de equilibrio variando bastante lentamente en el espacio y tiempo de tal forma que se pueden omitir terminos de segundo orden o mas en multiplicaciones de derivadas temporales o espaciales de estas y las perturbaciones) las perturbaciones de las variables verifican las ecuaciones: 
+\begin{description}  
+
+
+
+\item Después de hacer cálculos (y suponiendo el caso general inhomogeneo en tiempo y espacio : 
+$\rho_0 = \rho_0(x,t),p_0 = p_0(x,t) \implies c_s = c_s(x,t)$ 
+con  $p_0, \rho_0, c_s$  monótonas, variando bastante lentamente en el espacio y tiempo de tal forma que se pueden omitir terminos de segundo orden o mas en multiplicaciones de derivadas temporales o espaciales de estas y las perturbaciones) las perturbaciones de las variables verifican las ecuaciones: 
 
 \item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial p\prime}{\partial t}\big) = \nabla^{2} p\prime    $
 \item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial \rho\prime}{\partial t}\big) = \nabla^{2} \rho\prime    $
 \item $\frac{\partial}{\partial t} \big(\frac{1}{c_s^{2}(x,t)} \frac{\partial \Phi}{\partial t}\big) = \nabla^{2} \Phi $ donde definimos  $v = \nabla \Phi$ considerando el fluido irrotacional
-\item Si la densidad de equilibrio no varia en el tiempo($\rho_0 = \rho_0(x)$):
+\item TODO: Estas relaciones serían válidas también cuando $p_0$ no es constante? - en la práctica consideramos $p_0$ constante y $\rho_0 = \rho_0(x)$
+\item(
+{\small{he mencionado este caso general con la variación de $\rho_0$ también  en el tiempo 
+porque en la documentación que he leído se consideraba así}})
+
+\end{description}  
+
+\paragraph{Medio homogéneo}
+
+\begin{description}  
+\item Si la densidad y presión de equilibrio son constantes en tiempo y espacio ($\rho_0, p_0 constantes \implies c_s const$) las soluciones generales de:
+\item $\frac{1}{c_s^{2}} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
+\item $\frac{1}{c_s^{2}} \frac{\partial^{2} \rho\prime}{\partial t^{2}} = \nabla^{2} \rho\prime    $
+\item $\frac{1}{c_s^{2}} \frac{\partial^{2} \Phi}{\partial t^{2}} = \nabla^{2} \Phi    $
+\item  con $c_s$ const. son superposiciones de ondas planas de forma
+\item $ \sum_{i} A_{\rho\prime_i} cos (x - csSign_i c_s t) $
+\item $ \sum_{i} A_{p\prime_i} cos (x - csSign_i c_s t) $
+\item $ \sum_{i} csSign_i A_{v_i} cos (x - csSign_i c_s t) $ 
+\item con las amplitudes números reales verificando las ecuaciones:
+
+
+\item $A_{p\prime_i} = c_s^{2} A_{\rho\prime_i}$ (de la ecuación de adiab.)
+\item $A_{v_i} = \frac{1}{c_s \rho_0} A_{p\prime_i}$  (de la ecuación de movimiento)
+\item y en los  casos $csSign_i = 1, A_{\rho\prime_i}, A_{p\prime_i}, A_{v_i} > 0$ y 
+$csSign_i = -1, A_{\rho\prime_i}, A_{p\prime_i}, A_{v_i} < 0$  la onda viaja a la derecha
+\item y cuando $csSign_i = -1, A_{\rho\prime_i}, A_{p\prime_i}, A_{v_i} > 0$ y 
+$csSign_i = 1, A_{\rho\prime_i}, A_{p\prime_i}, A_{v_i} < 0$  la onda va a la izquierda
+
+\item En la práctica pondrémos (cuando de generan las condiciones iniciales y cuando se calcula la solución analítica):
+\item $A_{p\prime_i} = \gamma   p_0  A$
+\item $A_{\rho\prime_i} = \rho_0  A$
+\item $A_{v_i} = c_s  A$
+\item con A (la amplitud de la perturbación) muy pequeña 
+
+\end{description}  
+
+
+\paragraph{Medio inhomogéneo independiente de tiempo} $p_0 = p_0(x),\rho_0 = \rho_0(x)\implies c_s = c_s(x)$ monótonas, variando lentamente..
+\begin{description}  
 \item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
 \item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} \rho\prime}{\partial t^{2}} = \nabla^{2} \rho\prime    $
 \item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} \Phi}{\partial t^{2}} = \nabla^{2} \Phi    $
-\end{description}  
-
-\paragraph{Medio homogeneo}
-
-\begin{description}  
-\item Si la densidad de equilibrio es constante en tiempo($\rho_0, c_s constantes$) y espacio las soluciones generales son superposiciones de ondas planas de forma:
-\item $ \sum_{i} A_{\rho\prime_i} cos (x - c_s t) $
-\item $ \sum_{i} A_{p\prime_i} cos (x - c_s t) $
-\item $ \sum_{i} csSign_i A_{v_i} cos (x - csSign_i c_s t) $ donde $csSign_i = 1 $ si la onda viaja a la derecha y -1 si va a la izquierda
-\item con las amplitudes números reales verificando las ecuaciones:
-$A_{p\prime_i} = c_s^{2} A_{\rho\prime_i}$
-$A_{v_i} = \frac{1}{c_s \rho_0} A_{p_i}$
-\end{description}  
-
-
-\paragraph{Medio inhomogeneo} $\rho_0 = \rho_0(x)$
-La solución no se puyede expresar mas como superposición de ondas planas (porque $c_s$ no es más constante ), pero análogo a esta solución intentamos  buscar soluciones de forma $a(x,t) e^{i\phi(x,t)}$ (aproximación WKB):
+\item La solución no se puyede expresar mas como superposición de ondas planas (porque $c_s$ no es más constante ), pero análogo a esta solución del caso homogeneo de la onda plana:
+ $p(x,t)=a cos(\phi(x))$ donde $\phi(x,t) = kx-\omega t$ con la amplitud a const y $\omega, k$ constantes verificando la relación de dispersión $\omega^{2} = c_s^2 k^2  $ intentamos  buscar soluciones de forma $a(x,t) e^{i\phi(x,t)}$ (aproximación WKB): 
  donde definimos 
-\begin{description}  
 \item $\omega(x,t) = -\frac{\partial \phi}{\partial t}$
 \item $k(x,t) = -\nabla \phi$
 \end{description}
-porque análogo al caso homogeneo (considerando sin perder la generlaidad solo una onda y no una superposición) donde $\phi(x,t) = kx-\omega t$ con $\omega, k$ constantes verificando la relación de dispersión $\omega^{2} = c_s^2 k^2  $  
+
+
+\paragraph{Resolver la ecuación genérica}
+\begin{description}  
+\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p}{\partial t^{2}} = \nabla^{2} p  $
+\item Reemplazando la solución WKB approx. $p(x,t) = a(x,t) e^{i \phi(x,t)}$ en la ecuación y con las definiciones de $\omega$ y k de arriba despues 
+de hacer los cálculos 
+y asumiendo  que las variaciones en la amplitud son muy pequeñas de forma que podemos omitir términos de segundo orden en las derivadas espaciales y temporales de a llegamos a: 
+\begin{itemize}
+\item $\omega^{2}(x,t) = c_s^{2}(x) k^2(x,t)$ (la relación de dispersión es válida de forma local)
+\item y la ecuación de la evolución de la amplitud:
+  $\frac{\partial a}{\partial t} + c_g \cdot \nabla a = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2}  \nabla \cdot k) $
+\end{itemize}
+\item con $c_g = \frac{\partial \omega}{\partial k}$ 
+
+\item de la relación de dispersión $\implies $ 
+\item$\frac{\partial \omega}{\partial t} + c_g \cdot \nabla \omega = 0 $
+\item$\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \cdot \nabla  c_g $
+\item$\frac{\partial \phi}{\partial t} + c_g \cdot \nabla \phi = 0 $
+
+\item Usamos directamente la ecuación de conservación de energía para determinar la amplitud y no la de arriba (TODO):
+\item$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
+
+\end{description}
+
+
+\paragraph{1D} 
+($c_g = c_s$):
+\begin{description}  
+\item$\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0 $
+\item$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -k \frac{\partial c_s}{\partial x} $
+\item$\frac{\partial \phi}{\partial t} + c_s \frac{\partial \phi}{\partial x} = 0 $
+\item $\frac{\partial a}{\partial t} + c_s \frac{\partial a}{\partial x} = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2} \frac{\partial k}{\partial x}) $
+
+\item$\frac{\partial E}{\partial t} + c_s \frac{\partial E}{\partial x} = -E \frac{\partial  c_s}{\partial x} $
+
+
+\end{description}
+
+Al largo de un rayo (similar a una trayectoria) $x_p(t)$ solución de :
+
+\begin{description}  
+\item$\frac{dx}{dt} = c_s $
+\item$ x(0) = x_p $
+\end{description}
+las dependencias de x se transforman en dependencias de t reemplazando x por $x_p(t) $ 
+
+y reemplazando en las ecuaciones de arriba obtenemos  las ecuaciones diferenciales:
+\begin{description}  
+\item $\frac{d\omega}{dt} = 0$
+\item $\frac{d\phi}{dt} = 0$
+\item $\frac{dk}{dt} = -k \frac{\partial c_s}{\partial x} $
+\item $\frac{da}{dt} = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2}  \frac{\partial c_s}{\partial x}) $
+\item$\frac{dE}{dt} = -E \frac{\partial  c_s}{\partial x} $
+
+\end{description}
+al largo del rayo
+Las ecuaciones ahora no tienen mas derivadas parciales (solo dependen de t) y se pueden integrar más fácil.
+\begin{description}
+\item De la primera se obtiene:  
+\item $ \omega(x_p(t), t)  = constant $
+\end{description}
+Haciendo unos cálculos:
+\begin{description}  
+\item $\frac{dc_s}{dt} =  \frac{\partial c_s}{\partial x} \frac{\partial x}{\partial t} = \frac{\partial c_s}{\partial x}  c_s\implies
+\frac{dk}{dt} = -k  \frac{1}{c_s} \frac{dc_s}{dt} \implies$
+\item $\frac{dln(k)}{dt} = - \frac{dln(c_s)}{dt} \implies $
+\item $ k(x_p(t), t)  c_s(x_p(t)) = constant $
+\item de forma similar $ E(x_p(t), t)  c_s(x_p(t)) = constant $ 
+\end{description}
 
 \textbf{Relación entre las amplitudes}
 
@@ -102,198 +262,266 @@ igual que en caso homogeneo :
 \item de la ecuación de movimiento: 
 \item $\rho_0 \frac{\partial v}{\partial t} = -\nabla \rho\prime \implies -i \rho_0 \omega V e^{i\phi} = i k P e^{i\phi}$
 \item despues de simplificar,  multiplicar cada lado con su conjugado(hay que expresar las amplitudes locales con el módulo porque pueden ser complejas):
-\item  $|V|^2 = \frac{|P|^2}{\rho_0^{2} c_s^2}$ ($|V|= \frac{1}{c_s \rho_0} |P| = \frac{c_s}{p_0 \gamma} |P|$) 
+\item  $|V|^2 = \frac{|P|^2}{\rho_0^{2} c_s^2} \implies$ 
+\item $|V|= \frac{1}{c_s \rho_0} |P| = \frac{c_s}{p_0 \gamma} |P|$ 
 
 
 \end{description}
-
-\paragraph{Resolver la ecuación genérica}
-\begin{description}  
-\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
-\item Reemplazando la solución WKB approx. $p(x,t) = a(x,t) e^{i \phi(x,t)}$ en la ecuación y con las definiciones de $\omega$ y k de arriba despues de hacer los cálculos 
-\item $\omega^{2}(x,t) = c_s^{2}(x) k^2(x,t)$
-\item definiendo $c_g = \frac{\partial \omega}{\partial k}$ :
-\item $\frac{\partial a}{\partial t} + c_g \cdot \nabla a = -\frac{1}{2} \frac{a}{|k| c_s} (\frac{\partial \omega}{\partial t} + c_s^{2} \cdot \nabla k) $
-
-\item $\implies $ 
-\item$\frac{\partial \omega}{\partial t} + c_g \cdot \nabla \omega = 0 $
-\item$\frac{\partial k}{\partial t} + c_g \cdot \nabla k = -k \cdot \nabla c_g $
-
-\item Usamos directamente la ecuación de conservación de energía para determinar la amplitud:
-\item$\frac{\partial E}{\partial t} + c_g \cdot \nabla E = -E \nabla \cdot c_g $
-
-\end{description}
-
-
-\textbf{1D} ($c_s = c_g$):
-\begin{description}  
-\item $\frac{1}{c_s^{2}(x)} \frac{\partial^{2} p\prime}{\partial t^{2}} = \nabla^{2} p\prime    $
-\item$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -c_s $
-\item$\frac{\partial \omega}{\partial t} + c_s \frac{\partial \omega}{\partial x} = 0 $
-\item$\frac{\partial k}{\partial t} + c_s \frac{\partial k}{\partial x} = -k \frac{\partial c_s}{\partial x} $
-\item$\frac{\partial E}{\partial t} + c_s \frac{\partial E}{\partial x} = -E \frac{\partial  c_s}{\partial x} $
-
-
-\end{description}
-
-Al largo de un rayo definido por:
-
-\begin{description}  
-\item$\frac{dx}{dt} = c_s $
-\item$ x_p(t) , x_p(0) = x_p $
-\end{description}
-
-las funciones:
-\begin{description}  
-\item $\omega_p(t) = \omega(x_p(t), t)$
-\item$k_p(t) = k(x_p(t), t)$
-\item$a_p(t) = a(x_p(t), t)$
-\end{description}
-
-verifican las ecuaciones
-\begin{description}  
-\item $\frac{d\omega_p}{dt} = 0$
-\item $\frac{dk_p}{dt} = -k_p \frac{\partial c_s}{\partial x} (x_p(t))$
-\item $\frac{dc_s}{dt}  =  \frac{\partial c_s}{\partial x}(x_p(t)) c_s$
-\end{description}
-
-\begin{description}  
-\item $\frac{dk_p}{dt} = -k_p  \frac{1}{c_s} \frac{dc_s}{dt} \implies$
-\item $\frac{dln(k_p)}{dt} = - \frac{dln(c_s)}{dt} \implies $
-\item $ k(x_p(t), t)  c_s(x_p(t)) = constant $
-\item de forma similar $ E(x_p(t), t)  c_s(x_p(t)) = constant $ 
-\item $ \omega(x_p(t), t)  = constant $
-\end{description}
-
-Ecuación de la energía:
 \begin{description}  
 
-\item $\frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
+\item De las relaciones entre las amplitudes $ \implies \frac{\rho_0 |V|^{2}}{2} = \frac{|P|^{2}} {2 \rho_0 c_s^{2}} $
 \item $E = \frac{|P|^{2}}{\rho_0 c_s^2} $ (la suma de las 2)
-\item $\implies |P(x_p(t),t)| c_s^{\frac{1}{2}}(x_p(t),t) = constant $
-\end{description}
+\item $\implies |P(x_p(t),t)|^2 \rho_0^{-1}(x_p(t))c_s^{-1}(x_p(t)) = constant $
+\item Suponemos que podemos escribir para los puntos al largo del rayo $x_p(t)$ :
+\item $|P| = c_s^{k} \rho_0^{l} p_0^{m} C_{p_P}$
+\item $|R| = c_s^{k} \rho_0^{l_1} p_0^{m_1} C_{p_R}$
+\item $|V| = c_s^{k} \rho_0^{l_2} p_0^{m_2} C_{p_V}$
+\item con $C_{p_P}, C_{p_R} y C_{p_V}$ constantes (que dependen del punto $x_p$)
+\item de la ecuación de conservación de energía al largo del rayo $x_p(t)$:
+ $|P(x_p(t),t)| = const * c_s^{\frac{1}{2}}(x_p(t)) \rho_0^{\frac{1}{2}}(x_p(t)) \implies$
+\item  existen las relaciones: $ k = 2l - \frac{1}{2} = \frac{1}{2} - 2m$ y $2m + 2l = 1$
 
-\begin{description}  
-\item Suponemos que podemos escribir :
-\item $|P| = c_s^{k} \rho_0^{l} p_0^{m} C_{P}$
-\item $|R| = c_s^{k} \rho_0^{l_1} p_0^{m_1} C_{R}$
-\item $|V| = c_s^{k} \rho_0^{l_2} p_0^{m_2} C_{V}$
-\item con $C_{P}, C_{R} y C_{V}$ constantes. Estas relaciones serían válidas aunque $p_0$ no es constante? (TODO: variando de tal forma que se cumplan las condiciones de las aproximaciones : $\rho_0, p_0, c_s$ monotonas variando lentamente)
+\item k se puede dejar como parámetro ya que $\gamma = const = c_s^{2} \rho_0^{-1} p_0^{-1} $ y multiplicando las ecuaciones con $\gamma^{p}$ 
+el parámetro $k\rightarrow k+2p$ 
+\item elegimos $k = l = \frac{1}{2}$ , $m = 0$ 
 \item de las relaciones entre las amplitudes de arriba 
 \item $\frac{|P|}{|R|} = c_s^2 = \rho_0^{l-l_1} p_0^{m-m_1} \frac{C_{P}}{C_{R}}$
 \item Escribimos $c_s^2 = \gamma p_0 \rho_0^{-1}$ y la relación de arriba se tiene que cumplir $\forall x$ (porque consideramos $c_s, \rho_0 y p_0 $ dependiendo de x)
-\item $\implies m - m_1 = 1$, $l-l_1 = -1$ y $\frac{C_P}{C_R} = \gamma$
+\item $\implies m - m_1 = 0$, $l-l_1 = 0$ y $\frac{C_P}{C_R} = \gamma$
 \item $\frac{|P|}{|V|} = c_s \rho_0 = \gamma^{-\frac{1}{2}} p_0^{\frac{1}{2}} \rho_0^{\frac{1}{2}} = \rho_0^{l-l_2} p_0^{m-m_2} \frac{C_P}{C_V}$
 \item $\implies  \frac{C_P}{C_V} =  \gamma^{-\frac{1}{2}}, l-l_2=\frac{1}{2}. m-m_2 = \frac{1}{2} $
-\item Para determinar la relación entre m,l,k introducimos en la ecuación de la energia la expresion de $|P|$
-\item $ c_s^{2k} \rho_0^{2l} p_0^{2m} \rho_0^{-1} c_s^{-2} c_s  $ tiene que ser constante al largo del rayo
-\item Reemplazano $c_s$ : $ \gamma^{k + \frac{1}{2}} p_0^{k-\frac{1}{2}+2m} \rho_0^{-k + 2l -\frac{1}{2}} $ tiene que ser constante al largo del rayo (eligiendo un punto inicial y $\forall t$)
-\item $\implies k = 2l - \frac{1}{2} = \frac{1}{2} - 2m$ y $2m + 2l = 1$
-\item elegimos $k = l = \frac{1}{2}$ , $m = 0$ (TODO eso porque en realidad se puede dejar un parámetro ya que $\gamma = const = c_s^{2} \rho_0^{-1} p_0^{-1} $ y multiplicando las ecuaciones con $\gamma^{p}$ el parámtro $m\rightarrow m+p$ ? o hay que elegir porque todas las amplitudes tienen que cumplir la ecuación diferencial de la amplitud?)
 \item $\implies m_1=-1, l_1 = \frac{3}{2}, l_2 = 0, m_2 = -\frac{1}{2}$
- 
+\item En conclusión: al largo del rayo $x_p(t)$ 
 \item $|P| = c_s^{\frac{1}{2}} \rho_0^{\frac{1}{2}}  C_{P}$
 \item $|R| = c_s^{\frac{1}{2}} \rho_0^{\frac{3}{2}} p_0^{-1} \gamma^{-1} C_{P}$
 \item $|V| = c_s^{\frac{1}{2}}  p_0^{-\frac{1}{2}} \gamma^{\frac{1}{2}} C_{P}$
 
-\item Las amplitudes se calculan al largo del rayo (en la curva determinada por $\frac{dx}{dt} = c_g, x(0) = x_p$): $C_P$ es una constante que depende de los valores en el punto inicial del rayo ($x_p$): $C_P = c_s^{-\frac{1}{2}}(x_p) , \rho_0^{\frac{1}{2}}(x_p)$
+\item con $C_P$ constante que depende de $x_p$ ($C_P = |P(x_p,0)|  c_s^{-\frac{1}{2}} \rho_0^{-\frac{1}{2}}$ donde $|P(x_p,0)|$
+es el valor de la amplitud de la perturbación de la presión en el momento t = 0 y el punto $x_p$ )
 
-\item En el caso de la práctica (con $p_0$ constante ) queremos representar las amplitudes como $const * cs^{\alpha} $ reemplazamos $\rho_0$
-y calculanido al largo del rayo  $\frac{dx}{dt} = c_g, x(0) = x_p$:
-\item $|P(x_p(t),t)| = c_s^{-\frac{1}{2}}(x_p(t)) c_s^{\frac{1}{2}}(x_p) P(x_p,0)  $ (sé en cada momento en cada punto que punto incial en el rayo le corresponde)
-\item las amplitudes de las demás perturbaciones se calculan reemplazando directamente en las relaciones entre las amplitudes (cuando se representa la solución analítica), 
-\item Para ver si el paquete se adapta a la relación representamos las curvas:
-\item para la presión: $ c_s^{-\frac{1}{2}}(x) c_s^{\frac{1}{2}}(x) P(x_0,0) $
-\item densidad: $ c_s^{-\frac{3}{2}}(x) c_s^{\frac{3}{2}}(x_0) R(x_0,0)  $ 
-\item velocidad: $ c_s^{\frac{1}{2}}(x) c_s^{-\frac{1}{2}}(x_0) V(x_0,0)  $ 
-\item eligiendo $x_0$ los 2 puntos donde  los valores de las amplitudes de las perturbación en el momento inicial tienen el mínimo y máximo de 
+\end{description}
+
+\section{Práctica}
+\begin{description}
+\item Definimos una amplitud A(en soundwave\_perturbation\_params.py) muy pequeña y una función periodica h en el intervalo $[x_0, x_f]$ (estos están en constants.py) con amplitud máxima 1 y creeamos las perturbaciones para que cumplan las relaciones entre las amplitudes de arriba:
+\item  $p\prime(x,0) = \gamma p_0 h(x) $ 
+\item  $\rho\prime(x,0) = \rho_0 h(x) $
+\item  $v(x, t) =  c_s h(x) $
+\item h periodica $\implies$ h se puede escribir como una superposición de ondas sinusoidales (componentes Fourier) que viajan a la derecha
+\item Se pueden también definir superposiciones de funciones periodicas que pueden viajar en los 2 sentidos para generar las perturbaciones (condiciones iniciales) 
+(definiendo A, csSign como se explicó arriba y el tipo de función para cada una  : en soundwave\_perturbation\_params.py)
+\end{description}
+
+\paragraph{Wave packet} Elegimos functionType = "wave\_packet" in soundwave\_perturbation\_params.py  (gauss wave packet: los parámetros $z_0,z_c,W$ definidos en sound\_wave\_packet\_params.py))
+\begin{center}
+ $h(x) = e^{- \frac{(x-x_c)^2}{W^2}} cos(2 \pi  k_0 \frac{x - x_0}{x_f - x_0}) $
+\end{center}
+
+\subsection{Medio homogéneo}
+
+\paragraph{Evolución en el tiempo de las variables}
+\begin{description}
+\item $A = 3e-4$
+\item Como las 3 variables: $p\prime, \rho\prime, v$  cumplen las mismas ecuaciones diferenciales consideramos $h_2(x,t)$ solución de la ecuación genérica:   
+ $\frac{1}{c_s^{2}} \frac{\partial^{2} h_2}{\partial t^{2}} = \frac{ \partial^{2} h_2}{\partial x^2}   $ con $c_s$ constante  y condición inicial $h_2(x,0) = h(x)$
+y luego la solución de las 3 variables es multiplcar esta con las amplitudes correspondientes
+
+\item La solución analítica (y que está implemntada) es
+$h_2(x,t) = h(x - c_s t)$
+\item el gráfico de la  funcion inicial (en este caso el paquete de ondas gaussian) no cambia de forma solo se traslada a la derecha con la velocidad $c_s$
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{mainhom.png}
+ \caption{\emph{El paquete de ondas en medio homogeneo en varios instantes del tiempo: boundary conditions: repeat}}
+\end{figure}
+
+\item si la resolución no es buena la amplitud calculada de forma numérica puede crecer. En este caso he tomado nint = 2048 (definido en constants.py)
+y parece que la solución analítica dibujada por encima de la numérica no se desvía mucho de ella.
+\end{description}
+
+
+\paragraph{Fourier}
+\textbf{Equivalencias de las definiciones}:
+
+\begin{description}
+\item La transformada Fourier de la función h se define  (omitiendo dominios):
+$F_h(k) = \int_{- \infty}^{\infty}{h(x) e^{-i k x} dx } $
+ 
+\item para $h(x)$ definida arriba
+
+\item calculo con mathematica (de forma analítica) la siguiente integral
+$f_1(k)=F_h(\frac{2\pi k}{x_f - x_0} ) = \int_{- \infty}^{\infty}{h(x) e^{-\frac{2 \pi i k x }{x_f - x_0}} dx } $
+
+\item calculo con mathematica (de forma analítica) la transformada fourier de h con FourierTransform usando FourierParameters $0, -2\pi$  y obtengo $f_2(k)$
+
+\item Compruebo de forma numerica y analítica que
+$f_1(k) = f_2(\frac{k}{x_f - x_0})$
+
+\item De la teoria sé que si defino los coeficientes: $c(k) = \frac{1}{x_f - x_0} f_1(k) $
+\item  puedo escribir $f(x) = \sum_{k=-\infty}^{\infty} c_k e^{2 \pi i k \frac{x-x_0}{x_f - x_0}}$
+
+\item quiero representar de forma analítica y numeríca $c(k) * (x_f-x_0)$
+\item de forma analítica: calculo en mathematica $f_1(k)$ o obtengo $f2(k)$ y represento  $f_2(\frac{k}{x_f - x_0})$
+
+\item observo que en python los coeficientes calculados (de forma numérica) con scipy.fft son $cp(k) = f_1(\frac{k}{x_f-x_0})$ asi que 
+\item de forma numérica: calculo en python con scipy.fft cp(k) y  represento $cp(k* (x_f - x_0))* (x_f - x_0)$  
+\end{description}
+
+\textbf{Resultado}:
+\begin{description}
+\item después de hacer unos cálculos llego a 
+\item $f_1(k) = \frac{W \sqrt{\pi}}{2} (g_1(k) + g_2(k)) $ con
+\item $g_1(k) =  e^{-\frac{\pi \big[ \pi  W^2 (k + k_0)^2   + 2  i x_c(x_f - x_0)(k+ k_0)   - 2 k_0 i x_0 (x_f-x_0) \big]}{(x_f-x_0)^2}}$
+\item $g_2(k) = e^{-\frac{\pi \big[\pi  W^2 (k - k_0)^2  +2 i x_c(x_f - x_0)(k - k_0)  + 2 k_0 i x_0 (x_f-x_0)\big]}{(x_f - x_0)^2}} $
+
+\item Considerando $x_c$ = 0 las exponenciales $g_1$ y $g_2$ son  gaussianas  con w = $\frac{x_f - x_0}{\pi W}$ la primera centrada en $-k_0$ y la segunda en $k_0$
+\item si calculamos el módulo de cada una  el modulo las constantes $ abs(exp( - 2 k_0 i x_0 (x_f-x_0))) = abs(exp( 2 k_0 i x_0 (x_f-x_0)))  = 1$
+(corresponden al desplazamiento de fase por la elección de $x_c$(el centro de la función gauss) y $x_0$(el centro de la función cos ))
+\item la amplitud  máxima de cada una es $\frac{W \sqrt{\pi}}{2}$ igual que se ve en el gráfico por estar bien separadas (con valores :  z0=3.100, zf = 7.400, k0 = 60, zc = 3.745, W = 0.050) : con rojo había hecho el plot de la función entera y con verde y azul de las 2 partes 
+
+\item \begin{figure}[!ht] 
+ \centering 
+ \includegraphics[scale=0.5]{gauss.png} 
+\end{figure} 
+
+\end{description}
+\textbf{Evolución de $f_1(k)$ en el tiempo}  $c_k * (x_f - x_0)$
+\begin{description}
+\item Si escribimos   $h_2(x,0) = h(x) = \sum_{k=-\infty}^{\infty}c_k e^{2 \pi i k \frac{x-x_0}{x_f-x_0}}$ 
+\item $h_2(x,t) = h(x) = \sum_{k=-\infty}^{\infty}c_k e^{2 \pi i k \frac{x-c_s t-x_0}{x_f-x_0}}$ 
+\item $c_s$ constante $\implies $ los coeficientes quedan los mismos 
+
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{fourhom.png}
+ \caption{\emph{evolución de f1(k)}}
+\end{figure}
+\item Igual que se ve en el gráfico $f_1(k) $ casi no varía en el tiempo (se representó tambien la solución analítica para hacer la comparación).
+La pequeña variación se debe a la resolución (la solución numérica decrece un poco)
 
 
 \end{description}
 
+\paragraph{Condiciones de contorno: reflexión}
+
+\begin{description}
+\item cambiando el parametro periodicType in soundwave\_boundary\_conditions.py  podemos  elegir las condiciones de contorno ("refl" o "repeat")
+\item
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{reflhom.png}
+ \caption{\emph{Evolución en el tiempo de las variables boundary conditions: refl }}
+\end{figure}
+\item TODO: la solución analítica con periodicType="refl" no está todavía implemnetada
+\end{description}
+
+\subsection{Medio inhomogéneo}
+$p_0 $ const y $\rho_0(x) definida:$
+\begin{center}
+	$\rho_{00} + \frac{\rho_{01}-\rho{00}}{2}\big[ 1 + tanh(\frac{z-z_e}{w_e})\big] $
+\end{center}
+
+({\small las configuraciones del medio estan en soundwave\_medium\_params.py mediumType = "homog" o "inhomog" , $rho_{00}$ y 
+los demás parámetros del caso inhomogéneo: $z_e, w_e, \rho_{01}$ })
+
+\newpage
+\paragraph{$\rho_0$ decrece }($\rho_{00} > \rho_{01} $)
 
 
-\section{Transf fourier}
-
-Salida de mathematica de la integral de la transf fourier:
-
-\begin{spverbatim}
-
-$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
-Print[FullSimplify[Integrate[Exp[- (z-zc)^2 / W^2] Cos[2 Pi  k0 (z - z0)/ (zf - z0)] Exp[- 2 Pi I m z / (zf - z0)],  {z, -Infinity, Infinity} ]]]
-
-\end{spverbatim}
-
-$
-f1(m)=F( \frac{2\pi m}{z_f - z_0} ) = \int_{- \infty}^{\infty}{e^{-\frac{(z-z_c)^2}{W^2}} cos(\frac{2 \pi k_0 (z-z_0)}{z_f - z_0}) e^{-\frac{2 \pi i m z }{z_f - z_0}} dz } = $
-
-$\frac{1}{2} e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2+m \left(m \pi  W^2-2 i \text{$z_c$} (\text{$z_0$}-\text{$z_f$})\right)+2 \text{$k_0$} \left(m \pi  W^2+i
-(\text{$z_0$}+\text{$z_c$}) (\text{$z_0$}+\text{$z_f$})\right)\right)}{(\text{$z_0$}-\text{$z_f$})^2}} \left(e^{\frac{4 i \text{$k_0$} \pi  \text{$z_0$} (\text{$z_c$}+\text{$z_f$})}{(\text{$z_0$}-\text{$z_f$})^2}}+e^{\frac{4
-\text{$k_0$} \pi  \left(m \pi  W^2+i \left(\text{$z_0$}^2+\text{$z_c$} \text{$z_f$}\right)\right)}{(\text{$z_0$}-\text{$z_f$})^2}}\right) \sqrt{\pi } W$
 
 
-Salida de FourierTransform mathematica con FourierParameters 0, -2$\pi$ 
+\begin{description}
 
-\begin{verbatim}
+\item Evolución de la presión, densidad, velocidad, $rhoCurve = \frac{\rho- \rho_0}{\rho_0} $)
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{maininhom1.png}
+ \caption{\emph{presion, densidad, velocidad}}
+\end{figure}
 
-$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
-h[z_, k0_, z0_, zf_, zc_, W_]:= Exp[-(z-zc)^2/W^2] Cos[2 Pi k0 (z - z0) / (zf - z0) ]
-Print[FullSimplify[FourierTransform[h[z, k0, z0, zf, zc, W], z, k, FourierParameters->{0,-2 Pi}]] ]
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{rhocinhom1.png}
+ \caption{\emph{rhoCurve}}
+\end{figure}
 
-\end{verbatim}
-$f2(k)=$
+\item Las amplitudes de las perturbaciones de presión , densidad y velocidad  no son mas constantes al largo de los rayos como en el caso homogeneo igual que se ve en el gráfico de arriba, la amplitud de la presion y rhoCurve decrece y la de la velocidad crece (las time derivative  no son mas 0 como en el caso homogeneo)
+\item En el caso homogeneo la solución para $\frac{1}{c_s^{2}} \frac{\partial^{2} h_2}{\partial t^{2}} = \frac{ \partial^{2} h_2}{\partial x^2}   $ con $c_s$ constante  y condición inicial $h_2(x,0) = h(x)$ en terminos de rayos se puede escribir:
+\item al largo del rayo $x_p(t)$ (solución de $\frac{dx}{dt} = c_s, x_p(0) = x_p$) $\frac{dh_2}{dt} = 0$ (time derivative)
+equivalente a $h_2(x_p(t), t) = const = h(x_p)$  
 
-$\frac{1}{2} \left(e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2-2 \text{$k_0$} \left(k \pi  W^2-i \text{$z_0$}+i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})+k
-\left(k \pi  W^2+2 i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})^2\right)}{(\text{$z_0$}-\text{$z_f$})^2}}+ \\
-e^{-\frac{\pi  \left(\text{$k_0$}^2 \pi  W^2+2 \text{$k_0$}
-\left(k \pi  W^2-i \text{$z_0$}+i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})+k \left(k \pi  W^2+2 i \text{$z_c$}\right) (\text{$z_0$}-\text{$z_f$})^2\right)}{(\text{$z_0$}-\text{$z_f$})^2}}\right)
-\sqrt{\pi } W$
+\end{description}
 
-En esta reemplazo k = k / (zf - z0) y los graficos salen iguales ($f1(k) = f2(\frac{k}{z_f - z0})$)
+\newpage
 
+\paragraph{Ray tracing}
 
-Ademas la salida de:
-\begin{spverbatim}
-$Assumptions = {Element[{k0,z0,zf,zc,W}, Reals], k0>0, z0>0, zf >0 , zf >0, zc >0, W>0 }
+\begin{description}
+\item Marcamos en el los gráficos un punto $x_p = x_c$(el centro del paquete) y miramos la evolución en el tiempo desplazandolo en cada paso de tiepo con $c_s dt$. el punto se queda en el centro del paquete. Eso esperabamos porque los rayos son soluciones 
+$x_p(t)$ de $\frac{dx}{dt} = c_g, x_p(0) = x_p$ y las amplitudes de las perturbaciones de presion, densidad y velocidad varian lentamente al largo de ellos  
+\item De las relaciones de  la evolucion teoretica de las amplitudes: en el caso cuando $ p_0$ constante $\implies$  
+\item $|P(x_p(t),t)| c_s^{\frac{1}{2}}(x_p(t),t) = constant $ al largo del rayo $x_p(t)$
+\item y las otras 2 se calculan de las relaciones : $\frac{|P|}{|V|} = c_s \rho_0 , \frac{|P|}{|V|} = c_s^2$
+\item en 1D $c_s=c_g$
+\item la ecuacion de la variación de las amplitudes al largo de los rayos es válida para cualquier $x_p$
 
-f1[m_]:=((E^(((4*I)*k0*Pi*z0*(zc + zf))/(z0 - zf)^2) + E^((4*k0*Pi*(m*Pi*W^2 + I*(z0^2 + zc*zf)))/(z0 - zf)^2))*Sqrt[Pi]*W)/
-  (2*E^((Pi*(k0^2*Pi*W^2 + m*(m*Pi*W^2 - (2*I)*zc*(z0 - zf)) + 2*k0*(m*Pi*W^2 + I*(z0 + zc)*(z0 + zf))))/(z0 - zf)^2))
-f2[k_]:=((E^(-((Pi*(k0^2*Pi*W^2 - 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)) +
-      E^(-((Pi*(k0^2*Pi*W^2 + 2*k0*(k*Pi*W^2 - I*z0 + I*zc)*(z0 - zf) + k*(k*Pi*W^2 + (2*I)*zc)*(z0 - zf)^2))/(z0 - zf)^2)))*Sqrt[Pi]*W)/2
-
-Print[FullSimplify[f1[k]-f2[k/(zf-z0)]]]
-
-\end{spverbatim}
-
-es 0
-
-
-Elijo f2 forma para simplificar (después de hacer los gráficos de los modulos de los valores de la función , tal como imaginaba la primera exponencial corresponde a la gaussiana de las frecuancias negativas y la segunda de las frequencias positivas):
+\item Sabemos de la teoria que al largo del rayo $x_p(t)$ $k(x_p(t),t) * c_s(x_p(t)) = const$ 
+\item Comprobamos la solución numérica: calculamos $k_c$ el k para cual el valor de los coeficientes fourier $c(k)$ calculados con python 
+de forma numerica con scipy.fft para el valor de la presión en el momento t
+\item miramos la evolución en el tiempo de $k_c * c_s(x_p(t)) $ que debería ser constante = $k_0 c_s(x_p)$
 
 
-$f1(k) = f2(\frac{k}{(z_f - z_0)}) = $
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.5]{kcinhom1.png}
+ \caption{\emph{kc * cs(xp(t))}}
+\end{figure}
 
-$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi (k_0^2 \pi  W^2 + 2 k_0 k \pi W^2 + 2 k_0 i  (z_c - z_0) (z_f-z_0)+k^2 \pi W^2 +
-2 i k z_c (z_f - z_0))}{(z_0-z_f)^2}}+e^{-\frac{\pi  (k_0^2 \pi  W^2 - 2 k_0 k \pi  W^2 - 2 k_0 i (z_c - z_0) (z_f-z_0)+k^2 \pi  W^2+2 i k z_c (z_f - z_0))}{(z_0-z_f)^2}}) =
-$
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{pfourinhom1.png}
+ \caption{\emph{f1(k) para la presion}}
+\end{figure}
+\item Deberia ser constante, pero las 
 
-$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi \big[ \pi  W^2 (k + k_0)^2   + 2 k_0 i z_c(z_f - z_0)   - 2 k_0 i z_0 (z_f-z_0) +
-2 i k z_c (z_f - z_0)\big]}{(z_0-z_f)^2}}+e^{-\frac{\pi \big[\pi  W^2 (k - k_0)^2  -2 k_0 i z_c(z_f - z_0)  + 2 k_0 i z_0 (z_f-z_0)+2 i k z_c (z_f - z_0)\big]}{z_0-z_f)^2}}) =
-$
+\item \begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{wwinhom1.png}
+ \caption{\emph{ww}}
+\end{figure}
 
-$ \frac{W \sqrt{\pi}}{2}  (e^{-\frac{\pi \big[ \pi  W^2 (k + k_0)^2   + 2  i z_c(z_f - z_0)(k_0 + k)   - 2 k_0 i z_0 (z_f-z_0) \big]}{(z_0-z_f)^2}}+e^{-\frac{\pi \big[\pi  W^2 (k - k_0)^2  +2 i z_c(z_f - z_0)(k - k_0)  + 2 k_0 i z_0 (z_f-z_0)\big]}{(z_0-z_f)^2}}) =
-$
+\item Deberia ser constante, pero las 
+\end{description}
 
-Considerando $z_c$ = 0 
-las exponenciales son  gaussianas  con w = $\frac{z_f - z_0}{\pi W}$ la primera centrada en $-k_0$ y la segunda en $k_0$
-y cuando calculamos el modulo las constantes $ abs(exp( - 2 k_0 i z_0 (z_f-z_0))) = abs(exp( 2 k_0 i z_0 (z_f-z_0)))  = 1$
-y la amplitud queda $\frac{W \sqrt{\pi}}{2}$ igual que se ve en el gráfico (con valores :  z0=3.100, zf = 7.400, k0 = 60, zc = 3.745, W = 0.050) : con rojo había hecho el plot de la función entera y con verde y azul de las 2 partes al principio para estar segura que correspondían a las 2 partes
+\begin{description}
 
-\begin{figure}[!ht] 
- \centering 
- \includegraphics[scale=0.5]{gauss.png} 
-\end{figure} 
+\item Las amplitudes se calculan al largo del rayo  $x_p(t)$ (la curva solución para  $\frac{dx}{dt} = c_s, x(0) = x_p$): $C_P$ es una constante que depende de los valores en el punto inicial del rayo ($x_p$): $C_P = c_s^{-\frac{1}{2}}(x_p) , \rho_0^{\frac{1}{2}}(x_p)$
+
+\item En la práctica he calculado la solución analítica(los valores de las amplitudes $|P|, |R|, |V|$ ) al largo del rayo $x_p(t)$:
+\item $|P(x_p(t),t)| = c_s^{-\frac{1}{2}}(x_p(t)) c_s^{\frac{1}{2}}(x_p) P(x_p,0)  $
+\item las amplitudes de las demás perturbaciones se calculan reemplazando directamente en las relaciones entre las amplitudes (cuando se representa la solución analítica), 
+\item En el caso de la práctica queremos representar las amplitudes como $const * cs^{\alpha} $ reemplazamos $\rho_0$
+\item Para ver si el paquete se adapta a la relación representamos las curvas:
+\item para la presión: $ c_s^{-\frac{1}{2}}(x) c_s^{\frac{1}{2}}(x) P(x_0,0) $
+\item densidad: $ c_s^{-\frac{3}{2}}(x) c_s^{\frac{3}{2}}(x_0) R(x_0,0)  $ 
+\item velocidad: $ c_s^{\frac{1}{2}}(x) c_s^{-\frac{1}{2}}(x_0) V(x_0,0)  $ 
+\item eligiendo $x_0$ los 2 puntos donde  los valores de las amplitudes de las perturbación en el momento inicial tienen el mínimo y máximo 
+
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{mainInhom1.png}
+ \caption{\emph{Perfil radial de las estrellas de referencia para la alineación}}
+\end{figure}
+
+\begin{figure}[!ht]
+ \centering
+ \includegraphics[scale=0.2]{rhocInhom1.png}
+ \caption{\emph{Perfil radial de las estrellas de referencia para la alineación}}
+\end{figure}
  
+\end{description}
 
 \end{document}
 

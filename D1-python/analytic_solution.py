@@ -32,10 +32,12 @@ elif mediumType == "inhomog":
 
 	
 	#method = 1
-	#method = 2
-	method = 3
+	method = 2
+	#method = 3
 	#method = 4
 
+	useWeave = True
+	#useWeave = False #is weave faster than numpy operations?
 
 	def getWFunctionVals(functiontype, csSign, z, time):
 		if(functiontype != "wavepacket"):
@@ -80,9 +82,22 @@ elif mediumType == "inhomog":
 			csZt = cs00(newZ)
 			#ampIni = getSoundWaveGaussFunction(zc, W)(z)
 			ampIni = getSoundWaveFunction(k0,zc, W)(z)
-			for index in range(z.shape[0]):
+			from constants import loopType,nint
+			if not useWeave or loopType == "python":
+				for index in range(z.shape[0]):
 				#curve[getZIndex(newZ[index])] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
-				curve[getZIndex(newZ[index])] = ampIni[index] * (csZ0[index]  * csZt[index] )** (0.5)
+					curve[getZIndex(newZ[index])] = ampIni[index] * (csZ0[index]  * csZt[index] )** (0.5)
+			else:
+				from scipy.weave import inline, converters
+				from constants import z0, zf
+				code = """
+				for(int index = 0;index<nint+2; index++) {
+					int zIndexNewZ =  int(float(nint)*(newZ(index) - z0)/(zf - z0) + 0.5 );
+					curve(zIndexNewZ) = ampIni(index) * pow((csZ0(index) / csZt(index)), 0.5);
+				}
+				"""
+			inline(code, ['curve', 'ampIni', 'csZ0', 'csZt', 'newZ', 'nint', 'z0', 'zf'],type_converters=converters.blitz)
+
 			#print("curve before interp")
 			#print(curve)
 			nans, x= np.isnan(curve), lambda z: z.nonzero()[0]
@@ -95,9 +110,22 @@ elif mediumType == "inhomog":
 			csZt = cs00(newZ)
 			#ampIni = getSoundWaveGaussFunction(zc, W)(z)
 			ampIni = getSoundWaveFunction(k0, zc, W)(z)
-			for index in range(z.shape[0]):
-				#curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
-				curve[index] = ampIni[index] * (csZ0[index] / csZt[index]) ** (0.5) 
+			from constants import loopType,nint
+			if not useWeave or loopType == "python":
+#				for index in range(z.shape[0]):
+#				#curve[index] = ampIni[index] * csZ0[index] ** (0.5) * csZt[index] ** (-0.5) *  np.cos( 2 * pi * k0 * (csZ0[index]/csZt[index]) / (zf - z0) * ( newZ[index] - csZt[index] * time) - 2 * pi * k0 * z0 / (zf - z0))
+#					curve[index] = ampIni[index] * (csZ0[index] / csZt[index]) ** (0.5)
+				#numpy array operations
+				curve = ampIni * (csZ0 / csZt) ** (0.5)
+			else:
+				from scipy.weave import inline, converters
+				code = """
+				for(int index = 0;index<nint+2; index++) {
+					curve(index) = ampIni(index) * pow((csZ0(index) / csZt(index)), 0.5);
+				}
+				"""
+			inline(code, ['curve', 'ampIni', 'csZ0', 'csZt', 'nint'],type_converters=converters.blitz)
+				 
 		elif method == 4:
 			from common import getZIndex
 			curve = np.full(z.shape, np.nan)

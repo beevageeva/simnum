@@ -44,5 +44,12 @@ def getFirstIndexConstant(y, startIndex, delta):
 			return i+1
 			
 
+def getGaussianLimitRight(y, indexCenter, delta):
+	cval = y[indexCenter]
+	for i in range(indexCenter, len(y)):
+		#print("abs dif RIGH %e rightVal = %e , delta * rightVal = %e"  % (abs(rightVal - y[i]), rightVal, delta * rightVal ))	
+		if y[i]<delta * cval:
+			return i
+	return  None 
 
 

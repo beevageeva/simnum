@@ -7,8 +7,10 @@ from scipy.fftpack import fft,fftfreq#forFourierTransform
 
 
 
-saveImages = False
-#saveImages = True
+#saveImages = False
+saveImages = True
+
+plotTitleEveryAxis = True
 
 def getXLimits(title):
 	if(title == "velFFT" or title == "presFFT"):
@@ -28,14 +30,14 @@ def getYLimits(title):
 			medType = "inhomog2"
 	if(title == "pres"):
 		if medType == "homog":
-			return { "maxY": 1.0005, "minY": 0.9995} #homog
+			return { "maxY": 1.0006, "minY": 0.9994} #homog
 		elif medType == "inhomog1":
 			return { "maxY": 1.0006, "minY": 0.9995} #inhomog1
 		elif medType == "inhomog2":
 			return {  "maxY": 1.002, "minY": 0.998} #inhomog2
 	elif(title == "vel"):
 		if medType == "homog":
-			return	{ "maxY": 0.00035, "minY": -0.00035} 
+			return	{ "maxY": 0.0004, "minY": -0.00035} 
 		elif medType == "inhomog1":
 			return	{ "maxY": 0.0015, "minY": -0.0015} 
 		elif medType == "inhomog2":
@@ -130,7 +132,9 @@ class VisualPlot:
 		for i in range(0, nplots):
 			title = titles[i]
 			self.addAxis(z, ax[i], title, iniValues[i])
-		self.plotTitle = ax[0].set_title("Time 0")
+		#now I piut time in every figure
+		if not plotTitleEveryAxis:
+			self.plotTitle = ax[0].set_title("Time 0")
 		wm = plt.get_current_fig_manager()
 		wm.window.wm_geometry("1000x900+50+50")
 		fig.subplots_adjust(right=0.8)
@@ -251,7 +255,7 @@ class VisualPlot:
 		plt.draw()
 		plt.show(block=False)
 
-	def updateValues(self, title, newValues, newZ = None, sortValues = False):
+	def updateValues(self, title, newValues, newTime, newZ = None, sortValues = False):
 		#TODO newZ as tuple
 		if not newZ is None:
 			sortValues = True
@@ -294,13 +298,20 @@ class VisualPlot:
 					else:
 						newValuesP = newValues[i]
 					self.lines[title][i].set_ydata(newValuesP)
+		if plotTitleEveryAxis:	
+			self.axes[title].set_title("Time %4.4f" % newTime)
 		relimAxis(self.axes[title], title)	
 		
 		
 	def afterUpdateValues(self, newTime):
-		self.plotTitle.set_text("Time %4.4f" % newTime)
+		if not plotTitleEveryAxis:
+			self.plotTitle.set_text("Time %4.4f" % newTime)
 		numFig = 0
 		for fig in self.figures:
+			#this will print over old one:
+			# I should save the var
+			#http://stackoverflow.com/questions/10559144/matplotlib-suptitle-prints-over-old-title
+			#fig.suptitle("Time %4.4f" % newTime)
 			fig.canvas.draw()
 			if saveImages:
 				#make name compatible with ffmpeg
