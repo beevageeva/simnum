@@ -1,3 +1,6 @@
 [submodule "D1-python"]
 	path = D1-python
 	url = https://github.com/beevageeva/simnum-D1-python
+[submodule "D2-python"]
+	path = D2-python
+	url = https://github.com/beevageeva/simnum-D2-python
